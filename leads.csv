@@ -1,0 +1,6 @@
+name,category,phone,address,hours,rating,reviews,city,website_found,email,demo_url,status
+Friendly Pest Control Doral,pest control,,,,5.0,9,Doral,false,,https://your-project.vercel.app/sites/friendly-pest-control-doral/index.html,
+Fog That Bug,pest control,,,,5.0,29,Doral,false,,https://your-project.vercel.app/sites/fog-that-bug/index.html,
+Master Pest Control Inc.,pest control,,,,4.2,103,Doral,false,,https://your-project.vercel.app/sites/master-pest-control-inc/index.html,
+"Suncoast Pest Control Miami, FL",pest control,,,,4.6,23,Doral,false,,https://your-project.vercel.app/sites/suncoast-pest-control-miami-fl/index.html,
+Expert Pest Control Miami,pest control,,,,,,Doral,false,,https://your-project.vercel.app/sites/expert-pest-control-miami/index.html,

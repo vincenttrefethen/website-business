@@ -6,7 +6,11 @@
       "PowerShell(Get-ChildItem \"C:\\\\Users\\\\vintr\\\\.cache\\\\puppeteer\\\\chrome\\\\win64-149.0.7827.22\\\\chrome-win64\" | Where-Object { $_.Length -eq 0 } | Measure-Object | Select-Object -ExpandProperty Count)",
       "PowerShell(Write-Host \"Waiting...\"; Start-Sleep -Seconds 5; Test-Path \"$env:TEMP\\\\chrome-win64-test.zip\")",
       "mcp__Claude_Preview__preview_start",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(node find-leads.js)",
+      "Bash(node build-sites.js)"
     ]
   }
 }
