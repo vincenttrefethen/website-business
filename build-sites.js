@@ -9,6 +9,7 @@ const path = require('path');
 const config = require('./config');
 const { readCSV, writeCSV } = require('./csv-utils');
 const { generateSite, slugify } = require('./fill-template');
+const { generateIndex }        = require('./generate-index');
 
 function git(cmd, cwd) {
   return execSync(cmd, { cwd: cwd || config.GITHUB_REPO_PATH, encoding: 'utf8', stdio: 'pipe' });
@@ -70,6 +71,10 @@ async function buildSites() {
   }
 
   writeCSV(config.LEADS_CSV, leads, config.CSV_HEADERS);
+
+  // Regenerate index.html so the dashboard reflects new sites
+  generateIndex();
+
   log(`[build-sites] Done. ${built} sites built.`);
   return built;
 }

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Website Business — Demo Sites</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --surface2:  #22263a;
+      --border:    #2e3347;
+      --accent:    #6c8eff;
+      --accent2:   #a78bfa;
+      --text:      #e8eaf0;
+      --muted:     #7a80a0;
+      --success:   #4ade80;
+      --radius:    14px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 0 0 64px;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #161929 0%, #1e2240 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 24px 32px;
+      text-align: center;
+    }
+    .header-logo { font-size: 2rem; margin-bottom: 8px; }
+    .header h1 {
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 6px;
+    }
+    .badge {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 4px 14px;
+      border-radius: 99px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .badge strong { color: var(--success); }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 960px;
+      margin: 40px auto 0;
+      padding: 0 20px;
+    }
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Cards ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      text-decoration: none;
+      color: var(--text);
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 32px rgba(108, 142, 255, 0.12);
+    }
+    .card-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface2);
+      border-radius: 10px;
+    }
+    .card-body { flex: 1; min-width: 0; }
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+    .tag {
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      text-transform: capitalize;
+    }
+    .tag-cat {
+      border-color: rgba(108,142,255,0.3);
+      color: var(--accent);
+    }
+    .phone {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+    .card-built {
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+    .card-arrow {
+      color: var(--muted);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      transition: color 0.15s, transform 0.15s;
+    }
+    .card:hover .card-arrow { color: var(--accent); transform: translateX(3px); }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 72px 24px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+    }
+    .empty-icon { font-size: 3rem; margin-bottom: 16px; }
+    .empty h2 { font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; }
+    .empty p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+    .empty code {
+      background: var(--surface2);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      margin-top: 56px;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+    .footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 500px) {
+      .grid { grid-template-columns: 1fr; }
+      .card-icon { width: 40px; height: 40px; font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-logo">🏗️</div>
+    <h1>Website Business — Demo Sites</h1>
+    <p class="header-sub">Auto-generated demo pages for local Miami-area businesses</p>
+    <div class="badge">
+      <strong>0</strong> demos built &nbsp;·&nbsp; Updated Jun 2, 2026, 12:59 PM
+    </div>
+  </header>
+
+  <div class="container">
+    
+    
+    <div class="empty">
+      <div class="empty-icon">📁</div>
+      <h2>No demos built yet</h2>
+      <p>Run <code>node run-morning.js</code> or <code>node build-sites.js</code> to generate your first demo sites.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Generated by <a href="run-morning.js">run-morning.js</a> &nbsp;·&nbsp; Open a card to preview the live demo</p>
+  </div>
+
+</body>
+</html>
