@@ -162,13 +162,34 @@ a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
   opacity:.85;
 }
 
-/* Particle canvas sits above bg, below content */
-#hero-canvas{
-  position:absolute;inset:0;width:100%;height:100%;
-  z-index:0;pointer-events:none;
+/* SVG skyline — above gradient, below particles */
+.hero-silhouette{
+  position:absolute;bottom:0;left:0;width:100%;z-index:1;
+  pointer-events:none;display:block;
 }
 
-.hero-content{position:relative;z-index:1;max-width:880px;margin:0 auto}
+/* Water shimmer animation */
+@keyframes shimmerWave{
+  0%,100%{opacity:.06}
+  50%     {opacity:.22}
+}
+@keyframes shimmerWave2{
+  0%,100%{opacity:.03}
+  50%     {opacity:.14}
+}
+.wsh1{animation:shimmerWave  3.8s ease-in-out infinite}
+.wsh2{animation:shimmerWave2 5.2s ease-in-out 1s   infinite}
+.wsh3{animation:shimmerWave  4.5s ease-in-out 2.1s infinite}
+.wsh4{animation:shimmerWave2 6.0s ease-in-out 0.7s infinite}
+.wsh5{animation:shimmerWave  3.2s ease-in-out 3.4s infinite}
+
+/* Particle canvas — above silhouette, below text */
+#hero-canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  z-index:2;pointer-events:none;
+}
+
+.hero-content{position:relative;z-index:3;max-width:880px;margin:0 auto}
 
 .hero-badge{
   display:inline-flex;align-items:center;gap:.55rem;
@@ -524,6 +545,142 @@ footer{
 <!-- ── HERO ─────────────────────────────────────────────────── -->
 <section class="hero" id="home">
   <div class="hero-bg" id="hero-bg"></div>
+
+  <!-- Miami skyline + yacht silhouette -->
+  <svg class="hero-silhouette" xmlns="http://www.w3.org/2000/svg"
+       viewBox="0 0 1920 380" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs>
+      <!-- Reflection fade — top opaque, bottom transparent -->
+      <linearGradient id="reflFade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#050810" stop-opacity=".18"/>
+        <stop offset="100%" stop-color="#050810" stop-opacity="0"/>
+      </linearGradient>
+      <!-- Water surface gradient — very dark -->
+      <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#080E1C"/>
+        <stop offset="100%" stop-color="#040608"/>
+      </linearGradient>
+    </defs>
+
+    <!-- ─── SKYLINE SILHOUETTE ──────────────────────────── -->
+    <path fill="#0D1736" d="
+      M 0,380 L 0,264
+      L 48,264 L 48,257 L 66,257 L 66,264 L 82,264 L 82,256 L 97,256 L 97,252 L 110,252 L 110,260 L 124,260
+      L 132,260 L 132,252 L 142,252 L 142,246 L 152,246 L 152,252 L 163,252 L 163,244 L 172,244 L 172,252 L 185,252 L 185,260
+      L 198,260 L 198,252 L 208,248 L 214,240 L 219,248 L 225,256 L 236,260
+      L 248,260 L 248,250 L 256,244 L 262,234 L 268,222 L 272,230 L 278,244 L 286,254 L 298,262
+      L 312,262 L 312,248 L 318,236 L 322,220 L 326,202 L 330,182 L 333,162 L 336,142 L 338,124 L 340,108
+        L 342,94 L 344,82 L 346,72 L 348,64 L 350,58 L 352,54 L 354,52 L 356,50 L 357,48
+        L 358,50 L 360,55 L 362,64 L 365,76 L 368,92 L 372,112 L 377,136 L 382,163 L 388,193 L 394,224 L 402,250 L 412,262
+      L 424,262 L 424,246 L 428,234 L 432,216 L 436,195 L 439,172 L 442,148 L 445,124 L 447,100 L 449,78
+        L 451,58 L 453,42 L 455,28 L 457,18 L 459,10 L 461,5 L 462,2 L 463,0
+        L 464,2 L 465,7 L 467,16 L 470,30 L 473,48 L 477,70 L 482,96 L 487,126 L 493,158 L 500,191 L 508,224 L 516,250 L 526,262
+      L 538,262 L 538,252 L 544,252 L 544,262 L 556,262
+      L 564,262 L 564,244 L 568,230 L 572,210 L 576,188 L 579,164 L 582,138 L 584,114 L 586,90 L 588,68
+        L 590,50 L 592,34 L 594,22 L 596,12 L 598,5 L 599,2 L 600,0
+        L 601,2 L 602,7 L 604,16 L 607,30 L 610,50 L 614,74 L 618,102 L 623,134 L 629,168 L 636,202 L 644,234 L 653,256 L 664,264
+      L 678,264 L 678,246 L 682,234 L 687,216 L 691,195 L 695,172 L 698,148 L 701,122 L 703,97 L 705,74
+        L 707,54 L 709,36 L 711,22 L 713,10 L 715,3 L 716,0
+        L 717,3 L 719,10 L 721,22 L 724,38 L 728,60 L 732,87 L 737,118 L 743,152 L 750,188 L 758,224 L 766,252 L 776,264
+      L 790,264 L 790,254 L 797,244 L 803,232 L 808,218 L 812,204 L 815,192 L 817,184 L 819,190 L 822,204 L 827,222 L 834,244 L 843,258 L 856,265
+      L 869,265 L 869,252 L 873,240 L 877,224 L 880,205 L 883,184 L 885,162 L 887,138 L 888,114 L 889,92
+        L 890,72 L 890.5,55 L 891,40 L 891.5,28 L 892,18 L 892.5,10 L 893,4 L 893.3,1
+        L 893.6,4 L 894,10 L 894.5,18 L 895,28 L 895.5,40 L 896,55 L 897,74
+        L 898,95 L 900,120 L 902,148 L 906,178 L 910,210 L 916,238 L 924,258 L 936,265
+      L 950,265 L 950,254 L 957,244 L 963,230 L 968,214 L 972,197 L 975,181 L 977,168 L 979,174 L 982,190 L 987,210 L 993,234 L 1001,252 L 1014,265
+      L 1028,265 L 1028,254 L 1036,246 L 1043,234 L 1049,220 L 1054,206 L 1058,193 L 1061,182 L 1063,175 L 1065,182 L 1068,198 L 1073,218 L 1081,240 L 1092,256 L 1108,265
+      L 1124,265 L 1124,256 L 1133,250 L 1142,240 L 1150,228 L 1157,215 L 1162,202 L 1165,192 L 1167,186 L 1169,192 L 1172,206 L 1178,224 L 1187,244 L 1200,258 L 1218,265
+      L 1235,265 L 1235,258 L 1248,258 L 1248,265 L 1265,265
+      L 1275,265 L 1275,256 L 1285,252 L 1294,244 L 1302,234 L 1308,222 L 1313,212 L 1315,206 L 1317,212 L 1321,226 L 1328,244 L 1338,258 L 1354,265
+      L 1372,265 L 1372,258 L 1386,258 L 1386,265 L 1406,265 L 1406,270 L 1432,270 L 1432,265 L 1462,265 L 1462,268 L 1502,268 L 1502,265 L 1548,265 L 1548,268 L 1598,268 L 1598,265 L 1660,265 L 1660,270 L 1730,270 L 1730,265 L 1820,265 L 1820,268 L 1920,268
+      L 1920,380 Z
+    "/>
+
+    <!-- Roofline highlight — thin stroke traces the building tops -->
+    <path fill="none" stroke="rgba(180,140,255,0.18)" stroke-width="1.2"
+      stroke-linejoin="round" d="
+      M 0,264
+      L 48,264 L 48,257 L 66,257 L 66,264 L 82,264 L 82,256 L 97,256 L 97,252 L 110,252 L 110,260 L 124,260
+      L 132,260 L 132,252 L 142,252 L 142,246 L 152,246 L 152,252 L 163,252 L 163,244 L 172,244 L 172,252 L 185,252 L 185,260
+      L 198,260 L 198,252 L 208,248 L 214,240 L 219,248 L 225,256 L 236,260
+      L 248,260 L 248,250 L 256,244 L 262,234 L 268,222 L 272,230 L 278,244 L 286,254 L 298,262
+      L 312,262 L 312,248 L 318,236 L 322,220 L 326,202 L 330,182 L 333,162 L 336,142 L 338,124 L 340,108
+        L 342,94 L 344,82 L 346,72 L 348,64 L 350,58 L 352,54 L 354,52 L 356,50 L 357,48
+        L 358,50 L 360,55 L 362,64 L 365,76 L 368,92 L 372,112 L 377,136 L 382,163 L 388,193 L 394,224 L 402,250 L 412,262
+      L 424,262 L 424,246 L 428,234 L 432,216 L 436,195 L 439,172 L 442,148 L 445,124 L 447,100 L 449,78
+        L 451,58 L 453,42 L 455,28 L 457,18 L 459,10 L 461,5 L 462,2 L 463,0
+        L 464,2 L 465,7 L 467,16 L 470,30 L 473,48 L 477,70 L 482,96 L 487,126 L 493,158 L 500,191 L 508,224 L 516,250 L 526,262
+      L 538,262 L 538,252 L 544,252 L 544,262 L 556,262
+      L 564,262 L 564,244 L 568,230 L 572,210 L 576,188 L 579,164 L 582,138 L 584,114 L 586,90 L 588,68
+        L 590,50 L 592,34 L 594,22 L 596,12 L 598,5 L 599,2 L 600,0
+        L 601,2 L 602,7 L 604,16 L 607,30 L 610,50 L 614,74 L 618,102 L 623,134 L 629,168 L 636,202 L 644,234 L 653,256 L 664,264
+      L 678,264 L 678,246 L 682,234 L 687,216 L 691,195 L 695,172 L 698,148 L 701,122 L 703,97 L 705,74
+        L 707,54 L 709,36 L 711,22 L 713,10 L 715,3 L 716,0
+        L 717,3 L 719,10 L 721,22 L 724,38 L 728,60 L 732,87 L 737,118 L 743,152 L 750,188 L 758,224 L 766,252 L 776,264
+      L 790,264 L 790,254 L 797,244 L 803,232 L 808,218 L 812,204 L 815,192 L 817,184 L 819,190 L 822,204 L 827,222 L 834,244 L 843,258 L 856,265
+      L 869,265 L 869,252 L 873,240 L 877,224 L 880,205 L 883,184 L 885,162 L 887,138 L 888,114 L 889,92
+        L 890,72 L 890.5,55 L 891,40 L 891.5,28 L 892,18 L 892.5,10 L 893,4 L 893.3,1
+        L 893.6,4 L 894,10 L 894.5,18 L 895,28 L 895.5,40 L 896,55 L 897,74
+        L 898,95 L 900,120 L 902,148 L 906,178 L 910,210 L 916,238 L 924,258 L 936,265
+      L 950,265 L 950,254 L 957,244 L 963,230 L 968,214 L 972,197 L 975,181 L 977,168 L 979,174 L 982,190 L 987,210 L 993,234 L 1001,252 L 1014,265
+      L 1028,265 L 1028,254 L 1036,246 L 1043,234 L 1049,220 L 1054,206 L 1058,193 L 1061,182 L 1063,175 L 1065,182 L 1068,198 L 1073,218 L 1081,240 L 1092,256 L 1108,265
+      L 1124,265 L 1124,256 L 1133,250 L 1142,240 L 1150,228 L 1157,215 L 1162,202 L 1165,192 L 1167,186 L 1169,192 L 1172,206 L 1178,224 L 1187,244 L 1200,258 L 1218,265
+      L 1235,265 L 1235,258 L 1248,258 L 1248,265 L 1265,265
+      L 1275,265 L 1275,256 L 1285,252 L 1294,244 L 1302,234 L 1308,222 L 1313,212 L 1315,206 L 1317,212 L 1321,226 L 1328,244 L 1338,258 L 1354,265
+      L 1372,265 L 1372,258 L 1386,258 L 1386,265
+    "/>
+
+    <!-- ─── YACHTS ──────────────────────────────────────── -->
+
+    <!-- Yacht 1 — sleek motor yacht, left cluster -->
+    <g fill="#0D1736" transform="translate(420,248)">
+      <path d="M 2,17 Q 40,8 100,10 Q 132,10 148,17 Q 130,21 2,21 Z"/>
+      <rect x="38" y="4"  width="72" height="10" rx="2"/>
+      <rect x="52" y="-3" width="44" height="9"  rx="2"/>
+      <rect x="60" y="-9" width="28" height="7"  rx="1"/>
+      <line x1="76" y1="-9"  x2="76" y2="-28" stroke="#0D1736" stroke-width="1.5"/>
+      <line x1="64" y1="-18" x2="88" y2="-18" stroke="#0D1736" stroke-width="1"/>
+      <line x1="76" y1="-28" x2="100" y2="-3" stroke="#0D1736" stroke-width=".8" opacity=".7"/>
+    </g>
+
+    <!-- Yacht 2 — larger motor yacht, mid-right -->
+    <g fill="#0D1736" transform="translate(1090,246)">
+      <path d="M 3,20 Q 45,9 118,11 Q 155,11 170,20 Q 152,24 3,24 Z"/>
+      <rect x="46" y="4"  width="88" height="13" rx="2"/>
+      <rect x="62" y="-4" width="58" height="10" rx="2"/>
+      <rect x="72" y="-12" width="36" height="9" rx="1"/>
+      <line x1="90" y1="-12" x2="90" y2="-36" stroke="#0D1736" stroke-width="1.5"/>
+      <line x1="78" y1="-24" x2="102" y2="-24" stroke="#0D1736" stroke-width="1"/>
+      <line x1="90" y1="-36" x2="120" y2="4"  stroke="#0D1736" stroke-width=".8" opacity=".7"/>
+    </g>
+
+    <!-- Yacht 3 — sailboat silhouette, far right -->
+    <g fill="#0D1736" transform="translate(1580,244)">
+      <path d="M 5,24 Q 28,15 70,16 Q 90,16 100,24 Q 84,28 5,28 Z"/>
+      <line x1="42" y1="15"  x2="42" y2="-62" stroke="#0D1736" stroke-width="2"/>
+      <path d="M 42,14 L 42,-58 L 96,14 Z"/>
+      <path d="M 40,12 L 40,-50 L 4,16 Z" opacity=".8"/>
+      <line x1="42" y1="-62" x2="10" y2="-44" stroke="#0D1736" stroke-width="1" opacity=".6"/>
+    </g>
+
+    <!-- ─── WATER SURFACE ──────────────────────────────── -->
+    <rect x="0" y="265" width="1920" height="115" fill="url(#waterGrad)"/>
+
+    <!-- Water reflection of skyline — very faint, upside-down gradient fill -->
+    <rect x="0" y="265" width="1920" height="60" fill="url(#reflFade)"/>
+
+    <!-- ─── WATER SHIMMER LINES ────────────────────────── -->
+    <line class="wsh1" x1="0" y1="278" x2="1920" y2="278" stroke="#D4AF37" stroke-width="1"/>
+    <line class="wsh2" x1="80" y1="291" x2="1840" y2="291" stroke="#ffffff" stroke-width=".6"/>
+    <line class="wsh3" x1="0" y1="306" x2="1920" y2="306" stroke="#D4AF37" stroke-width=".8"/>
+    <line class="wsh4" x1="120" y1="322" x2="1800" y2="322" stroke="#ffffff" stroke-width=".5"/>
+    <line class="wsh5" x1="0" y1="340" x2="1920" y2="340" stroke="#D4AF37" stroke-width=".6"/>
+    <!-- Short glint streaks — suggests moonlight on water -->
+    <line class="wsh2" x1="580" y1="282" x2="720" y2="282" stroke="#D4AF37" stroke-width="1.5"/>
+    <line class="wsh3" x1="920" y1="295" x2="1040" y2="295" stroke="#D4AF37" stroke-width="1.2"/>
+    <line class="wsh1" x1="1260" y1="285" x2="1380" y2="285" stroke="#ffffff" stroke-width="1.4"/>
+  </svg>
+
   <canvas id="hero-canvas"></canvas>
   <div class="hero-content">
     <div class="hero-badge">
