@@ -105,7 +105,8 @@ function buildServiceCards(category) {
 function generateSite(business) {
   const template = fs.readFileSync(config.SITE_TEMPLATE, 'utf8');
   const category = business.category || 'service';
-  const phoneRaw = (business.phone || '').replace(/\D/g, '');
+  const phone = business.phone || '(305) 555-0100';
+  const phoneRaw = phone.replace(/\D/g, '');
   const color = COLORS[category.toLowerCase()] || '#2563eb';
 
   const html = template
@@ -113,7 +114,7 @@ function generateSite(business) {
     .replace(/{{category}}/g, category)
     .replace(/{{category_title}}/g, titleCase(category))
     .replace(/{{city}}/g, business.city || 'Miami')
-    .replace(/{{phone}}/g, business.phone || '')
+    .replace(/{{phone}}/g, phone)
     .replace(/{{phone_raw}}/g, phoneRaw)
     .replace(/{{address}}/g, business.address || '')
     .replace(/{{primary_color}}/g, color)
