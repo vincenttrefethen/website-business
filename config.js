@@ -12,7 +12,7 @@ module.exports = {
   // Set GITHUB_REPO_PATH to wherever you ran "git init" (can be this folder)
   GITHUB_REPO_PATH: 'C:\\Users\\vintr\\OneDrive\\Documents\\website-business',
   // Base URL after Vercel deploys your repo (update after connecting Vercel)
-  VERCEL_BASE_URL: 'https://website-business-rosy.vercel.app',
+  VERCEL_BASE_URL: 'https://demoready.co',
 
   // ─── File paths ───────────────────────────────────────────────────────────
   ROOT: path.join(__dirname),
