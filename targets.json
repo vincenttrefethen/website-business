@@ -1,0 +1,26 @@
+{
+  "cities": [
+    "Miami",
+    "Miami Beach",
+    "Coral Gables",
+    "Wynwood",
+    "Brickell",
+    "Little Havana",
+    "Doral",
+    "Hialeah",
+    "Kendall",
+    "Aventura"
+  ],
+  "categories": [
+    "plumber",
+    "electrician",
+    "cleaning service",
+    "landscaping",
+    "painter",
+    "handyman",
+    "pest control",
+    "AC repair",
+    "locksmith",
+    "auto repair"
+  ]
+}
