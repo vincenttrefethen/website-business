@@ -94,10 +94,11 @@ function buildServiceCards(category) {
     { icon: '📍', title: 'Local', desc: 'Your neighbors in the community' },
   ];
   return cards.map(c => `
-    <div class="card">
-      <div class="icon">${c.icon}</div>
-      <h3>${c.title}</h3>
-      <p>${c.desc}</p>
+    <div class="service-card reveal">
+      <div class="sc-icon">${c.icon}</div>
+      <div class="sc-title">${c.title}</div>
+      <div class="sc-desc">${c.desc}</div>
+      <div class="sc-arrow">→</div>
     </div>`).join('');
 }
 

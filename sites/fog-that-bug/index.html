@@ -3,245 +3,1143 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fog That Bug — Pest Control in Doral</title>
-  <meta name="description" content="Fog That Bug provides professional pest control services in Doral. Call us today at ." />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta name="category" content="pest control" />
+  <meta name="city"     content="Doral" />
+  <meta name="phone"    content="" />
+  <title>Fog That Bug — Pest Control in Doral, FL</title>
+  <meta name="description" content="Fog That Bug — professional pest control in Doral, FL. Call  for a free estimate." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-    :root {
-      --accent: #F44336;
-      --dark:   #1a1a2e;
-      --light:  #f8f9fa;
-      --text:   #333;
-      --muted:  #666;
-    }
+<style>
+/* ─────────────────────────────────────────────────────────────
+   RESET & TOKENS
+───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      color: var(--text);
-      line-height: 1.6;
-    }
+:root {
+  --navy:        #0A0F1E;
+  --navy2:       #0D1428;
+  --navy3:       #121A35;
+  --gold:        #D4AF37;
+  --gold2:       #EDD060;
+  --gold3:       #F5E088;
+  --white:       #FFFFFF;
+  --white80:     rgba(255,255,255,.8);
+  --white50:     rgba(255,255,255,.5);
+  --white20:     rgba(255,255,255,.2);
+  --white08:     rgba(255,255,255,.08);
+  --white04:     rgba(255,255,255,.04);
+  --gold-glow:   rgba(212,175,55,.35);
+  --gold-dim:    rgba(212,175,55,.12);
+  --glass-bg:    rgba(255,255,255,.055);
+  --glass-border:rgba(255,255,255,.13);
+  --glass-shine: rgba(255,255,255,.18);
+  --shadow-deep: 0 32px 80px rgba(0,0,0,.55), 0 8px 24px rgba(0,0,0,.35);
+  --shadow-gold: 0 0 40px rgba(212,175,55,.22), 0 0 80px rgba(212,175,55,.1);
+  --r-sm: 12px;
+  --r-md: 20px;
+  --r-lg: 28px;
+  --r-xl: 40px;
+  --f-serif: 'Playfair Display', Georgia, serif;
+  --f-sans:  'Inter', -apple-system, sans-serif;
+  --ease:    cubic-bezier(.25,.8,.25,1);
+}
 
-    /* ── Nav ── */
-    nav {
-      background: var(--dark);
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    nav .logo {
-      color: #fff;
-      font-size: 1.2rem;
-      font-weight: 700;
-      text-decoration: none;
-    }
-    nav a.cta-btn {
-      background: var(--accent);
-      color: #fff;
-      padding: .5rem 1.25rem;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: .9rem;
-    }
+html { scroll-behavior: smooth; }
 
-    /* ── Hero ── */
-    .hero {
-      background: linear-gradient(135deg, var(--dark) 0%, #16213e 100%);
-      color: #fff;
-      padding: 5rem 2rem 4rem;
-      text-align: center;
-    }
-    .hero h1 {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      font-weight: 800;
-      margin-bottom: 1rem;
-      line-height: 1.1;
-    }
-    .hero h1 span { color: var(--accent); }
-    .hero p {
-      font-size: 1.2rem;
-      opacity: .85;
-      max-width: 540px;
-      margin: 0 auto 2rem;
-    }
-    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-      padding: .85rem 2rem;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 1.05rem;
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-    }
-    .btn-secondary {
-      background: transparent;
-      color: #fff;
-      border: 2px solid rgba(255,255,255,.4);
-      padding: .85rem 2rem;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1.05rem;
-    }
+body {
+  font-family: var(--f-sans);
+  background: var(--navy);
+  color: var(--white);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
 
-    /* ── Trust bar ── */
-    .trust-bar {
-      background: var(--accent);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      gap: 3rem;
-      padding: 1rem 2rem;
-      flex-wrap: wrap;
-      font-weight: 600;
-      font-size: .95rem;
-    }
-    .trust-bar span { display: flex; align-items: center; gap: .4rem; }
+/* ─────────────────────────────────────────────────────────────
+   ANIMATED MESH BACKGROUND
+───────────────────────────────────────────────────────────── */
+#mesh-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
 
-    /* ── Services ── */
-    .services {
-      padding: 4rem 2rem;
-      background: var(--light);
-      text-align: center;
-    }
-    .services h2 { font-size: 2rem; margin-bottom: .5rem; color: var(--dark); }
-    .services .sub { color: var(--muted); margin-bottom: 2.5rem; }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.5rem;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 2rem 1.5rem;
-      box-shadow: 0 2px 12px rgba(0,0,0,.07);
-    }
-    .card .icon { font-size: 2.5rem; margin-bottom: 1rem; }
-    .card h3 { font-size: 1.1rem; margin-bottom: .5rem; color: var(--dark); }
-    .card p { font-size: .9rem; color: var(--muted); }
+/* ─────────────────────────────────────────────────────────────
+   KEYFRAMES
+───────────────────────────────────────────────────────────── */
+@keyframes fadeUp   { from{opacity:0;transform:translateY(36px)} to{opacity:1;transform:none} }
+@keyframes fadeIn   { from{opacity:0} to{opacity:1} }
+@keyframes scaleIn  { from{opacity:0;transform:scale(.92)} to{opacity:1;transform:scale(1)} }
+@keyframes pulseRing {
+  0%  { box-shadow: 0 0 0 0 rgba(212,175,55,.55), var(--shadow-gold); }
+  70% { box-shadow: 0 0 0 14px rgba(212,175,55,0), var(--shadow-gold); }
+  100%{ box-shadow: 0 0 0 0 rgba(212,175,55,0), var(--shadow-gold); }
+}
+@keyframes shimmer {
+  0%  { background-position: -200% center; }
+  100%{ background-position:  200% center; }
+}
+@keyframes starBounce {
+  0%  {opacity:0;transform:scale(0) rotate(-20deg)}
+  60% {transform:scale(1.3) rotate(5deg)}
+  100%{opacity:1;transform:scale(1) rotate(0)}
+}
+@keyframes floatY {
+  0%,100%{transform:translateY(0)}
+  50%    {transform:translateY(-10px)}
+}
+@keyframes rotateSlow {
+  from{transform:rotate(0deg)} to{transform:rotate(360deg)}
+}
+@keyframes borderGlow {
+  0%,100%{border-color:rgba(212,175,55,.18)}
+  50%    {border-color:rgba(212,175,55,.45)}
+}
 
-    /* ── About ── */
-    .about {
-      padding: 4rem 2rem;
-      max-width: 700px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    .about h2 { font-size: 2rem; margin-bottom: 1rem; color: var(--dark); }
-    .about p { color: var(--muted); font-size: 1.05rem; }
+/* Entrance helpers */
+.e1  {opacity:0;animation:fadeUp  .75s var(--ease) .1s  forwards}
+.e2  {opacity:0;animation:fadeUp  .75s var(--ease) .25s forwards}
+.e3  {opacity:0;animation:fadeUp  .75s var(--ease) .4s  forwards}
+.e4  {opacity:0;animation:fadeUp  .75s var(--ease) .55s forwards}
+.e5  {opacity:0;animation:fadeUp  .75s var(--ease) .7s  forwards}
+.e6  {opacity:0;animation:fadeIn  .6s  var(--ease) .9s  forwards}
+.es  {opacity:0;animation:scaleIn .65s var(--ease) .5s  forwards}
 
-    /* ── CTA strip ── */
-    .cta-strip {
-      background: var(--dark);
-      color: #fff;
-      text-align: center;
-      padding: 4rem 2rem;
-    }
-    .cta-strip h2 { font-size: 2rem; margin-bottom: 1rem; }
-    .cta-strip p { opacity: .8; margin-bottom: 2rem; font-size: 1.05rem; }
-    .phone-big {
-      font-size: clamp(1.8rem, 4vw, 2.8rem);
-      font-weight: 800;
-      color: var(--accent);
-      text-decoration: none;
-      display: block;
-      margin-bottom: 1.5rem;
-    }
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity .65s var(--ease), transform .65s var(--ease);
+}
+.reveal.in { opacity: 1; transform: none; }
 
-    /* ── Footer ── */
-    footer {
-      background: #111;
-      color: rgba(255,255,255,.5);
-      text-align: center;
-      padding: 1.5rem;
-      font-size: .85rem;
-    }
+/* ─────────────────────────────────────────────────────────────
+   LIQUID GLASS MIXIN (shared)
+───────────────────────────────────────────────────────────── */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  position: relative;
+  overflow: hidden;
+}
+/* Inner shine sweep on top edge */
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--glass-shine) 0%, transparent 40%);
+  pointer-events: none;
+  border-radius: inherit;
+}
 
-    /* ── Mobile ── */
-    @media (max-width: 600px) {
-      .trust-bar { gap: 1.25rem; font-size: .85rem; }
-      nav { padding: .75rem 1rem; }
-    }
-  </style>
+/* ─────────────────────────────────────────────────────────────
+   NAV
+───────────────────────────────────────────────────────────── */
+nav {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92%, 880px);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1.5rem;
+  border-radius: var(--r-xl);
+  background: rgba(10,15,30,.65);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(28px) saturate(1.5);
+  -webkit-backdrop-filter: blur(28px) saturate(1.5);
+  animation: fadeIn .5s ease .05s both;
+  transition: background .3s ease, padding .3s ease;
+}
+nav.scrolled {
+  background: rgba(10,15,30,.88);
+  top: 8px;
+}
+.nav-logo {
+  font-family: var(--f-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--white);
+  text-decoration: none;
+  letter-spacing: -.01em;
+  max-width: 55%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nav-phone {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  background: var(--gold);
+  color: var(--navy);
+  padding: .5rem 1.1rem;
+  border-radius: 99px;
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .2s, transform .2s;
+  flex-shrink: 0;
+}
+.nav-phone:hover { background: var(--gold2); transform: scale(1.04); }
+
+/* ─────────────────────────────────────────────────────────────
+   HERO
+───────────────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 7rem 1.5rem 5rem;
+  z-index: 1;
+}
+
+/* Category badge */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .38rem 1.1rem;
+  border-radius: 99px;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold2);
+  margin-bottom: 1.6rem;
+}
+.hero-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: pulseRing 2s ease infinite;
+  flex-shrink: 0;
+}
+
+/* Business name */
+.hero-name {
+  font-family: var(--f-serif);
+  font-size: clamp(2.6rem, 8vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -.025em;
+  margin-bottom: .5rem;
+  color: var(--white);
+  /* Gradient text with gold tint on last word handled via span */
+}
+.hero-name .gold-word {
+  display: block;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold3) 55%, var(--gold) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 5s linear infinite;
+}
+
+/* Category line */
+.hero-cat {
+  font-size: clamp(.95rem, 2vw, 1.15rem);
+  font-weight: 300;
+  color: var(--white50);
+  letter-spacing: .04em;
+  margin-bottom: 2rem;
+}
+
+/* Stars */
+.hero-stars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  margin-bottom: 2.5rem;
+}
+.stars-row { display:flex; gap:4px; }
+.star {
+  font-size: 1.25rem;
+  opacity: 0;
+  animation: starBounce .45s var(--ease) forwards;
+}
+.star:nth-child(1){animation-delay:.7s}
+.star:nth-child(2){animation-delay:.82s}
+.star:nth-child(3){animation-delay:.94s}
+.star:nth-child(4){animation-delay:1.06s}
+.star:nth-child(5){animation-delay:1.18s}
+.stars-label {
+  font-size: .82rem;
+  color: var(--white50);
+  font-weight: 500;
+}
+.stars-label strong { color: var(--gold2); }
+
+/* CTA button */
+.btn-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: .7rem;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+  color: var(--navy);
+  padding: 1.05rem 2.6rem;
+  border-radius: 99px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: .01em;
+  animation: pulseRing 2.2s ease infinite;
+  transition: transform .2s, filter .2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-hero::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.25) 0%,transparent 55%);
+  border-radius:inherit;
+  pointer-events:none;
+}
+.btn-hero:hover { transform:scale(1.04) translateY(-2px); filter:brightness(1.08); }
+
+.btn-icon {
+  width: 34px;
+  height: 34px;
+  background: rgba(10,15,30,.18);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  animation: floatY 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+/* Scroll cue */
+.scroll-cue {
+  position: absolute;
+  bottom: 2.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  color: var(--white20);
+  font-size: .68rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  z-index: 2;
+  animation: fadeIn 1s ease 1.5s both;
+}
+.scroll-line {
+  width: 1px;
+  height: 42px;
+  background: linear-gradient(to bottom, var(--gold-glow), transparent);
+  animation: floatY 2s ease-in-out infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TRUST STRIP
+───────────────────────────────────────────────────────────── */
+.trust-strip {
+  position: relative;
+  z-index: 1;
+  padding: 0 1.5rem;
+  margin-top: -1px;
+}
+.trust-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .75rem;
+}
+.trust-pill {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .55rem 1.1rem;
+  border-radius: 99px;
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--white80);
+  letter-spacing: .02em;
+  transition: border-color .3s, background .3s;
+  animation: borderGlow 3s ease-in-out infinite;
+}
+.trust-pill:hover {
+  background: rgba(212,175,55,.1);
+  border-color: rgba(212,175,55,.4);
+}
+.trust-pill .tp-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SECTION WRAPPER
+───────────────────────────────────────────────────────────── */
+.section {
+  padding: 5.5rem 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+.section-inner { max-width: 960px; margin: 0 auto; }
+
+.section-eyebrow {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: .7rem;
+}
+.section-title {
+  font-family: var(--f-serif);
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.12;
+  margin-bottom: .75rem;
+  color: var(--white);
+}
+.section-sub {
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--white50);
+  max-width: 480px;
+  line-height: 1.75;
+}
+.section-header { margin-bottom: 3rem; }
+
+/* ─────────────────────────────────────────────────────────────
+   ABOUT GLASS CARD
+───────────────────────────────────────────────────────────── */
+.about-section { padding-top: 5rem; }
+
+.about-card {
+  border-radius: var(--r-lg);
+  padding: 3rem;
+  box-shadow: var(--shadow-deep);
+  transition: transform .4s var(--ease), box-shadow .4s var(--ease);
+  animation: borderGlow 4s ease-in-out infinite;
+}
+.about-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-deep), var(--shadow-gold);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3.5rem;
+  align-items: center;
+}
+.about-copy p {
+  font-size: 1rem;
+  font-weight: 300;
+  color: rgba(255,255,255,.72);
+  line-height: 1.85;
+  margin-bottom: 1.1rem;
+}
+.about-copy p:last-child { margin-bottom: 0; }
+.about-copy strong { color: var(--white); font-weight: 600; }
+
+.about-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.stat-block {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--white08);
+}
+.stat-block:first-child { padding-top: 0; }
+.stat-block:last-child  { padding-bottom: 0; border-bottom: none; }
+.stat-num {
+  font-family: var(--f-serif);
+  font-size: 2.6rem;
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: var(--gold); /* fallback */
+  margin-bottom: .25rem;
+}
+.stat-label {
+  font-size: .82rem;
+  font-weight: 400;
+  color: var(--white50);
+  letter-spacing: .03em;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SERVICES SECTION
+───────────────────────────────────────────────────────────── */
+.services-section { background: transparent; }
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.25rem;
+}
+
+.service-card {
+  border-radius: var(--r-md);
+  padding: 2rem 1.6rem 1.75rem;
+  cursor: default;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: borderGlow 4s ease-in-out infinite;
+}
+.service-card:hover {
+  box-shadow: var(--shadow-deep), 0 0 30px rgba(212,175,55,.15);
+  border-color: rgba(212,175,55,.3) !important;
+}
+
+.sc-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, rgba(212,175,55,.18), rgba(212,175,55,.06));
+  border: 1px solid rgba(212,175,55,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.55rem;
+  margin-bottom: 1.25rem;
+  transition: transform .2s, background .2s;
+}
+.service-card:hover .sc-icon {
+  transform: scale(1.08) translateZ(4px);
+  background: linear-gradient(135deg, rgba(212,175,55,.28), rgba(212,175,55,.12));
+}
+.sc-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: .45rem;
+  letter-spacing: -.01em;
+}
+.sc-desc {
+  font-size: .85rem;
+  font-weight: 300;
+  color: var(--white50);
+  line-height: 1.65;
+}
+.sc-arrow {
+  display: inline-block;
+  margin-top: 1.1rem;
+  font-size: .85rem;
+  color: rgba(212,175,55,.4);
+  transition: color .2s, transform .2s;
+}
+.service-card:hover .sc-arrow { color: var(--gold); transform: translateX(4px); }
+
+/* ─────────────────────────────────────────────────────────────
+   HOURS + CONTACT ROW
+───────────────────────────────────────────────────────────── */
+.info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.info-card {
+  border-radius: var(--r-md);
+  padding: 2rem 1.75rem;
+  box-shadow: var(--shadow-deep);
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+  animation: borderGlow 5s ease-in-out 1s infinite;
+}
+.info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-deep), var(--shadow-gold);
+}
+.info-card-label {
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.25rem;
+}
+.hours-grid {
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+}
+.hours-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .88rem;
+}
+.hours-day { color: var(--white50); font-weight: 400; }
+.hours-time { color: var(--white80); font-weight: 500; }
+.hours-row.highlight .hours-day,
+.hours-row.highlight .hours-time { color: var(--gold2); }
+
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: .85rem;
+  font-size: .9rem;
+}
+.ci-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(212,175,55,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.ci-text { color: var(--white80); font-weight: 400; line-height: 1.55; }
+.ci-text a {
+  color: var(--gold2);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color .2s;
+}
+.ci-text a:hover { color: var(--gold3); }
+
+/* ─────────────────────────────────────────────────────────────
+   CTA SECTION
+───────────────────────────────────────────────────────────── */
+.cta-section { text-align: center; }
+
+.cta-card {
+  border-radius: var(--r-xl);
+  padding: 4.5rem 2rem;
+  box-shadow: var(--shadow-deep);
+  position: relative;
+  overflow: hidden;
+  animation: borderGlow 3s ease-in-out infinite;
+}
+/* Radial gold glow inside card */
+.cta-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(212,175,55,.1) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+.cta-card .section-title { margin-bottom: .5rem; }
+.cta-card .section-sub   { margin: 0 auto 1rem; }
+
+.phone-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .85rem;
+  font-family: var(--f-serif);
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  font-weight: 900;
+  color: var(--gold);
+  text-decoration: none;
+  letter-spacing: -.02em;
+  padding: 1.1rem 2.5rem;
+  border-radius: var(--r-lg);
+  background: rgba(212,175,55,.08);
+  border: 1.5px solid rgba(212,175,55,.3);
+  margin: 1.5rem 0 .75rem;
+  animation: pulseRing 2.4s ease infinite;
+  transition: background .2s, border-color .2s, transform .2s;
+  position: relative;
+  z-index: 1;
+}
+.phone-cta:hover {
+  background: rgba(212,175,55,.16);
+  border-color: rgba(212,175,55,.6);
+  transform: scale(1.02);
+}
+.phone-ping {
+  width: 46px; height: 46px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: var(--navy);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  animation: floatY 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.cta-note {
+  font-size: .8rem;
+  color: var(--white20);
+  margin-bottom: 2.25rem;
+  position: relative;
+  z-index: 1;
+}
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+  color: var(--navy);
+  padding: .95rem 2.4rem;
+  border-radius: 99px;
+  font-size: .95rem;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: .01em;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  transition: transform .2s, filter .2s;
+}
+.btn-cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.22) 0%, transparent 55%);
+  pointer-events: none;
+}
+.btn-cta:hover { transform: scale(1.04) translateY(-2px); filter: brightness(1.1); }
+
+/* ─────────────────────────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────────────────────────── */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--white08);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+.footer-inner { max-width: 700px; margin: 0 auto; }
+.footer-name {
+  font-family: var(--f-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--white50);
+  margin-bottom: .5rem;
+}
+.footer-name span { color: var(--gold); }
+.footer-info {
+  font-size: .78rem;
+  color: var(--white20);
+  line-height: 1.9;
+}
+.footer-info a { color: rgba(212,175,55,.5); text-decoration: none; transition: color .2s; }
+.footer-info a:hover { color: var(--gold); }
+.footer-divider {
+  height: 1px;
+  background: var(--white04);
+  margin: 1.1rem 0;
+}
+.footer-credit {
+  font-size: .72rem;
+  color: rgba(255,255,255,.15);
+  margin-top: 1.1rem;
+}
+.footer-credit a {
+  color: rgba(212,175,55,.35);
+  text-decoration: none;
+  transition: color .2s;
+}
+.footer-credit a:hover { color: var(--gold); }
+
+/* ─────────────────────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .about-grid  { grid-template-columns: 1fr; gap: 2rem; }
+  .info-row    { grid-template-columns: 1fr; }
+  .hero-name   { font-size: clamp(2.1rem, 10vw, 3rem); }
+  nav          { top: 10px; padding: .65rem 1rem; }
+  .about-card  { padding: 2rem 1.5rem; }
+  .cta-card    { padding: 3rem 1.5rem; }
+  .phone-cta   { font-size: 1.6rem; padding: .9rem 1.5rem; }
+  .service-grid{ grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 460px) {
+  .service-grid { grid-template-columns: 1fr; }
+  .btn-hero { width: 100%; justify-content: center; }
+  .trust-inner  { gap: .5rem; }
+  .trust-pill   { font-size: .72rem; padding: .45rem .85rem; }
+}
+</style>
 </head>
 <body>
 
-<nav>
-  <a class="logo" href="#">Fog That Bug</a>
-  <a class="cta-btn" href="tel:">Call Now</a>
+<canvas id="mesh-canvas"></canvas>
+
+<!-- ── NAV ──────────────────────────────────────────────────── -->
+<nav id="nav">
+  <a class="nav-logo" href="#">Fog That Bug</a>
+  <a class="nav-phone" href="tel:">
+    <span>📞</span> 
+  </a>
 </nav>
 
+<!-- ── HERO ─────────────────────────────────────────────────── -->
 <section class="hero">
-  <h1>Doral's Trusted<br><span>Pest Control</span></h1>
-  <p>Professional, reliable service when you need it most. Serving Doral and the surrounding area.</p>
-  <div class="hero-btns">
-    <a class="btn-primary" href="tel:">📞 </a>
-    <a class="btn-secondary" href="#services">See Our Services</a>
+
+  <div class="hero-badge glass e1">Pest Control</div>
+
+  <h1 class="hero-name e2">
+    <span class="gold-word">Fog That Bug</span>
+  </h1>
+
+  <p class="hero-cat e3">Professional Pest Control · Doral, FL</p>
+
+  <div class="hero-stars e4">
+    <div class="stars-row">
+      <span class="star">⭐</span>
+      <span class="star">⭐</span>
+      <span class="star">⭐</span>
+      <span class="star">⭐</span>
+      <span class="star">⭐</span>
+    </div>
+    <span class="stars-label"><strong>5.0</strong> &nbsp;·&nbsp; Top-rated in Doral</span>
+  </div>
+
+  <a class="btn-hero e5" href="tel:">
+    <span class="btn-icon">📞</span>
+    
+  </a>
+
+  <div class="scroll-cue e6">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
   </div>
 </section>
 
-<div class="trust-bar">
-  <span>✅ Licensed &amp; Insured</span>
-  <span>⚡ Same-Day Service</span>
-  <span>💯 Satisfaction Guaranteed</span>
-  <span>📍 Doral, FL</span>
+<!-- ── TRUST STRIP ──────────────────────────────────────────── -->
+<div class="trust-strip">
+  <div class="trust-inner">
+    <div class="trust-pill glass reveal"><span class="tp-icon">✅</span> Licensed &amp; Insured</div>
+    <div class="trust-pill glass reveal"><span class="tp-icon">⚡</span> Same-Day Service</div>
+    <div class="trust-pill glass reveal"><span class="tp-icon">🏆</span> 5-Star Rated</div>
+    <div class="trust-pill glass reveal"><span class="tp-icon">💯</span> Satisfaction Guaranteed</div>
+    <div class="trust-pill glass reveal"><span class="tp-icon">📍</span> Doral, Florida</div>
+  </div>
 </div>
 
-<section class="services" id="services">
-  <h2>What We Do</h2>
-  <p class="sub">Quality pest control services at honest prices</p>
-  <div class="cards">
-    
-    <div class="card">
-      <div class="icon">🐜</div>
-      <h3>Ant & Roach</h3>
-      <p>Indoor and outdoor treatments</p>
-    </div>
-    <div class="card">
-      <div class="icon">🦟</div>
-      <h3>Mosquito Control</h3>
-      <p>Yard spray programs</p>
-    </div>
-    <div class="card">
-      <div class="icon">🐀</div>
-      <h3>Rodents</h3>
-      <p>Trapping and exclusion</p>
-    </div>
-    <div class="card">
-      <div class="icon">🏠</div>
-      <h3>Preventive Plans</h3>
-      <p>Monthly protection programs</p>
+<!-- ── ABOUT ────────────────────────────────────────────────── -->
+<section class="section about-section" id="about">
+  <div class="section-inner">
+    <div class="about-card glass reveal">
+      <div class="about-grid">
+        <div class="about-copy">
+          <span class="section-eyebrow">About Us</span>
+          <h2 class="section-title">Doral's Trusted<br>Pest Control</h2>
+          <p>
+            <strong>Fog That Bug</strong> has been serving Doral and the greater
+            Miami area with dedication and pride. We are a locally owned and operated
+            pest control company built on honesty, reliability, and exceptional craftsmanship.
+          </p>
+          <p>
+            Every job — big or small — gets our complete attention. Our team is fully
+            licensed, insured, and committed to getting it done right the first time.
+            No shortcuts. No surprises on your bill.
+          </p>
+          <p>
+            When you call us, a real person picks up. We show up when we say we will.
+            That's the <strong>Fog That Bug</strong> promise.
+          </p>
+        </div>
+        <div class="about-stats">
+          <div class="stat-block">
+            <div class="stat-num">10+</div>
+            <div class="stat-label">Years serving Doral</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-num">500+</div>
+            <div class="stat-label">Happy customers</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-num">5.0 ★</div>
+            <div class="stat-label">Average Google rating</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="about">
-  <h2>About Fog That Bug</h2>
-  <p>We're a locally owned pest control company proudly serving Doral and the greater Miami area. Our team is licensed, insured, and committed to getting the job done right the first time — every time.</p>
+<!-- ── SERVICES ─────────────────────────────────────────────── -->
+<section class="section services-section" id="services">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">What We Do</span>
+      <h2 class="section-title">Pest Control Services</h2>
+      <p class="section-sub">Quality work, honest prices — every single time.</p>
+    </div>
+    <div class="service-grid">
+      
+    <div class="service-card reveal">
+      <div class="sc-icon">🐜</div>
+      <div class="sc-title">Ant & Roach</div>
+      <div class="sc-desc">Indoor and outdoor treatments</div>
+      <div class="sc-arrow">→</div>
+    </div>
+    <div class="service-card reveal">
+      <div class="sc-icon">🦟</div>
+      <div class="sc-title">Mosquito Control</div>
+      <div class="sc-desc">Yard spray programs</div>
+      <div class="sc-arrow">→</div>
+    </div>
+    <div class="service-card reveal">
+      <div class="sc-icon">🐀</div>
+      <div class="sc-title">Rodents</div>
+      <div class="sc-desc">Trapping and exclusion</div>
+      <div class="sc-arrow">→</div>
+    </div>
+    <div class="service-card reveal">
+      <div class="sc-icon">🏠</div>
+      <div class="sc-title">Preventive Plans</div>
+      <div class="sc-desc">Monthly protection programs</div>
+      <div class="sc-arrow">→</div>
+    </div>
+    </div>
+  </div>
 </section>
 
-<section class="cta-strip">
-  <h2>Ready to Get Started?</h2>
-  <p>Call us now for a free estimate. We pick up.</p>
-  <a class="phone-big" href="tel:"></a>
-  <a class="btn-primary" href="tel:" style="display:inline-flex;margin:0 auto;">📞 Call Fog That Bug</a>
+<!-- ── HOURS + CONTACT ──────────────────────────────────────── -->
+<section class="section" id="contact">
+  <div class="section-inner">
+    <div class="info-row">
+
+      <!-- Hours -->
+      <div class="info-card glass reveal">
+        <div class="info-card-label">Business Hours</div>
+        <div class="hours-grid">
+          <div class="hours-row highlight">
+            <span class="hours-day">Mon – Fri</span>
+            <span class="hours-time">7:00 AM – 7:00 PM</span>
+          </div>
+          <div class="hours-row highlight">
+            <span class="hours-day">Saturday</span>
+            <span class="hours-time">8:00 AM – 5:00 PM</span>
+          </div>
+          <div class="hours-row">
+            <span class="hours-day">Sunday</span>
+            <span class="hours-time">Emergencies Only</span>
+          </div>
+          <div class="hours-row" style="margin-top:.5rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.07)">
+            <span class="hours-day" style="color:var(--gold2);font-weight:500">24/7 Emergency</span>
+            <span class="hours-time" style="color:var(--gold2)">Available</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="info-card glass reveal">
+        <div class="info-card-label">Get In Touch</div>
+        <div class="contact-list">
+          <div class="contact-item">
+            <div class="ci-icon">📞</div>
+            <div class="ci-text">
+              <a href="tel:"></a><br>
+              <span style="font-size:.78rem;color:var(--white20)">Tap to call — we pick up</span>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon">📍</div>
+            <div class="ci-text">
+              <br>
+              <a href="https://maps.google.com/?q=Fog That Bug+Doral+FL" target="_blank" rel="noopener"
+                 style="font-size:.78rem">Open in Google Maps →</a>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon">🌎</div>
+            <div class="ci-text">
+              Serving Doral &amp; greater Miami area<br>
+              <span style="font-size:.78rem;color:var(--white20)">Licensed &amp; insured in Florida</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </section>
 
+<!-- ── CTA ──────────────────────────────────────────────────── -->
+<section class="section cta-section">
+  <div class="section-inner">
+    <div class="cta-card glass reveal">
+      <span class="section-eyebrow">Free Estimates</span>
+      <h2 class="section-title">Ready to Get Started?</h2>
+      <p class="section-sub">Call us now — we pick up. Fast response, honest pricing, and work that's guaranteed.</p>
+      <a class="phone-cta" href="tel:">
+        <span class="phone-ping">📞</span>
+        
+      </a>
+      <p class="cta-note">Mon–Sat 7am–7pm &nbsp;·&nbsp; Emergency service available</p>
+      <a class="btn-cta" href="tel:">Call Fog That Bug Now</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ───────────────────────────────────────────────── -->
 <footer>
-  &copy; 2026 Fog That Bug · Doral, FL · 
+  <div class="footer-inner">
+    <div class="footer-name">Fog That Bug <span>·</span> Doral, FL</div>
+    <div class="footer-divider"></div>
+    <div class="footer-info">
+      <a href="tel:"></a> &nbsp;·&nbsp; Doral, Florida<br>
+      &copy; 2026 Fog That Bug. All rights reserved.
+    </div>
+    <div class="footer-credit">
+      Site preview by <a href="https://vincenttrefethen.com" target="_blank" rel="noopener">Vincent Trefethen</a>
+      &nbsp;·&nbsp; <a href="https://vincenttrefethen.com" target="_blank" rel="noopener">vincenttrefethen.com</a>
+    </div>
+  </div>
 </footer>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   ANIMATED MESH / PARTICLE BACKGROUND
+───────────────────────────────────────────────────────────── */
+(function () {
+  const canvas = document.getElementById('mesh-canvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H, orbs;
+
+  const ORBS = [
+    { xr:.18, yr:.12, r:.32, color:'rgba(212,175,55,.055)', speed:.00018 },
+    { xr:.82, yr:.75, r:.28, color:'rgba(28,37,65,.9)',     speed:.00022 },
+    { xr:.55, yr:.45, r:.22, color:'rgba(212,175,55,.035)', speed:.00014 },
+    { xr:.1,  yr:.8,  r:.2,  color:'rgba(20,30,60,.7)',     speed:.0002  },
+    { xr:.9,  yr:.2,  r:.18, color:'rgba(212,175,55,.025)', speed:.00016 },
+  ];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    orbs = ORBS.map(o => ({
+      x:   o.xr * W,
+      y:   o.yr * H,
+      r:   Math.max(W, H) * o.r,
+      color: o.color,
+      ox:  o.xr * W,
+      oy:  o.yr * H,
+      phase: Math.random() * Math.PI * 2,
+      speed: o.speed,
+    }));
+  }
+
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    /* deep base */
+    ctx.fillStyle = '#0A0F1E';
+    ctx.fillRect(0, 0, W, H);
+
+    for (const orb of orbs) {
+      orb.x = orb.ox + Math.sin(t * orb.speed + orb.phase)        * W * .06;
+      orb.y = orb.oy + Math.cos(t * orb.speed * .7 + orb.phase)   * H * .07;
+      const g = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.r);
+      g.addColorStop(0, orb.color);
+      g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    /* subtle grid */
+    ctx.strokeStyle = 'rgba(255,255,255,.022)';
+    ctx.lineWidth   = .5;
+    const step = 80;
+    for (let x = 0; x < W; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += step) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize, { passive: true });
+  resize();
+  requestAnimationFrame(draw);
+})();
+
+/* ─────────────────────────────────────────────────────────────
+   NAV SHRINK
+───────────────────────────────────────────────────────────── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 80);
+}, { passive: true });
+
+/* ─────────────────────────────────────────────────────────────
+   SCROLL REVEAL
+───────────────────────────────────────────────────────────── */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const siblings = [...e.target.closest('section, .trust-strip, div')
+      .querySelectorAll('.reveal:not(.in)')];
+    const idx = siblings.indexOf(e.target);
+    e.target.style.transitionDelay = `${Math.min(idx * .09, .45)}s`;
+    e.target.classList.add('in');
+    io.unobserve(e.target);
+  });
+}, { threshold: .1, rootMargin: '0px 0px -32px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ─────────────────────────────────────────────────────────────
+   3D TILT — SERVICE CARDS
+───────────────────────────────────────────────────────────── */
+document.querySelectorAll('.service-card').forEach(card => {
+  card.addEventListener('pointermove', e => {
+    const r  = card.getBoundingClientRect();
+    const nx = (e.clientX - r.left) / r.width  - .5;   // -0.5 → 0.5
+    const ny = (e.clientY - r.top)  / r.height - .5;
+    card.style.transform = `perspective(600px) rotateY(${nx*16}deg) rotateX(${-ny*12}deg) translateZ(6px)`;
+  });
+  card.addEventListener('pointerleave', () => {
+    card.style.transform = '';
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────
+   PARALLAX MESH ON SCROLL
+───────────────────────────────────────────────────────────── */
+window.addEventListener('scroll', () => {
+  const y = window.scrollY * .04;
+  document.getElementById('mesh-canvas').style.transform = `translateY(${y}px)`;
+}, { passive: true });
+</script>
 
 </body>
 </html>

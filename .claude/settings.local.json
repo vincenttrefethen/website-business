@@ -10,7 +10,8 @@
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
       "Bash(node find-leads.js)",
-      "Bash(node build-sites.js)"
+      "Bash(node build-sites.js)",
+      "Bash(git commit *)"
     ]
   }
 }
