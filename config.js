@@ -34,8 +34,12 @@ module.exports = {
   TARGETS_FILE:      path.join(__dirname, 'targets.json'),
   SITE_TEMPLATE:     path.join(__dirname, 'site-template.html'),
 
+  ROTATION_LOG: path.join(__dirname, 'rotation-log.json'),
+
   // ─── Behaviour ────────────────────────────────────────────────────────────
-  MAX_LEADS_PER_RUN: 10,
+  MAX_LEADS_PER_RUN:   100,  // total leads per morning run
+  COMBOS_PER_RUN:        5,  // city+category combinations scraped in parallel
+  MAX_LEADS_PER_COMBO:  20,  // leads per combination
   VERCEL_DEPLOY_WAIT_MS: 15000,
   PUPPETEER_TIMEOUT: 30000,
 

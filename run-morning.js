@@ -60,6 +60,11 @@ async function main() {
     return `✓ ${v}`;
   };
 
+  const leadsResult  = results[0]?.ok ? results[0].result : null;
+  const comboSection = leadsResult?.combos
+    ? `\nCombinations searched:\n${leadsResult.combos}\n  Rotation: ${leadsResult.rotation}`
+    : '';
+
   const report = [
     `DemoReady Morning Pipeline Report`,
     `Run at: ${runAt}`,
@@ -69,12 +74,13 @@ async function main() {
     ),
     ``,
     `Quick summary:`,
-    `  Leads found:    ${results[0].ok ? results[0].result : 'N/A'}`,
-    `  Sites built:    ${results[1].ok ? results[1].result : 'N/A'}`,
-    `  Contacts found: ${results[2].ok ? results[2].result : 'N/A'}`,
-    `  WA queued:      ${results[3].ok ? (results[3].result?.waSent      ?? results[3].result) : 'N/A'}`,
-    `  Email drafts:   ${results[3].ok ? (results[3].result?.emailDrafted ?? 'N/A') : 'N/A'}`,
+    `  Leads found:    ${leadsResult?.total ?? leadsResult ?? 'N/A'}`,
+    `  Sites built:    ${results[1]?.ok ? results[1].result : 'N/A'}`,
+    `  Contacts found: ${results[2]?.ok ? results[2].result : 'N/A'}`,
+    `  WA queued:      ${results[3]?.ok ? (results[3].result?.waSent      ?? results[3].result) : 'N/A'}`,
+    `  Email drafts:   ${results[3]?.ok ? (results[3].result?.emailDrafted ?? 'N/A') : 'N/A'}`,
     `  Follow-ups:     ${results[4]?.ok ? results[4].result : 'N/A'}`,
+    comboSection,
     ``,
   ].join('\n');
 

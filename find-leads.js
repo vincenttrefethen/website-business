@@ -1,37 +1,39 @@
 /**
  * SKILL 1 — find-leads.js
- * Searches Google Maps for businesses without websites, saves to leads.csv
+ *
+ * Scrapes Google Maps for local businesses without websites.
+ *
+ * Each morning run:
+ *   • Picks COMBOS_PER_RUN (5) fresh city+category pairs via rotation.js
+ *   • Scrapes all 5 in parallel (one Puppeteer page each)
+ *   • Targets MAX_LEADS_PER_COMBO (20) no-website businesses per combo
+ *   • Deduplicates against leads.csv + leads-archive.csv
+ *   • Writes up to MAX_LEADS_PER_RUN (100) new leads to leads.csv
+ *   • Returns a summary object for the morning report
  */
 
+'use strict';
+
 const puppeteer = require('puppeteer');
-const fs = require('fs');
-const path = require('path');
+const fs  = require('fs');
 const config = require('./config');
 const { readCSV, writeCSV } = require('./csv-utils');
+const { pickCombos, rotationStats } = require('./rotation');
 
-function getTodaysTargets() {
-  const targets = JSON.parse(fs.readFileSync(config.TARGETS_FILE, 'utf8'));
-  // Rotate through all city+category combos by day number
-  const dayIndex = Math.floor(Date.now() / 86400000) % targets.cities.length;
-  return {
-    city: targets.cities[dayIndex],
-    category: targets.categories[dayIndex],
-  };
-}
+// ─── Per-page scraping helpers ────────────────────────────────────────────────
 
 function buildSearchUrl(category, city) {
-  const q = encodeURIComponent(`${category} in ${city}`);
-  return `https://www.google.com/maps/search/${q}`;
+  return `https://www.google.com/maps/search/${encodeURIComponent(`${category} in ${city}`)}`;
 }
 
-async function scrollFeed(page) {
-  const feedSelector = 'div[role="feed"]';
-  for (let i = 0; i < 5; i++) {
-    await page.evaluate((sel) => {
-      const el = document.querySelector(sel);
-      if (el) el.scrollBy(0, 600);
-    }, feedSelector);
-    await new Promise(r => setTimeout(r, 1200));
+async function scrollFeed(page, passes = 6) {
+  const sel = 'div[role="feed"]';
+  for (let i = 0; i < passes; i++) {
+    await page.evaluate(s => {
+      const el = document.querySelector(s);
+      if (el) el.scrollBy(0, 700);
+    }, sel);
+    await new Promise(r => setTimeout(r, 900));
   }
 }
 
@@ -45,26 +47,24 @@ async function getPlaceUrls(page) {
 async function scrapeBusinessDetails(page, placeUrl) {
   try {
     await page.goto(placeUrl, { waitUntil: 'domcontentloaded', timeout: config.PUPPETEER_TIMEOUT });
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 1800));
 
     const name = await page.$eval('h1', el => el.textContent.trim()).catch(() => '');
     if (!name) return null;
 
-    // Website link — if present this business is excluded
+    // Has website? → skip
     const websiteUrl = await page.$eval(
-      'a[data-item-id="authority"], a[aria-label*="website" i], a[href*="http"]:not([href*="google"]):not([href*="maps"])',
+      'a[data-item-id="authority"], a[aria-label*="website" i]',
       el => el.href
     ).catch(() => null);
 
-    // Google Maps phone — try three selectors in order of reliability
+    // Phone — three-tier fallback
     const phone = await page.evaluate(() => {
-      // 1. data-item-id="phone:tel:..." button (most reliable)
       const byId = document.querySelector('[data-item-id^="phone"]');
       if (byId) {
         const inner = byId.querySelector('.Io6YTe, .rogA2c, .fontBodyMedium');
         return (inner || byId).textContent.trim();
       }
-      // 2. aria-label containing a phone number pattern
       const byAria = [...document.querySelectorAll('[aria-label]')].find(el =>
         /\(\d{3}\)\s*\d{3}[-\s]\d{4}/.test(el.getAttribute('aria-label') || '')
       );
@@ -72,15 +72,16 @@ async function scrapeBusinessDetails(page, placeUrl) {
         const m = byAria.getAttribute('aria-label').match(/\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]\d{4}/);
         return m ? m[0].trim() : '';
       }
-      // 3. Any button whose text content looks like a US phone number
-      const byText = [...document.querySelectorAll('button, [role="button"]')].find(b =>
+      const byText = [...document.querySelectorAll('button,[role="button"]')].find(b =>
         /^\+?1?\s*\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]\d{4}$/.test(b.textContent.trim())
       );
       return byText ? byText.textContent.trim() : '';
     });
 
     const address = await page.evaluate(() => {
-      const el = document.querySelector('button[data-item-id="address"] .Io6YTe, [data-item-id="address"] span');
+      const el = document.querySelector(
+        'button[data-item-id="address"] .Io6YTe, [data-item-id="address"] span'
+      );
       return el ? el.textContent.trim() : '';
     });
 
@@ -90,7 +91,9 @@ async function scrapeBusinessDetails(page, placeUrl) {
     ).catch(() => '');
 
     const reviews = await page.evaluate(() => {
-      const el = [...document.querySelectorAll('span, button')].find(el => /\d+\s*reviews?/i.test(el.getAttribute('aria-label') || ''));
+      const el = [...document.querySelectorAll('span,button')].find(
+        e => /\d+\s*reviews?/i.test(e.getAttribute('aria-label') || '')
+      );
       if (el) {
         const m = (el.getAttribute('aria-label') || '').match(/[\d,]+/);
         return m ? m[0].replace(/,/g, '') : '';
@@ -104,108 +107,174 @@ async function scrapeBusinessDetails(page, placeUrl) {
     ).catch(() => '');
 
     return { name, phone, address, rating, reviews, hours, websiteUrl };
-  } catch (err) {
+  } catch {
     return null;
   }
 }
 
-async function findLeads() {
-  const { city, category } = getTodaysTargets();
-  console.log(`[find-leads] Target: ${category} in ${city}`);
+// ─── Scrape one city + category combination ───────────────────────────────────
 
-  const existingLeads = readCSV(config.LEADS_CSV, config.CSV_HEADERS);
-  const archive = readCSV(config.ARCHIVE_CSV, config.CSV_HEADERS);
+async function scrapeCombo(browser, combo, skipNames, targetCount) {
+  const { city, category } = combo;
+  const tag  = `[${category} / ${city}]`;
+  const page = await browser.newPage();
+
+  const found = [];
+
+  try {
+    await page.setViewport({ width: 1280, height: 800 });
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
+      '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+    );
+
+    const searchUrl = buildSearchUrl(category, city);
+    console.log(`  ${tag} → ${searchUrl}`);
+
+    await page.goto(searchUrl, { waitUntil: 'networkidle2', timeout: config.PUPPETEER_TIMEOUT });
+
+    // Dismiss cookie/consent banners
+    await page.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')]
+        .find(b => /accept|agree/i.test(b.textContent));
+      if (btn) btn.click();
+    });
+    await new Promise(r => setTimeout(r, 800));
+
+    // Wait for results feed
+    await page.waitForSelector('div[role="feed"]', { timeout: 12000 })
+      .catch(() => console.warn(`  ${tag} Feed not found`));
+
+    await scrollFeed(page);
+    const placeUrls = await getPlaceUrls(page);
+    console.log(`  ${tag} ${placeUrls.length} listings found`);
+
+    for (const url of placeUrls) {
+      if (found.length >= targetCount) break;
+
+      const details = await scrapeBusinessDetails(page, url);
+      if (!details?.name) continue;
+
+      const key = details.name.toLowerCase();
+      if (skipNames.has(key)) {
+        console.log(`  ${tag} skip (seen): ${details.name}`);
+        continue;
+      }
+      if (details.websiteUrl) {
+        console.log(`  ${tag} skip (website): ${details.name}`);
+        continue;
+      }
+
+      console.log(`  ${tag} ✓ ${details.name}`);
+      skipNames.add(key); // prevent dupes across parallel combos
+      found.push({
+        name:          details.name,
+        category,
+        phone:         details.phone   || '',
+        address:       details.address || '',
+        hours:         details.hours   || '',
+        rating:        details.rating  || '',
+        reviews:       details.reviews || '',
+        city,
+        website_found: 'false',
+        email:         '',
+        demo_url:      '',
+        status:        '',
+        outreach_date: '',
+      });
+
+      await new Promise(r => setTimeout(r, 1200));
+    }
+  } catch (err) {
+    console.error(`  ${tag} Fatal error: ${err.message}`);
+  } finally {
+    await page.close();
+  }
+
+  console.log(`  ${tag} Done — ${found.length} leads`);
+  return { combo, found };
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+
+async function findLeads() {
+  const targets = JSON.parse(fs.readFileSync(config.TARGETS_FILE, 'utf8'));
+  const stats   = rotationStats(targets);
+
+  console.log(
+    `[find-leads] Rotation: ${stats.used}/${stats.total} used` +
+    ` (${stats.daysLeft} days of combos remaining)`
+  );
+
+  // Pick fresh combos
+  const combos = pickCombos(targets, config.COMBOS_PER_RUN);
+  console.log(`[find-leads] Today's combos:`);
+  combos.forEach((c, i) => console.log(`  ${i + 1}. ${c.category} in ${c.city}`));
+
+  // Build global skip set from existing CSV + archive
+  const existing = readCSV(config.LEADS_CSV,   config.CSV_HEADERS);
+  const archive  = readCSV(config.ARCHIVE_CSV, config.CSV_HEADERS);
   const skipNames = new Set([
-    ...existingLeads.map(r => r.name.toLowerCase()),
-    ...archive.map(r => r.name.toLowerCase()),
+    ...existing.map(r => r.name.toLowerCase()),
+    ...archive.map(r  => r.name.toLowerCase()),
   ]);
+  console.log(`[find-leads] Skipping ${skipNames.size} already-known businesses`);
 
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: config.CHROME_PATH,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    args: [
+      '--no-sandbox', '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage', '--disable-gpu',
+    ],
   });
 
-  const newLeads = [];
+  const startMs = Date.now();
 
+  // Run all combos in parallel — one page per combo
+  let results;
   try {
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1280, height: 800 });
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-
-    const searchUrl = buildSearchUrl(category, city);
-    console.log(`[find-leads] Navigating: ${searchUrl}`);
-    await page.goto(searchUrl, { waitUntil: 'networkidle2', timeout: config.PUPPETEER_TIMEOUT });
-
-    // Dismiss cookie consent if present
-    await page.evaluate(() => {
-      const btn = [...document.querySelectorAll('button')].find(b => /accept|agree/i.test(b.textContent));
-      if (btn) btn.click();
-    });
-    await new Promise(r => setTimeout(r, 1000));
-
-    // Wait for the results feed
-    await page.waitForSelector('div[role="feed"]', { timeout: 15000 }).catch(() => {
-      console.warn('[find-leads] Feed not found — Google may have changed layout');
-    });
-
-    await scrollFeed(page);
-    const placeUrls = await getPlaceUrls(page);
-    console.log(`[find-leads] Found ${placeUrls.length} place URLs`);
-
-    for (const url of placeUrls) {
-      if (newLeads.length >= config.MAX_LEADS_PER_RUN) break;
-
-      const details = await scrapeBusinessDetails(page, url);
-      if (!details || !details.name) continue;
-      if (skipNames.has(details.name.toLowerCase())) {
-        console.log(`[find-leads] Skip (already seen): ${details.name}`);
-        continue;
-      }
-      if (details.websiteUrl) {
-        console.log(`[find-leads] Skip (has website): ${details.name}`);
-        continue;
-      }
-
-      console.log(`[find-leads] Lead found: ${details.name}`);
-      newLeads.push({
-        name: details.name,
-        category,
-        phone: details.phone,
-        address: details.address,
-        hours: details.hours,
-        rating: details.rating,
-        reviews: details.reviews,
-        city,
-        website_found: 'false',
-        email: '',
-        demo_url: '',
-        status: '',
-      });
-
-      await new Promise(r => setTimeout(r, 1500));
-    }
+    results = await Promise.all(
+      combos.map(combo =>
+        scrapeCombo(browser, combo, skipNames, config.MAX_LEADS_PER_COMBO)
+      )
+    );
   } finally {
     await browser.close();
   }
 
-  if (newLeads.length > 0) {
-    const allLeads = [...existingLeads, ...newLeads];
-    writeCSV(config.LEADS_CSV, allLeads, config.CSV_HEADERS);
-    console.log(`[find-leads] Saved ${newLeads.length} new leads to leads.csv`);
-  } else {
-    console.log('[find-leads] No new leads found this run');
-    // Ensure the file exists even if empty
-    if (!fs.existsSync(config.LEADS_CSV)) {
-      writeCSV(config.LEADS_CSV, [], config.CSV_HEADERS);
-    }
+  const elapsed = Math.round((Date.now() - startMs) / 1000);
+
+  // Flatten, slice to hard cap, merge into CSV
+  const allNew = results.flatMap(r => r.found).slice(0, config.MAX_LEADS_PER_RUN);
+
+  if (allNew.length > 0) {
+    writeCSV(config.LEADS_CSV, [...existing, ...allNew], config.CSV_HEADERS);
+  } else if (!fs.existsSync(config.LEADS_CSV)) {
+    writeCSV(config.LEADS_CSV, [], config.CSV_HEADERS);
   }
 
-  return newLeads.length;
+  // Per-combo summary for morning report
+  const comboSummary = results.map(r =>
+    `    ${r.combo.category} / ${r.combo.city}: ${r.found.length} leads`
+  ).join('\n');
+
+  console.log(`\n[find-leads] Summary (${elapsed}s):`);
+  console.log(comboSummary);
+  console.log(`[find-leads] Total new leads: ${allNew.length}`);
+
+  return {
+    total:   allNew.length,
+    elapsed: `${elapsed}s`,
+    combos:  comboSummary,
+    rotation: `${stats.used + config.COMBOS_PER_RUN}/${stats.total}`,
+  };
 }
 
 module.exports = { findLeads };
 
 if (require.main === module) {
-  findLeads().then(n => console.log(`[find-leads] Done. ${n} leads found.`)).catch(console.error);
+  findLeads()
+    .then(r => console.log(`[find-leads] Done. ${r.total} leads in ${r.elapsed}`))
+    .catch(console.error);
 }
