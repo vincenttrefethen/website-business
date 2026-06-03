@@ -43,6 +43,8 @@ module.exports = {
   CSV_HEADERS: [
     'name', 'category', 'phone', 'address', 'hours',
     'rating', 'reviews', 'city', 'website_found',
-    'email', 'demo_url', 'status',
+    'email', 'demo_url', 'status', 'outreach_date',
   ],
+
+  FOLLOWUP_DAYS: 3,   // days after outreach before a follow-up is sent
 };

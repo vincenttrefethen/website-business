@@ -262,6 +262,8 @@ function processWhatsApp(leads) {
   const txtLines = [`# DemoReady WhatsApp Queue — ${now}`, ''];
   const entries  = [];
 
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
   eligible.forEach((lead, i) => {
     const phone = normalisePhone(lead.phone);
     if (!phone) {
@@ -274,6 +276,10 @@ function processWhatsApp(leads) {
     txtLines.push(`    ${waUrl}`);
     txtLines.push('');
     entries.push({ ...lead, phone: `+${phone}`, waUrl });
+
+    // Stamp outreach_date on the original lead object so it persists to CSV
+    if (!lead.outreach_date) lead.outreach_date = today;
+    if (!lead.status) lead.status = 'contacted';
   });
 
   // Write plain-text queue file

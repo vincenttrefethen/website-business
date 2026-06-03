@@ -18,6 +18,7 @@ const { findLeads }     = require('./find-leads');
 const { buildSites }    = require('./build-sites');
 const { findContact }   = require('./find-contact');
 const { draftOutreach } = require('./draft-outreach');
+const { followUp }      = require('./follow-up');
 
 async function runSkill(name, fn) {
   const bar = '='.repeat(52);
@@ -47,6 +48,7 @@ async function main() {
   results.push(await runSkill('build-sites',    buildSites));
   results.push(await runSkill('find-contact',   findContact));
   results.push(await runSkill('draft-outreach', draftOutreach));
+  results.push(await runSkill('follow-up',      followUp));
 
   // ── Morning report ────────────────────────────────────────────────────────
   const fmt = (r) => {
@@ -72,6 +74,7 @@ async function main() {
     `  Contacts found: ${results[2].ok ? results[2].result : 'N/A'}`,
     `  WA queued:      ${results[3].ok ? (results[3].result?.waSent      ?? results[3].result) : 'N/A'}`,
     `  Email drafts:   ${results[3].ok ? (results[3].result?.emailDrafted ?? 'N/A') : 'N/A'}`,
+    `  Follow-ups:     ${results[4]?.ok ? results[4].result : 'N/A'}`,
     ``,
   ].join('\n');
 
