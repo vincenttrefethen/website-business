@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>DemoReady — WhatsApp Outreach (10 leads)</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      background:#060C1A;color:#fff;min-height:100vh;padding:0 0 60px;
+      -webkit-font-smoothing:antialiased;
+    }
+    :root{
+      --gold:#D4AF37;--gold2:#EDD060;--navy2:#0A0F1E;--navy3:#0F1629;
+      --green:#25D366;--green2:#1da851;
+      --border:rgba(255,255,255,.08);--r:14px;
+    }
+    /* Header */
+    .header{
+      background:linear-gradient(to bottom,#0A0F1E,#060C1A);
+      border-bottom:1px solid var(--border);
+      padding:2.2rem 1.5rem 1.8rem;
+    }
+    .header-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+    .logo{font-size:1.2rem;font-weight:800;letter-spacing:-.03em}
+    .logo span{color:var(--gold)}
+    .header-right{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+    .count-badge{
+      padding:.35rem 1rem;border-radius:99px;
+      background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.35);
+      font-size:.8rem;font-weight:600;color:var(--gold2);white-space:nowrap;
+    }
+    .btn-open-all{
+      display:inline-flex;align-items:center;gap:.5rem;
+      padding:.65rem 1.4rem;border-radius:99px;
+      background:var(--green);color:#fff;
+      font-size:.9rem;font-weight:700;border:none;cursor:pointer;
+      transition:background .2s,transform .15s;white-space:nowrap;
+    }
+    .btn-open-all:hover{background:var(--green2);transform:scale(1.04)}
+    .btn-open-all:active{transform:scale(.97)}
+    .generated{font-size:.72rem;color:rgba(255,255,255,.28);margin-top:.5rem;max-width:860px;margin-left:auto;margin-right:auto;padding:0 1.5rem}
+    /* List */
+    .list{max-width:860px;margin:2rem auto 0;padding:0 1.5rem;display:flex;flex-direction:column;gap:1rem}
+    .card{
+      display:flex;align-items:center;justify-content:space-between;gap:1.5rem;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);border-radius:var(--r);
+      padding:1.25rem 1.5rem;
+      transition:border-color .2s,background .2s;
+      flex-wrap:wrap;
+    }
+    .card.sent{border-color:rgba(37,211,102,.35);background:rgba(37,211,102,.04)}
+    .card-left{flex:1;min-width:0}
+    .biz-name{font-size:1.05rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.55rem}
+    .biz-meta{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.6rem}
+    .tag{
+      font-size:.68rem;padding:2px 9px;border-radius:99px;
+      background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+      color:rgba(255,255,255,.5);text-transform:capitalize;
+    }
+    .tag-cat{border-color:rgba(108,142,255,.3);color:#8aabff}
+    .tag-gold{border-color:rgba(212,175,55,.35);color:var(--gold2)}
+    .biz-phone{font-size:.88rem;color:rgba(255,255,255,.45);font-variant-numeric:tabular-nums}
+    /* WhatsApp button */
+    .btn-wa{
+      display:inline-flex;align-items:center;gap:.55rem;
+      padding:.7rem 1.4rem;border-radius:99px;
+      background:var(--green);color:#fff;
+      font-size:.88rem;font-weight:700;text-decoration:none;white-space:nowrap;
+      transition:background .2s,transform .15s,opacity .2s;flex-shrink:0;
+    }
+    .btn-wa:hover{background:var(--green2);transform:scale(1.04)}
+    .btn-wa:active{transform:scale(.97)}
+    .btn-wa.done{background:rgba(37,211,102,.25);color:rgba(37,211,102,.8);pointer-events:none}
+    /* Empty state */
+    .empty{text-align:center;padding:72px 24px;color:rgba(255,255,255,.3);font-size:1rem}
+    @media(max-width:500px){
+      .header-inner{flex-direction:column;align-items:flex-start}
+      .card{flex-direction:column;align-items:flex-start}
+      .btn-wa{width:100%;justify-content:center}
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">Demo<span>Ready</span>.co</div>
+      <div class="header-right">
+        <div class="count-badge">📱 10 leads ready</div>
+        <button class="btn-open-all" onclick="openAll()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open All (10)
+        </button>
+      </div>
+    </div>
+    <div class="generated">Generated Jun 3, 2026, 6:54 AM</div>
+  </header>
+
+  <div class="list">
+    
+      <div class="card" id="card-0">
+        <div class="card-left">
+          <div class="biz-name">Friendly Pest Control Doral</div>
+          <div class="biz-meta">
+            <span class="tag">Doral</span>
+            <span class="tag tag-cat">pest control</span>
+            <span class="tag tag-gold">⭐ 5.0</span>
+            <span class="tag">9 reviews</span>
+          </div>
+          <div class="biz-phone">+13058453406</div>
+        </div>
+        <a class="btn-wa" href="https://wa.me/13058453406?text=Hey!%20I%20just%20built%20Friendly%20Pest%20Control%20Doral%20a%20free%20website%20%E2%80%94%205.0%20stars%20and%209%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Ffriendly-pest-control-doral%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent" target="_blank" rel="noopener"
+           onclick="markSent(0)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open WhatsApp
+        </a>
+      </div>
+
+      <div class="card" id="card-1">
+        <div class="card-left">
+          <div class="biz-name">Fog That Bug</div>
+          <div class="biz-meta">
+            <span class="tag">Doral</span>
+            <span class="tag tag-cat">pest control</span>
+            <span class="tag tag-gold">⭐ 5.0</span>
+            <span class="tag">29 reviews</span>
+          </div>
+          <div class="biz-phone">+17866317860</div>
+        </div>
+        <a class="btn-wa" href="https://wa.me/17866317860?text=Hey!%20I%20just%20built%20Fog%20That%20Bug%20a%20free%20website%20%E2%80%94%205.0%20stars%20and%2029%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Ffog-that-bug%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent" target="_blank" rel="noopener"
+           onclick="markSent(1)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open WhatsApp
+        </a>
+      </div>
+
+      <div class="card" id="card-2">
+        <div class="card-left">
+          <div class="biz-name">Master Pest Control Inc.</div>
+          <div class="biz-meta">
+            <span class="tag">Doral</span>
+            <span class="tag tag-cat">pest control</span>
+            <span class="tag tag-gold">⭐ 4.2</span>
+            <span class="tag">103 reviews</span>
+          </div>
+          <div class="biz-phone">+13054193690</div>
+        </div>
+        <a class="btn-wa" href="https://wa.me/13054193690?text=Hey!%20I%20just%20built%20Master%20Pest%20Control%20Inc.%20a%20free%20website%20%E2%80%94%204.2%20stars%20and%20103%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fmaster-pest-control-inc%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent" target="_blank" rel="noopener"
+           onclick="markSent(2)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open WhatsApp
+        </a>
+      </div>
+
+      <div class="card" id="card-3">
+        <div class="card-left">
+          <div class="biz-name">Suncoast Pest Control Miami, FL</div>
+          <div class="biz-meta">
+            <span class="tag">Doral</span>
+            <span class="tag tag-cat">pest control</span>
+            <span class="tag tag-gold">⭐ 4.6</span>
+            <span class="tag">23 reviews</span>
+          </div>
+          <div class="biz-phone">+16452184038</div>
+        </div>
+        <a class="btn-wa" href="https://wa.me/16452184038?text=Hey!%20I%20just%20built%20Suncoast%20Pest%20Control%20Miami%2C%20FL%20a%20free%20website%20%E2%80%94%204.6%20stars%20and%2023%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fsuncoast-pest-control-miami-fl%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent" target="_blank" rel="noopener"
+           onclick="markSent(3)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open WhatsApp
+        </a>
+      </div>
+
+      <div class="card" id="card-4">
+        <div class="card-left">
+          <div class="biz-name">Expert Pest Control Miami</div>
+          <div class="biz-meta">
+            <span class="tag">Doral</span>
+            <span class="tag tag-cat">pest control</span>
+            
+            
+          </div>
+          <div class="biz-phone">+13052471771</div>
+        </div>
+        <a class="btn-wa" href="https://wa.me/13052471771?text=Hey!%20I%20just%20built%20Expert%20Pest%20Control%20Miami%20a%20free%20website%20%E2%80%94%20highly%20rated%20stars%20and%20many%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fexpert-pest-control-miami%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent" target="_blank" rel="noopener"
+           onclick="markSent(4)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open WhatsApp
+        </a>
+      </div>
+
+      <div class="card" id="card-5">
+        <div class="card-left">
+          <div class="biz-name">Pete's Auto Air</div>
+          <div class="biz-meta">
+            <span class="tag">Hialeah</span>
+            <span class="tag tag-cat">AC repair</span>
+            <span class="tag tag-gold">⭐ 4.9</span>
+            <span class="tag">107 reviews</span>
+          </div>
+          <div class="biz-phone">+13055560471</div>
+        </div>
+        <a class="btn-wa" href="https://wa.me/13055560471?text=Hey!%20I%20just%20built%20Pete's%20Auto%20Air%20a%20free%20website%20%E2%80%94%204.9%20stars%20and%20107%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fpete-s-auto-air%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent" target="_blank" rel="noopener"
+           onclick="markSent(5)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open WhatsApp
+        </a>
+      </div>
+
+      <div class="card" id="card-6">
+        <div class="card-left">
+          <div class="biz-name">Eagle Overhauling Inc</div>
+          <div class="biz-meta">
+            <span class="tag">Hialeah</span>
+            <span class="tag tag-cat">AC repair</span>
+            <span class="tag tag-gold">⭐ 4.1</span>
+            <span class="tag">591 reviews</span>
+          </div>
+          <div class="biz-phone">+13058877349</div>
+        </div>
+        <a class="btn-wa" href="https://wa.me/13058877349?text=Hey!%20I%20just%20built%20Eagle%20Overhauling%20Inc%20a%20free%20website%20%E2%80%94%204.1%20stars%20and%20591%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Feagle-overhauling-inc%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent" target="_blank" rel="noopener"
+           onclick="markSent(6)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open WhatsApp
+        </a>
+      </div>
+
+      <div class="card" id="card-7">
+        <div class="card-left">
+          <div class="biz-name">Auto Air Conditioning Corporation</div>
+          <div class="biz-meta">
+            <span class="tag">Hialeah</span>
+            <span class="tag tag-cat">AC repair</span>
+            <span class="tag tag-gold">⭐ 4.4</span>
+            <span class="tag">39 reviews</span>
+          </div>
+          <div class="biz-phone">+13058853808</div>
+        </div>
+        <a class="btn-wa" href="https://wa.me/13058853808?text=Hey!%20I%20just%20built%20Auto%20Air%20Conditioning%20Corporation%20a%20free%20website%20%E2%80%94%204.4%20stars%20and%2039%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fauto-air-conditioning-corporation%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent" target="_blank" rel="noopener"
+           onclick="markSent(7)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open WhatsApp
+        </a>
+      </div>
+
+      <div class="card" id="card-8">
+        <div class="card-left">
+          <div class="biz-name">Miami AC Repair Home</div>
+          <div class="biz-meta">
+            <span class="tag">Hialeah</span>
+            <span class="tag tag-cat">AC repair</span>
+            <span class="tag tag-gold">⭐ 5.0</span>
+            <span class="tag">52 reviews</span>
+          </div>
+          <div class="biz-phone">+17862287546</div>
+        </div>
+        <a class="btn-wa" href="https://wa.me/17862287546?text=Hey!%20I%20just%20built%20Miami%20AC%20Repair%20Home%20a%20free%20website%20%E2%80%94%205.0%20stars%20and%2052%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fmiami-ac-repair-home%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent" target="_blank" rel="noopener"
+           onclick="markSent(8)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open WhatsApp
+        </a>
+      </div>
+
+      <div class="card" id="card-9">
+        <div class="card-left">
+          <div class="biz-name">AC Repair Hialeah</div>
+          <div class="biz-meta">
+            <span class="tag">Hialeah</span>
+            <span class="tag tag-cat">AC repair</span>
+            <span class="tag tag-gold">⭐ 5.0</span>
+            <span class="tag">2 reviews</span>
+          </div>
+          <div class="biz-phone">+13056095132</div>
+        </div>
+        <a class="btn-wa" href="https://wa.me/13056095132?text=Hey!%20I%20just%20built%20AC%20Repair%20Hialeah%20a%20free%20website%20%E2%80%94%205.0%20stars%20and%202%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fac-repair-hialeah%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent" target="_blank" rel="noopener"
+           onclick="markSent(9)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open WhatsApp
+        </a>
+      </div>
+  </div>
+
+  <script>
+    const ALL_URLS = ["https://wa.me/13058453406?text=Hey!%20I%20just%20built%20Friendly%20Pest%20Control%20Doral%20a%20free%20website%20%E2%80%94%205.0%20stars%20and%209%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Ffriendly-pest-control-doral%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent","https://wa.me/17866317860?text=Hey!%20I%20just%20built%20Fog%20That%20Bug%20a%20free%20website%20%E2%80%94%205.0%20stars%20and%2029%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Ffog-that-bug%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent","https://wa.me/13054193690?text=Hey!%20I%20just%20built%20Master%20Pest%20Control%20Inc.%20a%20free%20website%20%E2%80%94%204.2%20stars%20and%20103%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fmaster-pest-control-inc%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent","https://wa.me/16452184038?text=Hey!%20I%20just%20built%20Suncoast%20Pest%20Control%20Miami%2C%20FL%20a%20free%20website%20%E2%80%94%204.6%20stars%20and%2023%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fsuncoast-pest-control-miami-fl%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent","https://wa.me/13052471771?text=Hey!%20I%20just%20built%20Expert%20Pest%20Control%20Miami%20a%20free%20website%20%E2%80%94%20highly%20rated%20stars%20and%20many%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fexpert-pest-control-miami%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent","https://wa.me/13055560471?text=Hey!%20I%20just%20built%20Pete's%20Auto%20Air%20a%20free%20website%20%E2%80%94%204.9%20stars%20and%20107%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fpete-s-auto-air%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent","https://wa.me/13058877349?text=Hey!%20I%20just%20built%20Eagle%20Overhauling%20Inc%20a%20free%20website%20%E2%80%94%204.1%20stars%20and%20591%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Feagle-overhauling-inc%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent","https://wa.me/13058853808?text=Hey!%20I%20just%20built%20Auto%20Air%20Conditioning%20Corporation%20a%20free%20website%20%E2%80%94%204.4%20stars%20and%2039%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fauto-air-conditioning-corporation%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent","https://wa.me/17862287546?text=Hey!%20I%20just%20built%20Miami%20AC%20Repair%20Home%20a%20free%20website%20%E2%80%94%205.0%20stars%20and%2052%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fmiami-ac-repair-home%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent","https://wa.me/13056095132?text=Hey!%20I%20just%20built%20AC%20Repair%20Hialeah%20a%20free%20website%20%E2%80%94%205.0%20stars%20and%202%20reviews%20but%20no%20site%3F%20You're%20losing%20customers%20every%20day%20to%20competitors%20with%20worse%20service%20but%20a%20better%20online%20presence.%0A%0AHere's%20what%20I%20built%20for%20you%3A%20https%3A%2F%2Fdemoready.co%2Fsites%2Fac-repair-hialeah%2Findex.html%0A%0AIt's%20live%20right%20now.%20Mobile-friendly%2C%20your%20number%20front%20and%20center%2C%20ready%20to%20launch.%20Reply%20if%20you%20want%20to%20keep%20it.%0A%0A%E2%80%94%20Vincent"];
+
+    function markSent(i) {
+      const card = document.getElementById('card-' + i);
+      if (!card) return;
+      setTimeout(() => {
+        card.classList.add('sent');
+        const btn = card.querySelector('.btn-wa');
+        if (btn) { btn.classList.add('done'); btn.textContent = '✓ Sent'; }
+      }, 800);
+    }
+
+    function openAll() {
+      ALL_URLS.forEach((url, i) => {
+        setTimeout(() => window.open(url, '_blank'), i * 2000);
+      });
+      // Mark all as sent after they've all opened
+      setTimeout(() => {
+        ALL_URLS.forEach((_, i) => markSent(i));
+      }, ALL_URLS.length * 2000 + 500);
+    }
+  </script>
+</body>
+</html>

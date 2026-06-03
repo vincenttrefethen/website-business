@@ -63,7 +63,172 @@ function openInBrowser(url) {
   exec(`start "" "${url}"`);
 }
 
-// ─── WhatsApp outreach ─────────────────────────────────────────────────────────
+// ─── WhatsApp HTML dashboard ──────────────────────────────────────────────────
+
+function buildWaHtml(entries, generatedAt) {
+  const count = entries.length;
+  const rows  = entries.map((e, i) => `
+      <div class="card" id="card-${i}">
+        <div class="card-left">
+          <div class="biz-name">${e.name}</div>
+          <div class="biz-meta">
+            <span class="tag">${e.city || '—'}</span>
+            <span class="tag tag-cat">${e.category || '—'}</span>
+            ${e.rating  ? `<span class="tag tag-gold">⭐ ${e.rating}</span>` : ''}
+            ${e.reviews ? `<span class="tag">${e.reviews} reviews</span>` : ''}
+          </div>
+          <div class="biz-phone">${e.phone}</div>
+        </div>
+        <a class="btn-wa" href="${e.waUrl}" target="_blank" rel="noopener"
+           onclick="markSent(${i})">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open WhatsApp
+        </a>
+      </div>`).join('\n');
+
+  const allUrls = JSON.stringify(entries.map(e => e.waUrl));
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>DemoReady — WhatsApp Outreach (${count} leads)</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      background:#060C1A;color:#fff;min-height:100vh;padding:0 0 60px;
+      -webkit-font-smoothing:antialiased;
+    }
+    :root{
+      --gold:#D4AF37;--gold2:#EDD060;--navy2:#0A0F1E;--navy3:#0F1629;
+      --green:#25D366;--green2:#1da851;
+      --border:rgba(255,255,255,.08);--r:14px;
+    }
+    /* Header */
+    .header{
+      background:linear-gradient(to bottom,#0A0F1E,#060C1A);
+      border-bottom:1px solid var(--border);
+      padding:2.2rem 1.5rem 1.8rem;
+    }
+    .header-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+    .logo{font-size:1.2rem;font-weight:800;letter-spacing:-.03em}
+    .logo span{color:var(--gold)}
+    .header-right{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+    .count-badge{
+      padding:.35rem 1rem;border-radius:99px;
+      background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.35);
+      font-size:.8rem;font-weight:600;color:var(--gold2);white-space:nowrap;
+    }
+    .btn-open-all{
+      display:inline-flex;align-items:center;gap:.5rem;
+      padding:.65rem 1.4rem;border-radius:99px;
+      background:var(--green);color:#fff;
+      font-size:.9rem;font-weight:700;border:none;cursor:pointer;
+      transition:background .2s,transform .15s;white-space:nowrap;
+    }
+    .btn-open-all:hover{background:var(--green2);transform:scale(1.04)}
+    .btn-open-all:active{transform:scale(.97)}
+    .generated{font-size:.72rem;color:rgba(255,255,255,.28);margin-top:.5rem;max-width:860px;margin-left:auto;margin-right:auto;padding:0 1.5rem}
+    /* List */
+    .list{max-width:860px;margin:2rem auto 0;padding:0 1.5rem;display:flex;flex-direction:column;gap:1rem}
+    .card{
+      display:flex;align-items:center;justify-content:space-between;gap:1.5rem;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);border-radius:var(--r);
+      padding:1.25rem 1.5rem;
+      transition:border-color .2s,background .2s;
+      flex-wrap:wrap;
+    }
+    .card.sent{border-color:rgba(37,211,102,.35);background:rgba(37,211,102,.04)}
+    .card-left{flex:1;min-width:0}
+    .biz-name{font-size:1.05rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.55rem}
+    .biz-meta{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.6rem}
+    .tag{
+      font-size:.68rem;padding:2px 9px;border-radius:99px;
+      background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+      color:rgba(255,255,255,.5);text-transform:capitalize;
+    }
+    .tag-cat{border-color:rgba(108,142,255,.3);color:#8aabff}
+    .tag-gold{border-color:rgba(212,175,55,.35);color:var(--gold2)}
+    .biz-phone{font-size:.88rem;color:rgba(255,255,255,.45);font-variant-numeric:tabular-nums}
+    /* WhatsApp button */
+    .btn-wa{
+      display:inline-flex;align-items:center;gap:.55rem;
+      padding:.7rem 1.4rem;border-radius:99px;
+      background:var(--green);color:#fff;
+      font-size:.88rem;font-weight:700;text-decoration:none;white-space:nowrap;
+      transition:background .2s,transform .15s,opacity .2s;flex-shrink:0;
+    }
+    .btn-wa:hover{background:var(--green2);transform:scale(1.04)}
+    .btn-wa:active{transform:scale(.97)}
+    .btn-wa.done{background:rgba(37,211,102,.25);color:rgba(37,211,102,.8);pointer-events:none}
+    /* Empty state */
+    .empty{text-align:center;padding:72px 24px;color:rgba(255,255,255,.3);font-size:1rem}
+    @media(max-width:500px){
+      .header-inner{flex-direction:column;align-items:flex-start}
+      .card{flex-direction:column;align-items:flex-start}
+      .btn-wa{width:100%;justify-content:center}
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">Demo<span>Ready</span>.co</div>
+      <div class="header-right">
+        <div class="count-badge">📱 ${count} lead${count === 1 ? '' : 's'} ready</div>
+        ${count > 0 ? `<button class="btn-open-all" onclick="openAll()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.857L0 24l6.335-1.509A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.732.889.917-3.636-.235-.374A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+          Open All (${count})
+        </button>` : ''}
+      </div>
+    </div>
+    <div class="generated">Generated ${generatedAt}</div>
+  </header>
+
+  <div class="list">
+    ${count === 0
+      ? '<div class="empty">No leads with phone numbers yet — run the morning pipeline first.</div>'
+      : rows
+    }
+  </div>
+
+  <script>
+    const ALL_URLS = ${allUrls};
+
+    function markSent(i) {
+      const card = document.getElementById('card-' + i);
+      if (!card) return;
+      setTimeout(() => {
+        card.classList.add('sent');
+        const btn = card.querySelector('.btn-wa');
+        if (btn) { btn.classList.add('done'); btn.textContent = '✓ Sent'; }
+      }, 800);
+    }
+
+    function openAll() {
+      ALL_URLS.forEach((url, i) => {
+        setTimeout(() => window.open(url, '_blank'), i * 2000);
+      });
+      // Mark all as sent after they've all opened
+      setTimeout(() => {
+        ALL_URLS.forEach((_, i) => markSent(i));
+      }, ALL_URLS.length * 2000 + 500);
+    }
+  </script>
+</body>
+</html>`;
+}
+
+// ─── WhatsApp outreach ──────────────────────────────────────────────────────────
 
 function processWhatsApp(leads) {
   const eligible = leads.filter(r => r.phone && r.demo_url);
@@ -73,9 +238,9 @@ function processWhatsApp(leads) {
     return 0;
   }
 
-  const now    = new Date().toISOString();
-  const lines  = [`# DemoReady WhatsApp Queue — ${now}`, ''];
-  const toOpen = [];
+  const now     = new Date().toISOString();
+  const txtLines = [`# DemoReady WhatsApp Queue — ${now}`, ''];
+  const entries  = [];
 
   eligible.forEach((lead, i) => {
     const phone = normalisePhone(lead.phone);
@@ -83,27 +248,42 @@ function processWhatsApp(leads) {
       console.warn(`[draft-outreach:wa] Skipping ${lead.name} — unrecognised phone: ${lead.phone}`);
       return;
     }
-
-    const url = buildWaUrl(phone, lead);
-    lines.push(`[${i + 1}] ${lead.name} | +${phone}`);
-    lines.push(`    ${url}`);
-    lines.push('');
-
-    if (toOpen.length < 3) toOpen.push(url);
+    const waUrl = buildWaUrl(phone, lead);
+    txtLines.push(`[${i + 1}] ${lead.name} | +${phone}`);
+    txtLines.push(`    ${waUrl}`);
+    txtLines.push('');
+    entries.push({ ...lead, phone: `+${phone}`, waUrl });
   });
 
-  fs.writeFileSync(WHATSAPP_QUEUE, lines.join('\n'), 'utf8');
-  console.log(`[draft-outreach:wa] Wrote ${eligible.length} link(s) to whatsapp-queue.txt`);
+  // Write plain-text queue file
+  fs.writeFileSync(WHATSAPP_QUEUE, txtLines.join('\n'), 'utf8');
+  console.log(`[draft-outreach:wa] Wrote ${entries.length} link(s) to whatsapp-queue.txt`);
 
-  // Open first 3 in browser with a short delay between each
-  toOpen.forEach((url, i) => {
+  // Write HTML dashboard
+  const htmlPath = path.join(__dirname, 'whatsapp-queue.html');
+  const genAt    = new Date().toLocaleString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: 'numeric', minute: '2-digit',
+  });
+  fs.writeFileSync(htmlPath, buildWaHtml(entries, genAt), 'utf8');
+  console.log(`[draft-outreach:wa] Wrote whatsapp-queue.html`);
+
+  // Open ALL wa.me links with a 2s gap between each
+  entries.forEach((e, i) => {
     setTimeout(() => {
-      console.log(`[draft-outreach:wa] Opening link ${i + 1}: ${url.slice(0, 80)}...`);
-      openInBrowser(url);
-    }, i * 1500);
+      console.log(`[draft-outreach:wa] Opening ${i + 1}/${entries.length}: ${e.name}`);
+      openInBrowser(e.waUrl);
+    }, i * 2000);
   });
 
-  return eligible.length;
+  // Open the HTML dashboard after all links have been queued
+  const dashboardDelay = entries.length * 2000 + 1000;
+  setTimeout(() => {
+    console.log(`[draft-outreach:wa] Opening outreach dashboard…`);
+    openInBrowser(htmlPath);
+  }, dashboardDelay);
+
+  return entries.length;
 }
 
 // ─── Gmail draft helpers ───────────────────────────────────────────────────────
