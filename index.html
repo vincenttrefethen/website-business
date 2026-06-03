@@ -215,9 +215,9 @@ a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
 
 /* Headline — chars injected by JS */
 .hero-headline{
-  font-size:clamp(3.2rem,9vw,7.2rem);
-  font-weight:900;line-height:.95;letter-spacing:-.055em;
-  margin-bottom:1.8rem;color:#fff;
+  font-size:clamp(2.3rem,5vw,4rem);
+  font-weight:900;line-height:1.05;letter-spacing:-.04em;
+  margin-bottom:1.6rem;color:#fff;
   text-shadow:0 2px 40px rgba(0,0,0,.5);
 }
 .hero-headline .char{
@@ -407,7 +407,7 @@ a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
 }
 .section-sub{
   font-size:1rem;font-weight:300;color:rgba(255,255,255,.45);
-  max-width:480px;line-height:1.8;margin-bottom:3.5rem;
+  max-width:480px;line-height:1.8;margin:0 auto 3.5rem;
 }
 
 .demos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.5rem}
@@ -559,12 +559,20 @@ footer{
 .footer-logo span{color:var(--gold)}
 .footer-tagline{font-size:.85rem;color:rgba(255,255,255,.28);margin-bottom:1.5rem;font-weight:300}
 .footer-divider{height:1px;background:rgba(255,255,255,.05);margin:1.5rem auto;max-width:280px}
-.footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:2rem;font-size:.82rem;color:rgba(255,255,255,.32)}
+.footer-links{
+  display:flex;flex-wrap:wrap;justify-content:center;
+  gap:1.5rem 2rem;font-size:.82rem;color:rgba(255,255,255,.32);
+}
 .footer-links a{transition:color .2s}
 .footer-links a:hover{color:var(--gold)}
-.footer-credit{margin-top:1.75rem;font-size:.72rem;color:rgba(255,255,255,.15)}
-.footer-credit a{color:rgba(212,175,55,.38);transition:color .2s}
-.footer-credit a:hover{color:var(--gold)}
+.footer-credit{
+  margin-top:1.75rem;font-size:.78rem;
+  color:rgba(255,255,255,.35);
+  display:flex;flex-wrap:wrap;align-items:center;
+  justify-content:center;gap:.5rem .75rem;
+}
+.footer-credit a{color:var(--gold);transition:color .2s}
+.footer-credit a:hover{color:var(--gold2)}
 
 /* ── REVEAL ─────────────────────────────────────────────────── */
 .reveal{opacity:0;transform:translateY(32px);transition:opacity .9s var(--expo),transform .9s var(--expo)}
@@ -579,7 +587,7 @@ footer{
 }
 @media(max-width:480px){
   #nav{padding:.8rem 1rem}
-  .hero-headline{font-size:clamp(2.6rem,12vw,3.5rem);letter-spacing:-.04em}
+  .hero-headline{font-size:clamp(1.9rem,8vw,2.5rem);letter-spacing:-.03em}
   .hero-btns,.cta-btns{flex-direction:column;align-items:stretch}
   .btn-primary,.btn-glass{width:100%;justify-content:center}
   .demos-grid{grid-template-columns:1fr}
@@ -611,139 +619,106 @@ footer{
   <div class="hero-bg" id="hero-bg"></div>
   <div class="hero-grid"></div>
 
-  <!-- Miami skyline + yacht silhouette -->
+  <!-- Miami/Brickell skyline silhouette — inspired by night photo reference -->
   <svg class="hero-silhouette" xmlns="http://www.w3.org/2000/svg"
-       viewBox="0 0 1920 380" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+       viewBox="0 0 1920 400" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
     <defs>
-      <!-- Reflection fade — top opaque, bottom transparent -->
-      <linearGradient id="reflFade" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%"   stop-color="#050810" stop-opacity=".18"/>
-        <stop offset="100%" stop-color="#050810" stop-opacity="0"/>
+      <linearGradient id="skyFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#0D1B3E" stop-opacity=".95"/>
+        <stop offset="100%" stop-color="#060C1A" stop-opacity="1"/>
       </linearGradient>
-      <!-- Water surface gradient — very dark -->
       <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%"   stop-color="#080E1C"/>
-        <stop offset="100%" stop-color="#040608"/>
+        <stop offset="0%"   stop-color="#080F20"/>
+        <stop offset="100%" stop-color="#030508"/>
       </linearGradient>
+      <linearGradient id="goldRefl" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#D4AF37" stop-opacity=".12"/>
+        <stop offset="100%" stop-color="#D4AF37" stop-opacity="0"/>
+      </linearGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="2" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
     </defs>
 
-    <!-- ─── SKYLINE SILHOUETTE ──────────────────────────── -->
-    <path fill="#0D1736" d="
-      M 0,380 L 0,264
-      L 48,264 L 48,257 L 66,257 L 66,264 L 82,264 L 82,256 L 97,256 L 97,252 L 110,252 L 110,260 L 124,260
-      L 132,260 L 132,252 L 142,252 L 142,246 L 152,246 L 152,252 L 163,252 L 163,244 L 172,244 L 172,252 L 185,252 L 185,260
-      L 198,260 L 198,252 L 208,248 L 214,240 L 219,248 L 225,256 L 236,260
-      L 248,260 L 248,250 L 256,244 L 262,234 L 268,222 L 272,230 L 278,244 L 286,254 L 298,262
-      L 312,262 L 312,248 L 318,236 L 322,220 L 326,202 L 330,182 L 333,162 L 336,142 L 338,124 L 340,108
-        L 342,94 L 344,82 L 346,72 L 348,64 L 350,58 L 352,54 L 354,52 L 356,50 L 357,48
-        L 358,50 L 360,55 L 362,64 L 365,76 L 368,92 L 372,112 L 377,136 L 382,163 L 388,193 L 394,224 L 402,250 L 412,262
-      L 424,262 L 424,246 L 428,234 L 432,216 L 436,195 L 439,172 L 442,148 L 445,124 L 447,100 L 449,78
-        L 451,58 L 453,42 L 455,28 L 457,18 L 459,10 L 461,5 L 462,2 L 463,0
-        L 464,2 L 465,7 L 467,16 L 470,30 L 473,48 L 477,70 L 482,96 L 487,126 L 493,158 L 500,191 L 508,224 L 516,250 L 526,262
-      L 538,262 L 538,252 L 544,252 L 544,262 L 556,262
-      L 564,262 L 564,244 L 568,230 L 572,210 L 576,188 L 579,164 L 582,138 L 584,114 L 586,90 L 588,68
-        L 590,50 L 592,34 L 594,22 L 596,12 L 598,5 L 599,2 L 600,0
-        L 601,2 L 602,7 L 604,16 L 607,30 L 610,50 L 614,74 L 618,102 L 623,134 L 629,168 L 636,202 L 644,234 L 653,256 L 664,264
-      L 678,264 L 678,246 L 682,234 L 687,216 L 691,195 L 695,172 L 698,148 L 701,122 L 703,97 L 705,74
-        L 707,54 L 709,36 L 711,22 L 713,10 L 715,3 L 716,0
-        L 717,3 L 719,10 L 721,22 L 724,38 L 728,60 L 732,87 L 737,118 L 743,152 L 750,188 L 758,224 L 766,252 L 776,264
-      L 790,264 L 790,254 L 797,244 L 803,232 L 808,218 L 812,204 L 815,192 L 817,184 L 819,190 L 822,204 L 827,222 L 834,244 L 843,258 L 856,265
-      L 869,265 L 869,252 L 873,240 L 877,224 L 880,205 L 883,184 L 885,162 L 887,138 L 888,114 L 889,92
-        L 890,72 L 890.5,55 L 891,40 L 891.5,28 L 892,18 L 892.5,10 L 893,4 L 893.3,1
-        L 893.6,4 L 894,10 L 894.5,18 L 895,28 L 895.5,40 L 896,55 L 897,74
-        L 898,95 L 900,120 L 902,148 L 906,178 L 910,210 L 916,238 L 924,258 L 936,265
-      L 950,265 L 950,254 L 957,244 L 963,230 L 968,214 L 972,197 L 975,181 L 977,168 L 979,174 L 982,190 L 987,210 L 993,234 L 1001,252 L 1014,265
-      L 1028,265 L 1028,254 L 1036,246 L 1043,234 L 1049,220 L 1054,206 L 1058,193 L 1061,182 L 1063,175 L 1065,182 L 1068,198 L 1073,218 L 1081,240 L 1092,256 L 1108,265
-      L 1124,265 L 1124,256 L 1133,250 L 1142,240 L 1150,228 L 1157,215 L 1162,202 L 1165,192 L 1167,186 L 1169,192 L 1172,206 L 1178,224 L 1187,244 L 1200,258 L 1218,265
-      L 1235,265 L 1235,258 L 1248,258 L 1248,265 L 1265,265
-      L 1275,265 L 1275,256 L 1285,252 L 1294,244 L 1302,234 L 1308,222 L 1313,212 L 1315,206 L 1317,212 L 1321,226 L 1328,244 L 1338,258 L 1354,265
-      L 1372,265 L 1372,258 L 1386,258 L 1386,265 L 1406,265 L 1406,270 L 1432,270 L 1432,265 L 1462,265 L 1462,268 L 1502,268 L 1502,265 L 1548,265 L 1548,268 L 1598,268 L 1598,265 L 1660,265 L 1660,270 L 1730,270 L 1730,265 L 1820,265 L 1820,268 L 1920,268
-      L 1920,380 Z
+    <!-- ═══ MAIN SKYLINE SILHOUETTE ═══════════════════════════════════════
+         Brickell/Downtown Miami — left to right, water line at y=272
+         Three dominant towers: center spire (tallest), left cluster, right cluster
+    ════════════════════════════════════════════════════════════════════ -->
+    <path fill="url(#skyFill)" d="
+      M0,400 L0,272
+
+      L0,268 L32,268 L32,262 L58,262 L58,256 L80,256 L80,250 L104,250 L104,258 L126,258 L126,268
+
+      L138,268 L138,258 L152,258 L152,248 L168,248 L168,238 L184,238 L184,228 L198,228 L198,240 L214,240 L214,255 L228,255 L228,268
+
+      L238,268 L238,252 L248,252 L248,240 L260,240 L260,225 L274,225 L274,210 L290,210 L290,198 L304,198 L304,185 L318,185 L318,198 L334,198 L334,215 L352,215 L352,235 L372,235 L372,258 L390,258 L390,268
+
+      L402,268 L402,250 L412,250 L412,232 L424,232 L424,215 L438,215 L438,198 L452,198 L452,182 L466,182 L466,165 L478,165 L478,148 L490,148 L490,133 L500,133 L500,120 L508,120 L508,108 L514,108 L514,118 L522,118 L522,135 L534,135 L534,155 L548,155 L548,175 L564,175 L564,198 L582,198 L582,222 L602,222 L602,245 L624,245 L624,268
+
+      L634,268 L634,248 L642,248 L642,228 L652,228 L652,208
+
+      L658,208 L658,188 L664,188 L664,165 L668,165 L668,138 L671,138 L671,110 L674,110 L674,82 L676,82 L676,58 L678,50 L679,40 L680,30 L680.5,22 L681,15 L681.5,10 L682,6 L682.5,3 L683,1 L683.5,0
+      L684,1 L684.5,3 L685,6 L685.5,10 L686,15 L686.5,22 L687,30 L688,40 L689,50 L691,58
+      L691,82 L693,82 L693,110 L696,110 L696,138 L699,138 L699,165 L703,165 L703,188 L709,188
+      L709,208 L715,208 L715,228 L725,228 L725,248 L733,248 L733,268
+
+      L744,268 L744,252 L756,252 L756,235 L770,235 L770,218 L786,218 L786,202 L802,202 L802,186 L818,186 L818,170 L832,170 L832,155 L844,155 L844,142 L854,142 L854,130 L862,130 L862,143 L872,143 L872,160 L884,160 L884,178 L898,178 L898,198 L914,198 L914,220 L932,220 L932,245 L952,245 L952,268
+
+      L962,268 L962,250 L972,250 L972,232 L984,232 L984,215 L998,215 L998,198 L1012,198 L1012,182 L1026,182 L1026,165 L1038,165 L1038,148
+
+      L1042,148 L1042,128 L1045,128 L1045,105 L1048,105 L1048,82 L1050,82 L1050,60 L1052,48 L1053,36 L1054,26 L1054.5,18 L1055,12 L1055.5,7 L1056,4 L1056.5,2 L1057,0
+      L1057.5,2 L1058,4 L1058.5,7 L1059,12 L1059.5,18 L1060,26 L1061,36 L1062,48 L1064,60
+      L1064,82 L1066,82 L1066,105 L1069,105 L1069,128 L1072,128 L1072,148
+
+      L1076,148 L1076,165 L1088,165 L1088,182 L1102,182 L1102,198 L1118,198 L1118,215 L1132,215 L1132,232 L1148,232 L1148,250 L1160,250 L1160,268
+
+      L1172,268 L1172,255 L1186,255 L1186,240 L1202,240 L1202,225 L1220,225 L1220,210 L1238,210 L1238,196 L1254,196 L1254,182 L1268,182 L1268,196 L1284,196 L1284,215 L1302,215 L1302,235 L1322,235 L1322,255 L1344,255 L1344,268
+
+      L1356,268 L1356,258 L1374,258 L1374,248 L1394,248 L1394,258 L1416,258 L1416,265 L1442,265 L1442,268
+
+      L1455,268 L1455,262 L1488,262 L1488,268
+      L1500,268 L1500,265 L1548,265 L1548,270 L1610,270 L1610,268
+      L1625,268 L1625,271 L1710,271 L1710,268
+      L1726,268 L1726,272 L1840,272 L1840,270 L1920,270
+
+      L1920,400 Z
     "/>
 
-    <!-- Roofline highlight — thin stroke traces the building tops -->
-    <path fill="none" stroke="rgba(180,140,255,0.18)" stroke-width="1.2"
-      stroke-linejoin="round" d="
-      M 0,264
-      L 48,264 L 48,257 L 66,257 L 66,264 L 82,264 L 82,256 L 97,256 L 97,252 L 110,252 L 110,260 L 124,260
-      L 132,260 L 132,252 L 142,252 L 142,246 L 152,246 L 152,252 L 163,252 L 163,244 L 172,244 L 172,252 L 185,252 L 185,260
-      L 198,260 L 198,252 L 208,248 L 214,240 L 219,248 L 225,256 L 236,260
-      L 248,260 L 248,250 L 256,244 L 262,234 L 268,222 L 272,230 L 278,244 L 286,254 L 298,262
-      L 312,262 L 312,248 L 318,236 L 322,220 L 326,202 L 330,182 L 333,162 L 336,142 L 338,124 L 340,108
-        L 342,94 L 344,82 L 346,72 L 348,64 L 350,58 L 352,54 L 354,52 L 356,50 L 357,48
-        L 358,50 L 360,55 L 362,64 L 365,76 L 368,92 L 372,112 L 377,136 L 382,163 L 388,193 L 394,224 L 402,250 L 412,262
-      L 424,262 L 424,246 L 428,234 L 432,216 L 436,195 L 439,172 L 442,148 L 445,124 L 447,100 L 449,78
-        L 451,58 L 453,42 L 455,28 L 457,18 L 459,10 L 461,5 L 462,2 L 463,0
-        L 464,2 L 465,7 L 467,16 L 470,30 L 473,48 L 477,70 L 482,96 L 487,126 L 493,158 L 500,191 L 508,224 L 516,250 L 526,262
-      L 538,262 L 538,252 L 544,252 L 544,262 L 556,262
-      L 564,262 L 564,244 L 568,230 L 572,210 L 576,188 L 579,164 L 582,138 L 584,114 L 586,90 L 588,68
-        L 590,50 L 592,34 L 594,22 L 596,12 L 598,5 L 599,2 L 600,0
-        L 601,2 L 602,7 L 604,16 L 607,30 L 610,50 L 614,74 L 618,102 L 623,134 L 629,168 L 636,202 L 644,234 L 653,256 L 664,264
-      L 678,264 L 678,246 L 682,234 L 687,216 L 691,195 L 695,172 L 698,148 L 701,122 L 703,97 L 705,74
-        L 707,54 L 709,36 L 711,22 L 713,10 L 715,3 L 716,0
-        L 717,3 L 719,10 L 721,22 L 724,38 L 728,60 L 732,87 L 737,118 L 743,152 L 750,188 L 758,224 L 766,252 L 776,264
-      L 790,264 L 790,254 L 797,244 L 803,232 L 808,218 L 812,204 L 815,192 L 817,184 L 819,190 L 822,204 L 827,222 L 834,244 L 843,258 L 856,265
-      L 869,265 L 869,252 L 873,240 L 877,224 L 880,205 L 883,184 L 885,162 L 887,138 L 888,114 L 889,92
-        L 890,72 L 890.5,55 L 891,40 L 891.5,28 L 892,18 L 892.5,10 L 893,4 L 893.3,1
-        L 893.6,4 L 894,10 L 894.5,18 L 895,28 L 895.5,40 L 896,55 L 897,74
-        L 898,95 L 900,120 L 902,148 L 906,178 L 910,210 L 916,238 L 924,258 L 936,265
-      L 950,265 L 950,254 L 957,244 L 963,230 L 968,214 L 972,197 L 975,181 L 977,168 L 979,174 L 982,190 L 987,210 L 993,234 L 1001,252 L 1014,265
-      L 1028,265 L 1028,254 L 1036,246 L 1043,234 L 1049,220 L 1054,206 L 1058,193 L 1061,182 L 1063,175 L 1065,182 L 1068,198 L 1073,218 L 1081,240 L 1092,256 L 1108,265
-      L 1124,265 L 1124,256 L 1133,250 L 1142,240 L 1150,228 L 1157,215 L 1162,202 L 1165,192 L 1167,186 L 1169,192 L 1172,206 L 1178,224 L 1187,244 L 1200,258 L 1218,265
-      L 1235,265 L 1235,258 L 1248,258 L 1248,265 L 1265,265
-      L 1275,265 L 1275,256 L 1285,252 L 1294,244 L 1302,234 L 1308,222 L 1313,212 L 1315,206 L 1317,212 L 1321,226 L 1328,244 L 1338,258 L 1354,265
-      L 1372,265 L 1372,258 L 1386,258 L 1386,265
+    <!-- Roofline edge glow — very subtle warm highlight on building tops -->
+    <path fill="none" stroke="rgba(212,175,55,0.12)" stroke-width="1.5" stroke-linejoin="round" d="
+      M0,268
+      L32,268 L32,262 L58,262 L58,256 L80,256 L80,250 L104,250 L104,258 L126,258 L126,268
+      L138,268 L138,258 L152,258 L152,248 L168,248 L168,238 L184,238 L184,228 L198,228 L198,240 L214,240 L214,255 L228,255 L228,268
+      L238,268 L238,252 L248,252 L248,240 L260,240 L260,225 L274,225 L274,210 L290,210 L290,198 L304,198 L304,185 L318,185 L318,198 L334,198 L334,215 L352,215 L352,235 L372,235 L372,258 L390,258 L390,268
+      L402,268 L402,250 L412,250 L412,232 L424,232 L424,215 L438,215 L438,198 L452,198 L452,182 L466,182 L466,165 L478,165 L478,148 L490,148 L490,133 L500,133 L500,120 L508,120 L508,108 L514,108 L514,118 L522,118 L522,135 L534,135 L534,155 L548,155 L548,175 L564,175 L564,198 L582,198 L582,222 L602,222 L602,245 L624,245 L624,268
+      L634,268 L634,248 L642,248 L642,228 L652,228 L652,208 L658,208 L658,188 L664,188 L664,165 L668,165 L668,138 L671,138 L671,110 L674,110 L674,82 L676,82 L676,58 L678,50 L679,40 L680,30 L680.5,22 L681,15 L681.5,10 L682,6 L682.5,3 L683,1 L683.5,0
+      L684,1 L684.5,3 L685,6 L685.5,10 L686,15 L686.5,22 L687,30 L688,40 L689,50 L691,58 L691,82 L693,82 L693,110 L696,110 L696,138 L699,138 L699,165 L703,165 L703,188 L709,188 L709,208 L715,208 L715,228 L725,228 L725,248 L733,248 L733,268
+      L744,268 L744,252 L756,252 L756,235 L770,235 L770,218 L786,218 L786,202 L802,202 L802,186 L818,186 L818,170 L832,170 L832,155 L844,155 L844,142 L854,142 L854,130 L862,130 L862,143 L872,143 L872,160 L884,160 L884,178 L898,178 L898,198 L914,198 L914,220 L932,220 L932,245 L952,245 L952,268
+      L962,268 L962,250 L972,250 L972,232 L984,232 L984,215 L998,215 L998,198 L1012,198 L1012,182 L1026,182 L1026,165 L1038,165 L1038,148 L1042,148 L1042,128 L1045,128 L1045,105 L1048,105 L1048,82 L1050,82 L1050,60 L1052,48 L1053,36 L1054,26 L1054.5,18 L1055,12 L1055.5,7 L1056,4 L1056.5,2 L1057,0
+      L1057.5,2 L1058,4 L1058.5,7 L1059,12 L1059.5,18 L1060,26 L1061,36 L1062,48 L1064,60 L1064,82 L1066,82 L1066,105 L1069,105 L1069,128 L1072,128 L1072,148 L1076,148 L1076,165 L1088,165 L1088,182 L1102,182 L1102,198 L1118,198 L1118,215 L1132,215 L1132,232 L1148,232 L1148,250 L1160,250 L1160,268
+      L1172,268 L1172,255 L1186,255 L1186,240 L1202,240 L1202,225 L1220,225 L1220,210 L1238,210 L1238,196 L1254,196 L1254,182 L1268,182 L1268,196 L1284,196 L1284,215 L1302,215 L1302,235 L1322,235 L1322,255 L1344,255 L1344,268
+      L1356,268 L1356,258 L1374,258 L1374,248 L1394,248 L1394,258 L1416,258 L1416,265 L1442,265 L1442,268
     "/>
 
-    <!-- ─── YACHTS ──────────────────────────────────────── -->
+    <!-- ═══ WATER ═══════════════════════════════════════════════════════════ -->
+    <rect x="0" y="272" width="1920" height="128" fill="url(#waterGrad)"/>
 
-    <!-- Yacht 1 — sleek motor yacht, left cluster -->
-    <g fill="#0D1736" transform="translate(420,248)">
-      <path d="M 2,17 Q 40,8 100,10 Q 132,10 148,17 Q 130,21 2,21 Z"/>
-      <rect x="38" y="4"  width="72" height="10" rx="2"/>
-      <rect x="52" y="-3" width="44" height="9"  rx="2"/>
-      <rect x="60" y="-9" width="28" height="7"  rx="1"/>
-      <line x1="76" y1="-9"  x2="76" y2="-28" stroke="#0D1736" stroke-width="1.5"/>
-      <line x1="64" y1="-18" x2="88" y2="-18" stroke="#0D1736" stroke-width="1"/>
-      <line x1="76" y1="-28" x2="100" y2="-3" stroke="#0D1736" stroke-width=".8" opacity=".7"/>
-    </g>
+    <!-- Gold reflection streak under towers -->
+    <rect x="620" y="272" width="120"  height="55" fill="url(#goldRefl)" opacity=".7"/>
+    <rect x="1010" y="272" width="100" height="55" fill="url(#goldRefl)" opacity=".6"/>
 
-    <!-- Yacht 2 — larger motor yacht, mid-right -->
-    <g fill="#0D1736" transform="translate(1090,246)">
-      <path d="M 3,20 Q 45,9 118,11 Q 155,11 170,20 Q 152,24 3,24 Z"/>
-      <rect x="46" y="4"  width="88" height="13" rx="2"/>
-      <rect x="62" y="-4" width="58" height="10" rx="2"/>
-      <rect x="72" y="-12" width="36" height="9" rx="1"/>
-      <line x1="90" y1="-12" x2="90" y2="-36" stroke="#0D1736" stroke-width="1.5"/>
-      <line x1="78" y1="-24" x2="102" y2="-24" stroke="#0D1736" stroke-width="1"/>
-      <line x1="90" y1="-36" x2="120" y2="4"  stroke="#0D1736" stroke-width=".8" opacity=".7"/>
-    </g>
-
-    <!-- Yacht 3 — sailboat silhouette, far right -->
-    <g fill="#0D1736" transform="translate(1580,244)">
-      <path d="M 5,24 Q 28,15 70,16 Q 90,16 100,24 Q 84,28 5,28 Z"/>
-      <line x1="42" y1="15"  x2="42" y2="-62" stroke="#0D1736" stroke-width="2"/>
-      <path d="M 42,14 L 42,-58 L 96,14 Z"/>
-      <path d="M 40,12 L 40,-50 L 4,16 Z" opacity=".8"/>
-      <line x1="42" y1="-62" x2="10" y2="-44" stroke="#0D1736" stroke-width="1" opacity=".6"/>
-    </g>
-
-    <!-- ─── WATER SURFACE ──────────────────────────────── -->
-    <rect x="0" y="265" width="1920" height="115" fill="url(#waterGrad)"/>
-
-    <!-- Water reflection of skyline — very faint, upside-down gradient fill -->
-    <rect x="0" y="265" width="1920" height="60" fill="url(#reflFade)"/>
-
-    <!-- ─── WATER SHIMMER LINES ────────────────────────── -->
-    <line class="wsh1" x1="0" y1="278" x2="1920" y2="278" stroke="#D4AF37" stroke-width="1"/>
-    <line class="wsh2" x1="80" y1="291" x2="1840" y2="291" stroke="#ffffff" stroke-width=".6"/>
-    <line class="wsh3" x1="0" y1="306" x2="1920" y2="306" stroke="#D4AF37" stroke-width=".8"/>
-    <line class="wsh4" x1="120" y1="322" x2="1800" y2="322" stroke="#ffffff" stroke-width=".5"/>
-    <line class="wsh5" x1="0" y1="340" x2="1920" y2="340" stroke="#D4AF37" stroke-width=".6"/>
-    <!-- Short glint streaks — suggests moonlight on water -->
-    <line class="wsh2" x1="580" y1="282" x2="720" y2="282" stroke="#D4AF37" stroke-width="1.5"/>
-    <line class="wsh3" x1="920" y1="295" x2="1040" y2="295" stroke="#D4AF37" stroke-width="1.2"/>
-    <line class="wsh1" x1="1260" y1="285" x2="1380" y2="285" stroke="#ffffff" stroke-width="1.4"/>
+    <!-- Water shimmer lines -->
+    <line class="wsh1" x1="0"   y1="282" x2="1920" y2="282" stroke="#D4AF37" stroke-width="1"/>
+    <line class="wsh2" x1="60"  y1="295" x2="1860" y2="295" stroke="#fff"    stroke-width=".5"/>
+    <line class="wsh3" x1="0"   y1="310" x2="1920" y2="310" stroke="#D4AF37" stroke-width=".7"/>
+    <line class="wsh4" x1="100" y1="328" x2="1820" y2="328" stroke="#fff"    stroke-width=".4"/>
+    <line class="wsh5" x1="0"   y1="348" x2="1920" y2="348" stroke="#D4AF37" stroke-width=".5"/>
+    <!-- Gold glint clusters — suggest bay reflections -->
+    <line class="wsh1" x1="620" y1="279" x2="740"  y2="279" stroke="#D4AF37" stroke-width="2" opacity=".7"/>
+    <line class="wsh3" x1="990" y1="285" x2="1110" y2="285" stroke="#D4AF37" stroke-width="1.6" opacity=".6"/>
+    <line class="wsh2" x1="300" y1="290" x2="420"  y2="290" stroke="#D4AF37" stroke-width="1.2" opacity=".5"/>
+    <line class="wsh4" x1="1350" y1="282" x2="1470" y2="282" stroke="#fff"   stroke-width="1.4" opacity=".5"/>
   </svg>
 
   <canvas id="hero-canvas"></canvas>
@@ -857,7 +832,11 @@ footer{
     <a href="mailto:hello@demoready.co">Contact</a>
   </div>
   <div class="footer-credit">
-    DemoReady.co &nbsp;·&nbsp; Miami, FL &nbsp;·&nbsp; <a href="mailto:hello@demoready.co">hello@demoready.co</a>
+    <span>DemoReady.co</span>
+    <span style="opacity:.3">·</span>
+    <span>Miami, FL</span>
+    <span style="opacity:.3">·</span>
+    <a href="mailto:hello@demoready.co">hello@demoready.co</a>
   </div>
 </footer>
 
