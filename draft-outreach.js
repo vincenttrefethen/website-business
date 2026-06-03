@@ -37,14 +37,34 @@ const WA_MESSAGE_TEMPLATE =
 
 // ─── Phone helpers ─────────────────────────────────────────────────────────────
 
-/** Returns digits only, or null if the number is unusable. */
+/**
+ * Cleans any phone string into a wa.me-ready digit string (no + needed in URL).
+ * Handles:  (305) 555-1234  |  305-555-1234  |  +1 305 555 1234  |  13055551234
+ * Returns digits-only string ready to append after wa.me/, or null if unusable.
+ */
 function normalisePhone(raw) {
-  if (!raw) return null;
-  const digits = raw.replace(/\D/g, '');
-  if (digits.length === 10) return '1' + digits;   // US local → E.164-ish
-  if (digits.length === 11 && digits[0] === '1') return digits;
-  if (digits.length > 7)   return digits;           // international — keep as-is
-  return null;                                       // too short to be useful
+  if (!raw || typeof raw !== 'string') return null;
+
+  // Strip everything except digits and leading +
+  const digits = raw.replace(/[^\d]/g, '');
+
+  if (digits.length === 10) {
+    // Standard US local: 3055551234 → 13055551234
+    return '1' + digits;
+  }
+  if (digits.length === 11 && digits[0] === '1') {
+    // Already has country code: 13055551234
+    return digits;
+  }
+  if (digits.length > 11) {
+    // Some international format — use as-is but warn
+    console.warn(`[outreach:phone] Unusual length (${digits.length} digits) for: ${raw}`);
+    return digits;
+  }
+
+  // Too short to be a real number
+  console.warn(`[outreach:phone] Skipping invalid phone (${digits.length} digits): "${raw}"`);
+  return null;
 }
 
 function buildWaUrl(phone, lead) {
@@ -245,9 +265,10 @@ function processWhatsApp(leads) {
   eligible.forEach((lead, i) => {
     const phone = normalisePhone(lead.phone);
     if (!phone) {
-      console.warn(`[draft-outreach:wa] Skipping ${lead.name} — unrecognised phone: ${lead.phone}`);
+      console.warn(`[draft-outreach:wa] ✗ SKIP  ${lead.name} — bad phone: "${lead.phone}"`);
       return;
     }
+    console.log(`[draft-outreach:wa] ✓ OK   ${lead.name} → +${phone}`);
     const waUrl = buildWaUrl(phone, lead);
     txtLines.push(`[${i + 1}] ${lead.name} | +${phone}`);
     txtLines.push(`    ${waUrl}`);
