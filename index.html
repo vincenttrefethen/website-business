@@ -122,85 +122,36 @@ a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
   text-align:center;padding:7rem 1.5rem 6rem;overflow:hidden;
 }
 
-/* Animated gradient keyframes — 8s loop, navy → purple → black */
-@keyframes skyShift{
-  0%  {background-position:0% 0%}
-  25% {background-position:100% 20%}
-  50% {background-position:60%  100%}
-  75% {background-position:20%  60%}
-  100%{background-position:0% 0%}
-}
-@keyframes skyHue{
-  0%  {filter:hue-rotate(0deg)   brightness(1)}
-  33% {filter:hue-rotate(-18deg) brightness(.92)}
-  66% {filter:hue-rotate(14deg)  brightness(1.04)}
-  100%{filter:hue-rotate(0deg)   brightness(1)}
-}
-
+/* Photo background */
 .hero-bg{
   position:absolute;inset:0;z-index:0;
-  /* 3-stop gradient that slowly morphs — navy/purple/black */
-  background:
-    radial-gradient(ellipse 140% 90% at 20% 30%, #1A0A2E 0%, transparent 60%),
-    radial-gradient(ellipse 120% 80% at 80% 70%, #0A0F1E 0%, transparent 55%),
-    radial-gradient(ellipse 100% 100% at 50% 50%,#0D0520 0%, #000 70%);
-  background-size:300% 300%;
-  animation:skyShift 8s ease-in-out infinite, skyHue 8s ease-in-out infinite;
+  background:url('/assets/hero-bg.png') center center / cover no-repeat;
 }
-/* Vignette — darkens edges for depth */
+/* Dark overlay — lets text breathe, preserves the photo mood */
 .hero-bg::before{
   content:'';position:absolute;inset:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 40%,transparent 30%,rgba(0,0,0,.55) 100%),
-    linear-gradient(to bottom,rgba(0,0,0,.15) 0%,rgba(0,0,0,.0) 40%,rgba(6,12,26,.96) 100%);
+    linear-gradient(to bottom,
+      rgba(4,8,20,.72) 0%,
+      rgba(4,8,20,.45) 35%,
+      rgba(4,8,20,.55) 65%,
+      rgba(4,8,20,.90) 100%
+    );
 }
-/* Subtle star-field texture */
+/* Subtle left/right darkening so text stays readable on any screen width */
 .hero-bg::after{
   content:'';position:absolute;inset:0;pointer-events:none;
-  background-image:
-    radial-gradient(1px 1px at 18%  12%, rgba(255,255,255,.55) 0%, transparent 100%),
-    radial-gradient(1px 1px at 72%  8%,  rgba(255,255,255,.4)  0%, transparent 100%),
-    radial-gradient(1px 1px at 45%  22%, rgba(255,255,255,.35) 0%, transparent 100%),
-    radial-gradient(1px 1px at 88%  31%, rgba(255,255,255,.5)  0%, transparent 100%),
-    radial-gradient(1px 1px at 6%   45%, rgba(255,255,255,.3)  0%, transparent 100%),
-    radial-gradient(1px 1px at 62%  55%, rgba(255,255,255,.45) 0%, transparent 100%),
-    radial-gradient(1px 1px at 33%  68%, rgba(255,255,255,.3)  0%, transparent 100%),
-    radial-gradient(1px 1px at 91%  74%, rgba(255,255,255,.4)  0%, transparent 100%),
-    radial-gradient(1px 1px at 54%  82%, rgba(255,255,255,.35) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 28% 90%,rgba(212,175,55,.5) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 78% 88%,rgba(212,175,55,.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 10%  78%, rgba(255,255,255,.3)  0%, transparent 100%);
-  opacity:.85;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 50%, transparent 40%, rgba(0,0,0,.45) 100%);
 }
 
-/* SVG skyline — above gradient, below particles */
-.hero-silhouette{
-  position:absolute;bottom:0;left:0;width:100%;z-index:1;
-  pointer-events:none;display:block;
-}
-
-/* Water shimmer animation */
-@keyframes shimmerWave{
-  0%,100%{opacity:.06}
-  50%     {opacity:.22}
-}
-@keyframes shimmerWave2{
-  0%,100%{opacity:.03}
-  50%     {opacity:.14}
-}
-.wsh1{animation:shimmerWave  3.8s ease-in-out infinite}
-.wsh2{animation:shimmerWave2 5.2s ease-in-out 1s   infinite}
-.wsh3{animation:shimmerWave  4.5s ease-in-out 2.1s infinite}
-.wsh4{animation:shimmerWave2 6.0s ease-in-out 0.7s infinite}
-.wsh5{animation:shimmerWave  3.2s ease-in-out 3.4s infinite}
-
-/* Particle canvas — above silhouette, below text */
+/* Particle canvas — above photo, below text */
 #hero-canvas{
   position:absolute;inset:0;width:100%;height:100%;
   z-index:2;pointer-events:none;
 }
 
-.hero-content{position:relative;z-index:3;max-width:880px;margin:0 auto}
+.hero-content{position:relative;z-index:3;max-width:780px;margin:0 auto}
 
 .hero-badge{
   display:inline-flex;align-items:center;gap:.55rem;
@@ -213,24 +164,30 @@ a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
 }
 .badge-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;animation:dotPulse 2s ease infinite}
 
-/* Headline — chars injected by JS */
+/* Headline */
 .hero-headline{
-  font-size:clamp(2.3rem,5vw,4rem);
-  font-weight:900;line-height:1.05;letter-spacing:-.04em;
+  font-size:clamp(2rem,4.2vw,3.6rem);
+  font-weight:900;line-height:1.1;letter-spacing:-.035em;
   margin-bottom:1.6rem;color:#fff;
-  text-shadow:0 2px 40px rgba(0,0,0,.5);
+  text-shadow:0 2px 60px rgba(0,0,0,.8),0 0 120px rgba(0,0,0,.6);
+}
+/* Each word is wrapped in a nowrap span — prevents mid-word line breaks */
+.hero-headline .word{
+  display:inline-block;white-space:nowrap;
+}
+.hero-headline .word-space{
+  display:inline-block;width:.28em;
 }
 .hero-headline .char{
   display:inline-block;
   opacity:0;
-  white-space:pre;
-  animation:charIn .6s var(--expo) forwards;
+  animation:charIn .55s var(--expo) forwards;
 }
 .hero-headline .char.gold{
   background:linear-gradient(135deg,var(--gold) 0%,var(--gold3) 55%,var(--gold) 100%);
   background-size:200% auto;
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  animation:charIn .6s var(--expo) forwards, shimmer 5s linear 1s infinite;
+  animation:charIn .55s var(--expo) forwards, shimmer 5s linear 1s infinite;
 }
 
 .hero-sub{
@@ -532,7 +489,8 @@ a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
   width:800px;height:500px;border-radius:50%;pointer-events:none;
   background:radial-gradient(ellipse,rgba(212,175,55,.12) 0%,transparent 68%);
 }
-.cta-band-inner{max-width:660px;margin:0 auto;position:relative;z-index:1}
+.cta-band-inner{max-width:720px;margin:0 auto;position:relative;z-index:1;text-align:center}
+.cta-band-inner .section-sub{max-width:560px;text-align:center;margin:0 auto 3rem}
 .cta-email{
   display:inline-flex;align-items:center;gap:.8rem;
   font-size:clamp(1.4rem,3.5vw,2rem);font-weight:800;letter-spacing:-.03em;
@@ -619,8 +577,8 @@ footer{
   <div class="hero-bg" id="hero-bg"></div>
   <div class="hero-grid"></div>
 
-  <!-- Miami/Brickell skyline silhouette — inspired by night photo reference -->
-  <svg class="hero-silhouette" xmlns="http://www.w3.org/2000/svg"
+  <!-- SVG skyline removed — real photo used instead -->
+  <svg class="hero-silhouette-DISABLED" xmlns="http://www.w3.org/2000/svg" style="display:none"
        viewBox="0 0 1920 400" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
     <defs>
       <linearGradient id="skyFill" x1="0" y1="0" x2="0" y2="1">
@@ -858,18 +816,29 @@ const SITES = [
     { text:'Miami businesses',      gold:true  },
   ];
   let delay = 0;
-  const GAP = 30; // ms per char
+  const GAP = 28;
 
   lines.forEach(line => {
     const block = document.createElement('span');
-    block.style.display = 'block';
-    [...line.text].forEach(ch => {
-      const s = document.createElement('span');
-      s.className = 'char' + (line.gold ? ' gold' : '');
-      s.textContent = ch === ' ' ? ' ' : ch;
-      s.style.animationDelay = delay + 'ms';
-      delay += GAP;
-      block.appendChild(s);
+    block.style.cssText = 'display:block';
+    const words = line.text.split(' ');
+    words.forEach((word, wi) => {
+      if (wi > 0) {
+        const sp = document.createElement('span');
+        sp.className = 'word-space';
+        block.appendChild(sp);
+      }
+      const wordEl = document.createElement('span');
+      wordEl.className = 'word';
+      [...word].forEach(ch => {
+        const s = document.createElement('span');
+        s.className = 'char' + (line.gold ? ' gold' : '');
+        s.textContent = ch;
+        s.style.animationDelay = delay + 'ms';
+        delay += GAP;
+        wordEl.appendChild(s);
+      });
+      block.appendChild(wordEl);
     });
     el.appendChild(block);
   });
