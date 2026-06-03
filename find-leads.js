@@ -56,9 +56,27 @@ async function scrapeBusinessDetails(page, placeUrl) {
       el => el.href
     ).catch(() => null);
 
+    // Google Maps phone — try three selectors in order of reliability
     const phone = await page.evaluate(() => {
-      const btn = [...document.querySelectorAll('button')].find(b => /^\+?[\d\s\(\)\-]{7,}$/.test(b.textContent.trim()));
-      return btn ? btn.textContent.trim() : '';
+      // 1. data-item-id="phone:tel:..." button (most reliable)
+      const byId = document.querySelector('[data-item-id^="phone"]');
+      if (byId) {
+        const inner = byId.querySelector('.Io6YTe, .rogA2c, .fontBodyMedium');
+        return (inner || byId).textContent.trim();
+      }
+      // 2. aria-label containing a phone number pattern
+      const byAria = [...document.querySelectorAll('[aria-label]')].find(el =>
+        /\(\d{3}\)\s*\d{3}[-\s]\d{4}/.test(el.getAttribute('aria-label') || '')
+      );
+      if (byAria) {
+        const m = byAria.getAttribute('aria-label').match(/\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]\d{4}/);
+        return m ? m[0].trim() : '';
+      }
+      // 3. Any button whose text content looks like a US phone number
+      const byText = [...document.querySelectorAll('button, [role="button"]')].find(b =>
+        /^\+?1?\s*\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]\d{4}$/.test(b.textContent.trim())
+      );
+      return byText ? byText.textContent.trim() : '';
     });
 
     const address = await page.evaluate(() => {

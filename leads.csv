@@ -1,6 +1,11 @@
 name,category,phone,address,hours,rating,reviews,city,website_found,email,demo_url,status
-Friendly Pest Control Doral,pest control,,,,5.0,9,Doral,false,,https://your-project.vercel.app/sites/friendly-pest-control-doral/index.html,
-Fog That Bug,pest control,,,,5.0,29,Doral,false,,https://your-project.vercel.app/sites/fog-that-bug/index.html,
-Master Pest Control Inc.,pest control,,,,4.2,103,Doral,false,,https://your-project.vercel.app/sites/master-pest-control-inc/index.html,
-"Suncoast Pest Control Miami, FL",pest control,,,,4.6,23,Doral,false,,https://your-project.vercel.app/sites/suncoast-pest-control-miami-fl/index.html,
-Expert Pest Control Miami,pest control,,,,,,Doral,false,,https://your-project.vercel.app/sites/expert-pest-control-miami/index.html,
+Friendly Pest Control Doral,pest control,(305) 845-3406,,,5.0,9,Doral,false,,https://demoready.co/sites/friendly-pest-control-doral/index.html,no-email
+Fog That Bug,pest control,(786) 631-7860,,,5.0,29,Doral,false,,https://demoready.co/sites/fog-that-bug/index.html,no-email
+Master Pest Control Inc.,pest control,(305) 419-3690,,,4.2,103,Doral,false,,https://demoready.co/sites/master-pest-control-inc/index.html,no-email
+"Suncoast Pest Control Miami, FL",pest control,(645) 218-4038,,,4.6,23,Doral,false,,https://demoready.co/sites/suncoast-pest-control-miami-fl/index.html,no-email
+Expert Pest Control Miami,pest control,(305) 247-1771,,,,,Doral,false,,https://demoready.co/sites/expert-pest-control-miami/index.html,no-email
+Pete's Auto Air,AC repair,(305) 556-0471,,,4.9,107,Hialeah,false,,https://demoready.co/sites/pete-s-auto-air/index.html,no-email
+Eagle Overhauling Inc,AC repair,(305) 887-7349,,,4.1,591,Hialeah,false,,https://demoready.co/sites/eagle-overhauling-inc/index.html,no-email
+Auto Air Conditioning Corporation,AC repair,(305) 885-3808,,,4.4,39,Hialeah,false,,https://demoready.co/sites/auto-air-conditioning-corporation/index.html,no-email
+Miami AC Repair Home,AC repair,(786) 228-7546,,,5.0,52,Hialeah,false,,https://demoready.co/sites/miami-ac-repair-home/index.html,no-email
+AC Repair Hialeah,AC repair,(305) 609-5132,,,5.0,2,Hialeah,false,,https://demoready.co/sites/ac-repair-hialeah/index.html,no-email
