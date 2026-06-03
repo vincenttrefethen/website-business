@@ -333,6 +333,36 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
 }
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
+
+/* ── CONVERSION FUNNEL */
+.funnel-bar{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;
+  padding:1rem 1.25rem;background:var(--glass);border:1px solid var(--border);
+  border-radius:var(--r-lg)}
+.funnel-stat{text-align:center;flex:1;min-width:80px}
+.funnel-n{font-size:1.5rem;font-weight:800;letter-spacing:-.04em;line-height:1;
+  background:linear-gradient(135deg,var(--gold),var(--gold3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.funnel-n.f-opened{background:linear-gradient(135deg,#60a5fa,#93c5fd);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.funnel-n.f-sent{background:linear-gradient(135deg,var(--green),#86efac);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.funnel-n.f-connected{background:linear-gradient(135deg,var(--amber),#fcd34d);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.funnel-l{font-size:.62rem;color:rgba(255,255,255,.35);letter-spacing:.06em;
+  text-transform:uppercase;margin-top:3px}
+.funnel-pct{font-size:.68rem;color:rgba(255,255,255,.3);margin-top:1px}
+/* Card button states */
+.btn-opened-state{background:rgba(239,68,68,.18)!important;color:#f87171!important;
+  border:1px solid rgba(239,68,68,.3)!important;pointer-events:none}
+/* Pipeline progress steps */
+.pipeline-steps{display:flex;gap:.5rem;margin-top:.85rem;flex-wrap:wrap}
+.step-pill{padding:.3rem .75rem;border-radius:99px;font-size:.72rem;font-weight:600;
+  background:rgba(255,255,255,.06);border:1px solid var(--border);color:rgba(255,255,255,.35);
+  transition:all .3s}
+.step-pill.active{background:rgba(212,175,55,.18);border-color:rgba(212,175,55,.5);color:var(--gold2)}
+.step-pill.done{background:rgba(37,211,102,.12);border-color:rgba(37,211,102,.4);color:#4ade80}
+.step-pill.failed{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.4);color:#f87171}
+
 /* ── RESPONSIVE ────────────────────────────────────────────────────────────── */
 @media(max-width:600px){
   .stats-bar{gap:0}
@@ -447,6 +477,7 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
     </button>
     <span class="count-badge" id="wa-badge-text">Loading…</span>
   </div>
+  <div class="funnel-bar" id="funnel-bar"></div>
   <div class="card-grid" id="wa-grid"></div>
 </div>
 
@@ -569,7 +600,14 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
           Run All
         </button>
       </div>
-      <div class="skill-desc">Runs the complete morning pipeline: find-leads → build-sites → find-contact → draft-outreach → follow-up. ~15 min total.</div>
+      <div class="skill-desc">Runs the complete pipeline: find-leads → build-sites → draft-outreach → follow-up → archive. ~15 min total.</div>
+      <div class="pipeline-steps" id="pipeline-steps">
+        <span class="step-pill" id="ps-find-leads">1. Find Leads</span>
+        <span class="step-pill" id="ps-build-sites">2. Build Sites</span>
+        <span class="step-pill" id="ps-draft-outreach">3. Outreach</span>
+        <span class="step-pill" id="ps-follow-up">4. Follow-ups</span>
+        <span class="step-pill" id="ps-archive">5. Archive</span>
+      </div>
       <div class="skill-log" id="log-morning"></div>
     </div>
 
@@ -677,12 +715,15 @@ async function loadAll() {
   }
 }
 
+// ── STATUS HELPERS ────────────────────────────────────────────────────────────
+function isNewStatus(s)  { return !s || s === 'new' || s === 'opened'; }
+function isSentStatus(s) { return s === 'sent' || s === 'contacted'; }
+
 // ── HEADER ────────────────────────────────────────────────────────────────────
 function updateHeader(reportText) {
   document.getElementById('today-date').textContent =
     new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
 
-  // Parse run time from report
   const m = reportText.match(/Run at: (.+)/);
   if (m) {
     const d = new Date(m[1].trim());
@@ -690,21 +731,18 @@ function updateHeader(reportText) {
       isNaN(d) ? m[1].trim() : d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   }
 
-  const todayStr  = today();
-  const waLeads   = LEADS.filter(r => r.phone && r.demo_url && r.status !== 'contacted' && r.status !== 'followedup' && r.status !== 'followedup');
-  const fuLeads   = LEADS.filter(r => r.status === 'contacted' && r.demo_url && r.phone && daysAgo(r.outreach_date) >= CFG.followupDays);
+  const waReady = LEADS.filter(r => isNewStatus(r.status) && r.phone && r.demo_url);
+  const fuLeads = LEADS.filter(r => isSentStatus(r.status) && r.demo_url && r.phone &&
+                    daysAgo(r.outreach_date) >= CFG.followupDays);
+  const newLeads = LEADS.filter(r => isNewStatus(r.status) && r.demo_url);
 
-  // Leads found today = leads with no outreach date (fresh from today's run)
-  const todayLeads = LEADS.filter(r => !r.outreach_date && r.demo_url);
-
-  document.getElementById('stat-leads').textContent    = todayLeads.length;
-  document.getElementById('stat-sites').textContent    = SITES.length;
-  document.getElementById('stat-wa').textContent       = waLeads.length;
-  document.getElementById('stat-followups').textContent= fuLeads.length;
-  document.getElementById('stat-total').textContent    = SITES.length;
-
-  document.getElementById('badge-wa').textContent = waLeads.length;
-  document.getElementById('badge-fu').textContent = fuLeads.length;
+  document.getElementById('stat-leads').textContent     = newLeads.length;
+  document.getElementById('stat-sites').textContent     = SITES.length;
+  document.getElementById('stat-wa').textContent        = waReady.length;
+  document.getElementById('stat-followups').textContent = fuLeads.length;
+  document.getElementById('stat-total').textContent     = SITES.length;
+  document.getElementById('badge-wa').textContent       = waReady.length;
+  document.getElementById('badge-fu').textContent       = fuLeads.length;
 }
 
 // ── TAB 1 — REPORT ────────────────────────────────────────────────────────────
@@ -744,76 +782,125 @@ function renderReport(text, rot) {
 
 // ── TAB 2 — WHATSAPP OUTREACH ─────────────────────────────────────────────────
 let waEntries = [];
+
+function renderFunnel() {
+  const total     = LEADS.length || 1;
+  const opened    = LEADS.filter(r => r.status === 'opened').length;
+  const sent      = LEADS.filter(r => isSentStatus(r.status)).length;
+  const connected = LEADS.filter(r => r.status === 'connected' || r.status === 'converted').length;
+  const newCount  = LEADS.filter(r => isNewStatus(r.status)).length;
+  const pct = n => Math.round((n/total)*100);
+  const fb = document.getElementById('funnel-bar');
+  if (!fb) return;
+  fb.innerHTML = `
+    <div class="funnel-stat"><div class="funnel-n">${newCount}</div><div class="funnel-l">New</div></div>
+    <div class="funnel-stat"><div class="funnel-n f-opened">${opened}</div><div class="funnel-l">Opened</div><div class="funnel-pct">${pct(opened)}%</div></div>
+    <div class="funnel-stat"><div class="funnel-n f-sent">${sent}</div><div class="funnel-l">Sent</div><div class="funnel-pct">${pct(sent)}%</div></div>
+    <div class="funnel-stat"><div class="funnel-n f-connected">${connected}</div><div class="funnel-l">Connected</div><div class="funnel-pct">${pct(connected)}%</div></div>`;
+}
+
 function renderWa() {
-  waEntries = LEADS.filter(r =>
-    r.phone && r.demo_url &&
-    r.status !== 'contacted' && r.status !== 'followedup'
-  );
+  waEntries = LEADS.filter(r => r.phone && r.demo_url && isNewStatus(r.status));
   document.getElementById('wa-count').textContent = waEntries.length;
   document.getElementById('wa-badge-text').textContent =
     `${waEntries.length} lead${waEntries.length===1?'':'s'} ready`;
+  renderFunnel();
 
   const grid = document.getElementById('wa-grid');
   if (!waEntries.length) {
-    grid.innerHTML = '<div class="empty-state"><span>💬</span>No new leads ready for outreach today.<br>Run Find Leads + Build Sites first.</div>';
+    grid.innerHTML = '<div class="empty-state"><span>💬</span>No new leads ready.<br>Run Find Leads + Build Sites first.</div>';
     return;
   }
   grid.innerHTML = waEntries.map((l,i) => {
-    const url = waUrl(l.phone, l.name, l.demo_url, l.rating, l.reviews);
+    const url      = waUrl(l.phone, l.name, l.demo_url, l.rating, l.reviews);
     if (!url) return '';
-    const msg = WA_MSG(l.name, l.demo_url, l.rating, l.reviews).slice(0,120)+'…';
+    const msg      = WA_MSG(l.name, l.demo_url, l.rating, l.reviews).slice(0,120)+'…';
+    const isOpened = l.status === 'opened';
+    const waBtn    = isOpened
+      ? `<span class="btn btn-opened-state">📵 Opened</span>`
+      : `<a class="btn btn-green" href="${esc(url)}" target="_blank" onclick="openWa(${i},event)">📱 Open WhatsApp</a>`;
     return `<div class="lead-card" id="wa-card-${i}">
       <div class="card-top">
         <div class="card-name">${esc(l.name)}</div>
         <div class="card-meta">
-          ${tagHtml(l.city)}
-          ${tagHtml(l.category,'tag-cat')}
+          ${tagHtml(l.city)}${tagHtml(l.category,'tag-cat')}
           ${l.rating?tagHtml('⭐ '+l.rating,'tag-gold'):''}
-          ${l.reviews?tagHtml(l.reviews+' reviews'):''}
+          ${l.reviews?tagHtml(l.reviews+' rev'):''}
+          ${isOpened?'<span class="tag tag-age">opened</span>':''}
         </div>
         <div class="card-phone">${esc(l.phone)}</div>
       </div>
       <div class="card-msg">"${esc(msg)}"</div>
-      <div class="card-actions">
-        <a class="btn btn-green" href="${esc(url)}" target="_blank" onclick="markWaSent(${i})">
-          📱 Send on WhatsApp
-        </a>
-        ${l.demo_url?`<a class="demo-link" href="${esc(l.demo_url)}" target="_blank">View Demo →</a>`:''}
+      <div class="card-actions" style="flex-wrap:wrap;gap:.5rem">
+        ${waBtn}
+        <button class="btn btn-ghost" onclick="markSent(${i})" style="font-size:.75rem">✓ Mark Sent</button>
+        <button class="btn btn-ghost" onclick="skipLead(${i})" style="font-size:.75rem;color:rgba(255,255,255,.3)">Skip</button>
+        ${l.demo_url?`<a class="demo-link" href="${esc(l.demo_url)}" target="_blank">Demo →</a>`:''}
       </div>
     </div>`;
   }).join('');
 }
 
-function markWaSent(i) {
+async function patchLead(name, updates) {
+  return fetch(`${API}/api/leads/update`,{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name,updates}),
+  }).catch(()=>{});
+}
+
+function openWa(i, e) {
   const lead = waEntries[i];
   if (!lead) return;
   const card = document.getElementById('wa-card-'+i);
-  setTimeout(async () => {
-    if (card) card.classList.add('sent');
-    const actions = card?.querySelector('.card-actions');
-    if (actions) actions.innerHTML = '<span class="btn sent-label">✓ Sent</span>';
-    await fetch(`${API}/api/leads/update`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ name: lead.name, updates: { status:'contacted', outreach_date: today() } }),
-    }).catch(()=>{});
-    // Refresh data silently
-    setTimeout(loadAll, 500);
-  }, 800);
+  const btn  = card?.querySelector('.btn-green');
+  if (btn) { btn.className='btn btn-opened-state'; btn.textContent='📵 Opened'; }
+  const meta = card?.querySelector('.card-meta');
+  if (meta && !meta.querySelector('.tag-age'))
+    meta.insertAdjacentHTML('beforeend','<span class="tag tag-age">opened</span>');
+  patchLead(lead.name, { status:'opened' });
+}
+
+function markSent(i) {
+  const lead = waEntries[i];
+  if (!lead) return;
+  const card = document.getElementById('wa-card-'+i);
+  if (card) {
+    card.style.maxHeight  = card.scrollHeight+'px';
+    card.style.overflow   = 'hidden';
+    card.style.transition = 'max-height .4s ease,opacity .4s ease,margin .4s ease';
+    requestAnimationFrame(()=>{
+      card.style.maxHeight='0';card.style.opacity='0';
+      card.style.marginTop='0';card.style.marginBottom='0';
+    });
+  }
+  patchLead(lead.name,{status:'sent',outreach_date:today()}).then(()=>setTimeout(loadAll,600));
+}
+
+function skipLead(i) {
+  const lead = waEntries[i];
+  if (!lead) return;
+  const card = document.getElementById('wa-card-'+i);
+  if (card){card.style.transition='opacity .3s';card.style.opacity='0';setTimeout(()=>card.remove(),300);}
+  patchLead(lead.name,{status:'skip'}).then(()=>setTimeout(loadAll,400));
 }
 
 function openAllWa() {
-  waEntries.forEach((l,i) => {
-    const url = waUrl(l.phone, l.name, l.demo_url, l.rating, l.reviews);
-    if (url) setTimeout(() => window.open(url,'_blank'), i*2000);
+  const toOpen = waEntries.filter(l => l.status !== 'opened');
+  toOpen.forEach((l,i)=>{
+    const url = waUrl(l.phone,l.name,l.demo_url,l.rating,l.reviews);
+    if (url) setTimeout(()=>{
+      window.open(url,'_blank');
+      const idx = waEntries.indexOf(l);
+      if (idx!==-1) openWa(idx,null);
+    }, i*2000);
   });
-  setTimeout(() => waEntries.forEach((_,i) => markWaSent(i)), waEntries.length*2000+500);
 }
 
 // ── TAB 3 — FOLLOW-UPS ────────────────────────────────────────────────────────
 let fuEntries = [];
 function renderFu() {
   fuEntries = LEADS.filter(r =>
-    r.status === 'contacted' && r.demo_url && r.phone &&
+    isSentStatus(r.status) && r.demo_url && r.phone &&
     daysAgo(r.outreach_date) >= CFG.followupDays
   );
   document.getElementById('fu-count').textContent = fuEntries.length;
@@ -862,7 +949,7 @@ function markFuSent(i) {
     if (actions) actions.innerHTML = '<span class="btn sent-label">✓ Sent</span>';
     await fetch(`${API}/api/leads/update`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ name: lead.name, updates: { status:'followedup' } }),
+      body: JSON.stringify({ name: lead.name, updates: { status:'followedup', followup_date: today() } }),
     }).catch(()=>{});
     setTimeout(loadAll, 500);
   }, 800);
@@ -973,9 +1060,36 @@ function runSkill(skill, btn) {
   evtSrc.addEventListener('start', e => {
     const d = JSON.parse(e.data);
     appendLog(logEl, `▶ Starting ${d.script}…`, '');
+    // Reset step pills
+    document.querySelectorAll('.step-pill').forEach(p => p.className = 'step-pill');
   });
+  // Map log lines to pipeline step indicators for 'morning' skill
+  const STEP_SIGNALS = {
+    'SKILL: find-leads':     'ps-find-leads',
+    'SKILL: build-sites':    'ps-build-sites',
+    'SKILL: draft-outreach': 'ps-draft-outreach',
+    'SKILL: follow-up':      'ps-follow-up',
+    'SKILL: archive':        'ps-archive',
+  };
+  let activeStep = null;
+
   evtSrc.addEventListener('log', e => {
-    appendLog(logEl, JSON.parse(e.data).line, '');
+    const line = JSON.parse(e.data).line;
+    appendLog(logEl, line, '');
+    // Update pipeline step pills if running full pipeline
+    if (skill === 'morning') {
+      for (const [signal, pillId] of Object.entries(STEP_SIGNALS)) {
+        if (line.includes(signal)) {
+          if (activeStep) {
+            const prev = document.getElementById(activeStep);
+            if (prev) prev.className = 'step-pill done';
+          }
+          activeStep = pillId;
+          const pill = document.getElementById(pillId);
+          if (pill) pill.className = 'step-pill active';
+        }
+      }
+    }
   });
   evtSrc.addEventListener('err', e => {
     appendLog(logEl, JSON.parse(e.data).line, 'log-err');
@@ -990,6 +1104,11 @@ function runSkill(skill, btn) {
     appendLog(logEl, `✓ Done (exit ${d.code})`, 'log-done');
     evtSrc.close();
     resetBtn(skill, btn);
+    // Mark last active step done
+    if (skill === 'morning' && activeStep) {
+      const pill = document.getElementById(activeStep);
+      if (pill) pill.className = d.code === 0 ? 'step-pill done' : 'step-pill failed';
+    }
     setTimeout(loadAll, 1000);
   });
 }

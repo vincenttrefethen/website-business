@@ -160,10 +160,11 @@ function apiRotation(res) {
 
 function apiConfig(res) {
   json(res, {
-    vercelBaseUrl:  config.VERCEL_BASE_URL,
-    followupDays:   config.FOLLOWUP_DAYS,
-    combosPerRun:   config.COMBOS_PER_RUN,
-    maxLeadsPerRun: config.MAX_LEADS_PER_RUN,
+    vercelBaseUrl:    config.VERCEL_BASE_URL,
+    followupDays:     config.FOLLOWUP_DAYS,
+    archiveAfterDays: config.ARCHIVE_AFTER_DAYS,
+    combosPerRun:     config.COMBOS_PER_RUN,
+    maxLeadsPerRun:   config.MAX_LEADS_PER_RUN,
   });
 }
 

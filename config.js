@@ -37,18 +37,30 @@ module.exports = {
   ROTATION_LOG: path.join(__dirname, 'rotation-log.json'),
 
   // ─── Behaviour ────────────────────────────────────────────────────────────
-  MAX_LEADS_PER_RUN:   100,  // total leads per morning run
-  COMBOS_PER_RUN:        5,  // city+category combinations scraped in parallel
-  MAX_LEADS_PER_COMBO:  20,  // leads per combination
+  MAX_LEADS_PER_RUN:    100, // hard cap — keep pulling combos until this is hit
+  COMBOS_PER_RUN:         5, // parallel combos per batch
+  MAX_LEADS_PER_COMBO:   20, // max leads to collect per combo
+  MAX_COMBO_BATCHES:     20, // safety ceiling — never run more than this many batches
   VERCEL_DEPLOY_WAIT_MS: 15000,
-  PUPPETEER_TIMEOUT: 30000,
+  PUPPETEER_TIMEOUT:     30000,
+  FOLLOWUP_DAYS:          3, // days after "sent" before follow-up is due
+  ARCHIVE_AFTER_DAYS:    30, // move sent/followedup/skip leads older than this to archive
+
+  // ── Status lifecycle ──────────────────────────────────────────────────────
+  // new        → just scraped, never touched
+  // opened     → WA link opened in dashboard
+  // sent       → owner confirmed they sent the message
+  // followedup → follow-up message sent
+  // connected  → lead replied / owner made contact
+  // converted  → paying customer
+  // skip       → manually skipped, never show again
+  // no-email   → email search exhausted
+  // error      → pipeline error
 
   // CSV column order (keep stable so rows stay aligned)
   CSV_HEADERS: [
     'name', 'category', 'phone', 'address', 'hours',
     'rating', 'reviews', 'city', 'website_found',
-    'email', 'demo_url', 'status', 'outreach_date',
+    'email', 'demo_url', 'status', 'outreach_date', 'followup_date',
   ],
-
-  FOLLOWUP_DAYS: 3,   // days after outreach before a follow-up is sent
 };
