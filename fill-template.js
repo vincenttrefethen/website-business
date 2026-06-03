@@ -63,6 +63,54 @@ const SERVICE_CARDS = {
     { icon: '🛢️', title: 'Oil Change', desc: 'Quick lube and fluid service' },
     { icon: '⚡', title: 'Electrical', desc: 'Battery and electrical system' },
   ],
+  'mobile detailing': [
+    { icon: '🚗', title: 'Full Detail', desc: 'Interior and exterior top-to-bottom' },
+    { icon: '✨', title: 'Express Wash', desc: 'Quick clean at your location' },
+    { icon: '🪟', title: 'Paint Correction', desc: 'Swirl removal and polish' },
+    { icon: '🛡️', title: 'Ceramic Coating', desc: 'Long-lasting paint protection' },
+  ],
+  'house painter': [
+    { icon: '🖌️', title: 'Interior Paint', desc: 'Walls, ceilings, trim, and doors' },
+    { icon: '🏠', title: 'Exterior Paint', desc: 'Full exterior and pressure wash prep' },
+    { icon: '🎨', title: 'Color Consult', desc: 'Help picking the perfect palette' },
+    { icon: '🪣', title: 'Cabinet Painting', desc: 'Kitchen and bathroom refresh' },
+  ],
+  'pressure washing': [
+    { icon: '💦', title: 'Driveways', desc: 'Oil stains and grime blasted clean' },
+    { icon: '🏠', title: 'House Wash', desc: 'Roof, siding, and gutters' },
+    { icon: '🪵', title: 'Decks & Fences', desc: 'Restore wood and composite' },
+    { icon: '🏢', title: 'Commercial', desc: 'Parking lots and storefronts' },
+  ],
+  'mobile notary': [
+    { icon: '📝', title: 'Document Signing', desc: 'We come to you — home or office' },
+    { icon: '🏠', title: 'Real Estate', desc: 'Closings and loan signings' },
+    { icon: '⚖️', title: 'Legal Docs', desc: 'Wills, trusts, and affidavits' },
+    { icon: '🚗', title: 'Mobile Service', desc: 'Available 7 days including evenings' },
+  ],
+  'personal trainer': [
+    { icon: '💪', title: '1-on-1 Training', desc: 'Custom workouts built for your goals' },
+    { icon: '🏠', title: 'In-Home Sessions', desc: 'Train in your own space' },
+    { icon: '🥗', title: 'Nutrition Coaching', desc: 'Meal plans and accountability' },
+    { icon: '📱', title: 'Online Training', desc: 'Remote coaching and programming' },
+  ],
+  'dog groomer': [
+    { icon: '🐶', title: 'Full Groom', desc: 'Bath, cut, brush, and nails' },
+    { icon: '🛁', title: 'Bath & Brush', desc: 'Blowout and de-shed treatment' },
+    { icon: '✂️', title: 'Breed Cuts', desc: 'Breed-standard styling' },
+    { icon: '🚐', title: 'Mobile Grooming', desc: 'We come to your driveway' },
+  ],
+  photography: [
+    { icon: '📸', title: 'Portraits', desc: 'Family, headshots, and graduation' },
+    { icon: '💒', title: 'Weddings', desc: 'Full day coverage and albums' },
+    { icon: '🏠', title: 'Real Estate', desc: 'Listings that sell faster' },
+    { icon: '📦', title: 'Product & Brand', desc: 'E-commerce and social content' },
+  ],
+  'food truck': [
+    { icon: '🍽️', title: 'Daily Service', desc: 'Find us on the schedule below' },
+    { icon: '🎉', title: 'Private Events', desc: 'Weddings, parties, and corporate' },
+    { icon: '🏢', title: 'Office Catering', desc: 'Lunch service for your team' },
+    { icon: '📍', title: 'Find Us', desc: 'Follow for daily location updates' },
+  ],
 };
 
 const COLORS = {
@@ -74,8 +122,16 @@ const COLORS = {
   handyman:         '#795548',
   'pest control':   '#F44336',
   'ac repair':      '#00BCD4',
-  locksmith:        '#607D8B',
-  'auto repair':    '#FF5722',
+  locksmith:           '#607D8B',
+  'auto repair':       '#FF5722',
+  'mobile detailing':  '#1565C0',
+  'house painter':     '#AD1457',
+  'pressure washing':  '#0288D1',
+  'mobile notary':     '#4527A0',
+  'personal trainer':  '#2E7D32',
+  'dog groomer':       '#F57F17',
+  photography:         '#37474F',
+  'food truck':        '#E65100',
 };
 
 function slugify(str) {

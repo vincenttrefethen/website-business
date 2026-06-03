@@ -47,8 +47,12 @@ function slugToLabel(slug) {
 function categoryIcon(cat) {
   const map = {
     plumber: '🔧', electrician: '⚡', 'cleaning service': '🧹',
-    landscaping: '🌿', painter: '🎨', 'auto repair': '🚗',
+    landscaping: '🌿', painter: '🎨', 'house painter': '🖌️',
+    'auto repair': '🚗', 'mobile detailing': '✨',
     'pest control': '🐛', locksmith: '🔑', hvac: '❄️', roofer: '🏠',
+    handyman: '🔨', 'pressure washing': '💦', 'mobile notary': '📝',
+    'personal trainer': '💪', 'dog groomer': '🐶',
+    photography: '📸', 'food truck': '🍽️',
   };
   if (!cat) return '🏪';
   const lower = cat.toLowerCase();
