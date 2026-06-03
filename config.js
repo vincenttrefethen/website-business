@@ -4,7 +4,14 @@ const os = require('os');
 module.exports = {
   // ─── Chrome ───────────────────────────────────────────────────────────────
   CHROME_PATH: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-  // Chrome user data dir for Gmail automation (uses your existing login session)
+
+  // Dedicated Puppeteer profile — never conflicts with your open Chrome tabs.
+  // First run: Chrome opens visibly so you can sign into Gmail, then close it.
+  // Every run after that reuses the saved session silently.
+  PUPPETEER_USER_DATA_DIR: path.join(__dirname, '.chrome-puppeteer'),
+  PUPPETEER_PROFILE: 'Default',
+
+  // Legacy — kept so other scripts that reference it don't break
   CHROME_USER_DATA_DIR: path.join(os.homedir(), 'AppData', 'Local', 'Google', 'Chrome', 'User Data'),
   CHROME_PROFILE: 'Default',
 

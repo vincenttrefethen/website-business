@@ -166,15 +166,37 @@ async function processEmail(leads) {
     return 0;
   }
 
+  // Use a dedicated Puppeteer profile so it never locks or conflicts with
+  // the user's open Chrome windows.
+  //
+  // First run: Chrome opens visibly at Gmail so you can log in, then close
+  // it. The session is saved in .chrome-puppeteer/ and reused from then on.
+  const profileDir = config.PUPPETEER_USER_DATA_DIR;
+  fs.mkdirSync(profileDir, { recursive: true });
+
+  const isFirstRun = !fs.existsSync(
+    path.join(profileDir, config.PUPPETEER_PROFILE, 'Cookies')
+  );
+
+  if (isFirstRun) {
+    console.log('[draft-outreach:email] First run — Chrome will open so you can sign into Gmail.');
+    console.log('[draft-outreach:email] Sign in, then close the browser window to continue.');
+  }
+
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: false,                           // always visible — avoids detection
     executablePath: config.CHROME_PATH,
-    userDataDir:    config.CHROME_USER_DATA_DIR,
+    userDataDir:    profileDir,                // isolated from your real Chrome
     args: [
-      `--profile-directory=${config.CHROME_PROFILE}`,
-      '--window-position=0,-2000',
-      '--window-size=1366,768',
+      `--profile-directory=${config.PUPPETEER_PROFILE}`,
       '--no-sandbox',
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--disable-background-networking',
+      '--disable-default-apps',
+      '--window-size=1366,768',
+      // Position off-screen when not first run so it doesn't interrupt work
+      ...(isFirstRun ? [] : ['--window-position=0,-2000']),
     ],
     defaultViewport: { width: 1366, height: 768 },
   });
@@ -186,7 +208,12 @@ async function processEmail(leads) {
     await new Promise(r => setTimeout(r, 3000));
 
     if (page.url().includes('accounts.google.com')) {
-      console.error('[draft-outreach:email] Gmail not logged in — open Chrome, sign in, then re-run.');
+      console.error(
+        '[draft-outreach:email] Not logged in to Gmail in the Puppeteer profile.\n' +
+        '  Close Chrome, then run:  node draft-outreach.js\n' +
+        '  Chrome will open — sign into Gmail — close it — re-run.'
+      );
+      await browser.close();
       return 0;
     }
 
