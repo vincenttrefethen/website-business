@@ -801,11 +801,11 @@ footer{
 <script>
 /* ── SITE DATA ───────────────────────────────────────────── */
 const SITES = [
-  { slug:'friendly-pest-control-doral',   name:'Friendly Pest Control Doral',  cat:'Pest Control', city:'Doral'  },
-  { slug:'fog-that-bug',                  name:'Fog That Bug',                  cat:'Pest Control', city:'Doral'  },
-  { slug:'master-pest-control-inc',       name:'Master Pest Control Inc.',      cat:'Pest Control', city:'Miami'  },
-  { slug:'suncoast-pest-control-miami-fl',name:'Suncoast Pest Control Miami',   cat:'Pest Control', city:'Miami'  },
-  { slug:'expert-pest-control-miami',     name:'Expert Pest Control Miami',     cat:'Pest Control', city:'Miami'  },
+  { slug:'expert-pest-control-miami', name:'Expert Pest Control Miami', cat:'pest control', city:'Doral', url:'https://demoready.co/sites/expert-pest-control-miami/index.html' },
+  { slug:'fog-that-bug', name:'Fog That Bug', cat:'pest control', city:'Doral', url:'https://demoready.co/sites/fog-that-bug/index.html' },
+  { slug:'friendly-pest-control-doral', name:'Friendly Pest Control Doral', cat:'pest control', city:'Doral', url:'https://demoready.co/sites/friendly-pest-control-doral/index.html' },
+  { slug:'master-pest-control-inc', name:'Master Pest Control Inc.', cat:'pest control', city:'Doral', url:'https://demoready.co/sites/master-pest-control-inc/index.html' },
+  { slug:'suncoast-pest-control-miami-fl', name:'Suncoast Pest Control Miami, FL', cat:'pest control', city:'Doral', url:'https://demoready.co/sites/suncoast-pest-control-miami-fl/index.html' }
 ];
 
 /* ── HERO HEADLINE — char-by-char ────────────────────────── */
@@ -1001,7 +1001,7 @@ SITES.forEach((site, i) => {
     <div class="card-body">
       <div class="card-category">${site.cat} &nbsp;·&nbsp; ${site.city}</div>
       <div class="card-name">${site.name}</div>
-      <a class="card-btn" href="/sites/${site.slug}/index.html" target="_blank" rel="noopener">
+      <a class="card-btn" href="${site.url || '/sites/'+site.slug+'/index.html'}" target="_blank" rel="noopener">
         View Demo
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
           stroke-linecap="round" stroke-linejoin="round">

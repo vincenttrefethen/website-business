@@ -23,6 +23,7 @@ module.exports = {
   CONTACT_LOG:       path.join(__dirname, 'contact-log.txt'),
   MORNING_REPORT:    path.join(__dirname, 'morning-report.txt'),
   EMAIL_TEMPLATE:    path.join(__dirname, 'email-template.txt'),
+  WHATSAPP_QUEUE:    path.join(__dirname, 'whatsapp-queue.txt'),
   TARGETS_FILE:      path.join(__dirname, 'targets.json'),
   SITE_TEMPLATE:     path.join(__dirname, 'site-template.html'),
 
