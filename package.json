@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dashboard": "node server.js",
+    "server":    "node server.js",
+    "morning":   "node run-morning.js",
+    "test":      "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",

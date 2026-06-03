@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DemoReady — Morning Dashboard</title>
+<style>
+/* ── RESET & TOKENS ────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:#060C1A;color:#fff;min-height:100vh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+:root{
+  --navy:#060C1A;--navy2:#0A0F1E;--navy3:#0F1629;--navy4:#1A2035;
+  --gold:#D4AF37;--gold2:#EDD060;--gold3:#F5E088;
+  --green:#25D366;--green2:#1da851;
+  --amber:#F59E0B;--amber2:#D97706;
+  --blue:#3B82F6;--red:#EF4444;
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);
+  --glass:rgba(255,255,255,.04);--glass2:rgba(255,255,255,.07);
+  --r:12px;--r-lg:18px;
+  --gold-glow:rgba(212,175,55,.25);
+}
+button{cursor:pointer;font-family:inherit}
+input,select{font-family:inherit;color:#fff}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--navy2)}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px}
+
+/* ── HEADER ────────────────────────────────────────────────────────────────── */
+.header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(6,12,26,.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.header-main{
+  max-width:1400px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.9rem 1.5rem;gap:1rem;flex-wrap:wrap;
+}
+.logo{font-size:1.2rem;font-weight:800;letter-spacing:-.03em;white-space:nowrap}
+.logo span{color:var(--gold)}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);
+  display:inline-block;margin-left:3px;
+  animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+.header-right{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
+.run-time{font-size:.78rem;color:rgba(255,255,255,.38);white-space:nowrap}
+.run-time strong{color:rgba(255,255,255,.6)}
+
+/* Quick stats bar */
+.stats-bar{
+  max-width:1400px;margin:0 auto;
+  display:flex;gap:1px;overflow:hidden;
+  border-bottom:1px solid var(--border);
+}
+.stat-pill{
+  flex:1;padding:.65rem 1rem;text-align:center;
+  background:var(--navy2);cursor:pointer;
+  transition:background .2s;
+  min-width:100px;
+}
+.stat-pill:hover{background:var(--navy4)}
+.stat-pill.active-tab-hint{background:rgba(212,175,55,.08)}
+.stat-n{font-size:1.4rem;font-weight:800;letter-spacing:-.04em;line-height:1;
+  background:linear-gradient(135deg,var(--gold),var(--gold3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-l{font-size:.62rem;color:rgba(255,255,255,.38);letter-spacing:.06em;
+  text-transform:uppercase;margin-top:2px}
+
+/* ── TABS ──────────────────────────────────────────────────────────────────── */
+.tab-nav{
+  max-width:1400px;margin:0 auto;
+  display:flex;border-bottom:1px solid var(--border);
+  overflow-x:auto;padding:0 1.5rem;gap:0;
+}
+.tab-btn{
+  padding:.85rem 1.4rem;font-size:.83rem;font-weight:600;
+  color:rgba(255,255,255,.42);border:none;background:none;
+  border-bottom:2px solid transparent;white-space:nowrap;
+  transition:color .2s,border-color .2s;letter-spacing:.01em;
+  position:relative;
+}
+.tab-btn:hover{color:rgba(255,255,255,.7)}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;border-radius:99px;font-size:.62rem;
+  font-weight:700;padding:0 4px;margin-left:5px;
+  background:rgba(212,175,55,.18);color:var(--gold2);vertical-align:middle;
+}
+
+/* ── CONTENT PANE ──────────────────────────────────────────────────────────── */
+.content{max-width:1400px;margin:0 auto;padding:1.5rem;display:none}
+.content.active{display:block}
+
+/* ── CARDS ─────────────────────────────────────────────────────────────────── */
+.glass-card{
+  background:var(--glass);backdrop-filter:blur(12px);
+  border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:1.25rem 1.5rem;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.06);
+}
+.section-label{
+  font-size:.68rem;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(212,175,55,.7);
+  margin-bottom:1rem;display:block;
+}
+
+/* ── TAB 1 — MORNING REPORT ────────────────────────────────────────────────── */
+.report-grid{display:grid;grid-template-columns:1fr 300px;gap:1.25rem}
+@media(max-width:900px){.report-grid{grid-template-columns:1fr}}
+.report-text{white-space:pre-wrap;font-size:.82rem;line-height:1.7;
+  color:rgba(255,255,255,.7);font-family:'Courier New',monospace}
+.rotation-ring{text-align:center;padding:1.5rem 1rem}
+.ring-wrap{position:relative;width:140px;height:140px;margin:0 auto 1rem}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:12}
+.ring-fill{fill:none;stroke:url(#goldGrad);stroke-width:12;
+  stroke-linecap:round;transition:stroke-dashoffset .8s ease}
+.ring-text{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.ring-pct{font-size:1.6rem;font-weight:900;letter-spacing:-.05em;
+  background:linear-gradient(135deg,var(--gold),var(--gold3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ring-sub{font-size:.65rem;color:rgba(255,255,255,.4);letter-spacing:.06em}
+.rotation-stats{font-size:.8rem;color:rgba(255,255,255,.5);line-height:1.9}
+.rotation-stats strong{color:rgba(255,255,255,.8)}
+.combo-list{margin-top:1.25rem}
+.combo-item{display:flex;align-items:center;justify-content:space-between;
+  padding:.5rem .75rem;border-radius:8px;background:var(--glass2);
+  font-size:.78rem;margin-bottom:.4rem}
+.combo-city{font-weight:600;color:#fff}
+.combo-cat{color:rgba(255,255,255,.5)}
+.combo-n{font-weight:700;color:var(--gold2);font-size:.9rem}
+
+/* ── LEAD CARDS (Tab 2 & 3) ────────────────────────────────────────────────── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+.lead-card{
+  background:var(--glass);border:1px solid var(--border);
+  border-radius:var(--r-lg);overflow:hidden;
+  transition:border-color .25s,box-shadow .25s;
+  position:relative;
+}
+.lead-card:hover{border-color:rgba(212,175,55,.3);
+  box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.lead-card.sent{border-color:rgba(37,211,102,.3);
+  background:rgba(37,211,102,.03)}
+.card-top{
+  padding:1.1rem 1.25rem .75rem;
+  border-bottom:1px solid var(--border);
+}
+.card-name{font-size:1rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.5rem}
+.card-meta{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.6rem}
+.tag{font-size:.65rem;padding:2px 8px;border-radius:99px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.5);text-transform:capitalize}
+.tag-cat{border-color:rgba(99,120,255,.35);color:#8aabff}
+.tag-gold{border-color:rgba(212,175,55,.35);color:var(--gold2)}
+.tag-age{border-color:rgba(245,158,11,.35);color:var(--amber)}
+.card-phone{font-size:.82rem;color:rgba(255,255,255,.45);
+  font-variant-numeric:tabular-nums}
+.card-msg{
+  font-size:.72rem;color:rgba(255,255,255,.35);line-height:1.5;
+  padding:.75rem 1.25rem;border-bottom:1px solid var(--border);
+  max-height:90px;overflow:hidden;font-style:italic;
+}
+.card-actions{padding:.85rem 1.25rem;display:flex;gap:.6rem;align-items:center}
+.btn{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.55rem 1.1rem;border-radius:99px;font-size:.8rem;
+  font-weight:700;border:none;transition:filter .2s,transform .15s;
+}
+.btn:active{transform:scale(.96)}
+.btn:hover{filter:brightness(1.1)}
+.btn-green{background:var(--green);color:#fff}
+.btn-amber{background:var(--amber);color:#000}
+.btn-ghost{background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);
+  border:1px solid rgba(255,255,255,.12)}
+.btn-ghost:hover{background:rgba(255,255,255,.12);filter:none}
+.btn.sent-label{background:rgba(37,211,102,.15);color:rgba(37,211,102,.8);pointer-events:none}
+.demo-link{font-size:.72rem;color:var(--gold);margin-left:auto;white-space:nowrap;
+  text-decoration:underline;text-decoration-color:rgba(212,175,55,.3)}
+.toolbar{
+  display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap;
+}
+.btn-open-all{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.65rem 1.4rem;border-radius:99px;font-size:.88rem;
+  font-weight:700;border:none;
+}
+.btn-open-all-green{background:var(--green);color:#fff}
+.btn-open-all-amber{background:var(--amber);color:#000}
+.count-badge{
+  font-size:.78rem;font-weight:600;padding:.3rem .85rem;
+  border-radius:99px;border:1px solid rgba(212,175,55,.3);
+  color:var(--gold2);background:rgba(212,175,55,.08);white-space:nowrap;
+}
+.empty-state{
+  text-align:center;padding:4rem 2rem;
+  color:rgba(255,255,255,.25);font-size:.95rem;
+}
+.empty-state span{font-size:2.5rem;display:block;margin-bottom:.75rem}
+
+/* ── TAB 4 — LEADS DATABASE ────────────────────────────────────────────────── */
+.db-toolbar{display:flex;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center}
+.db-search{
+  flex:1;min-width:200px;
+  background:var(--glass2);border:1px solid var(--border2);
+  border-radius:8px;padding:.55rem .9rem;font-size:.83rem;
+  color:#fff;outline:none;
+  transition:border-color .2s;
+}
+.db-search:focus{border-color:rgba(212,175,55,.4)}
+.db-search::placeholder{color:rgba(255,255,255,.3)}
+.filter-btns{display:flex;gap:.4rem;flex-wrap:wrap}
+.filter-btn{
+  padding:.35rem .85rem;border-radius:99px;font-size:.72rem;
+  font-weight:600;border:1px solid var(--border2);
+  background:transparent;color:rgba(255,255,255,.45);
+  transition:all .2s;
+}
+.filter-btn.active,.filter-btn:hover{
+  background:rgba(212,175,55,.12);border-color:rgba(212,175,55,.4);color:var(--gold2);
+}
+.table-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+thead th{
+  padding:.65rem .85rem;text-align:left;
+  background:var(--navy3);font-size:.65rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);white-space:nowrap;cursor:pointer;
+  user-select:none;border-bottom:1px solid var(--border);
+}
+thead th:hover{color:var(--gold2)}
+thead th.sorted{color:var(--gold2)}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+tbody tr:last-child{border-bottom:none}
+td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
+  max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status-badge{
+  padding:2px 8px;border-radius:99px;font-size:.65rem;
+  font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;
+}
+.s-contacted{background:rgba(37,211,102,.15);color:#4ade80}
+.s-followedup{background:rgba(245,158,11,.15);color:var(--amber)}
+.s-drafted{background:rgba(59,130,246,.15);color:#60a5fa}
+.s-no-email{background:rgba(255,255,255,.06);color:rgba(255,255,255,.35)}
+.s-default{background:rgba(255,255,255,.06);color:rgba(255,255,255,.35)}
+.url-link{color:var(--gold);text-decoration:underline;
+  text-decoration-color:rgba(212,175,55,.3);font-size:.72rem}
+
+/* ── TAB 5 — DEMO SITES ────────────────────────────────────────────────────── */
+.sites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.site-card{
+  background:var(--glass);border:1px solid var(--border);
+  border-radius:var(--r-lg);overflow:hidden;
+  transition:border-color .25s,transform .25s;cursor:pointer;
+}
+.site-card:hover{border-color:rgba(212,175,55,.4);transform:translateY(-3px)}
+.site-preview{
+  height:160px;overflow:hidden;position:relative;
+  border-bottom:1px solid var(--border);background:var(--navy3);
+}
+.site-preview::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold3));
+}
+.site-preview iframe{
+  width:840px;height:540px;transform:scale(.333);
+  transform-origin:top left;pointer-events:none;border:none;
+}
+.site-body{padding:1rem 1.25rem}
+.site-name{font-size:.95rem;font-weight:700;margin-bottom:.5rem}
+.site-meta{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.65rem}
+.site-foot{display:flex;align-items:center;justify-content:space-between;
+  font-size:.72rem;gap:.5rem}
+.site-date{color:rgba(255,255,255,.3)}
+.site-open{color:var(--gold);font-weight:600;
+  padding:.3rem .75rem;border-radius:99px;
+  border:1px solid rgba(212,175,55,.3);
+  transition:background .2s}
+.site-open:hover{background:rgba(212,175,55,.12)}
+
+/* ── TAB 6 — PIPELINE CONTROL ──────────────────────────────────────────────── */
+.pipeline-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+@media(max-width:700px){.pipeline-grid{grid-template-columns:1fr}}
+.skill-card{
+  background:var(--glass);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:1.25rem 1.5rem;
+}
+.skill-header{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:.75rem}
+.skill-name{font-size:.95rem;font-weight:700}
+.skill-desc{font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:1rem;line-height:1.5}
+.btn-run{
+  padding:.6rem 1.25rem;border-radius:99px;font-size:.83rem;font-weight:700;
+  border:1px solid rgba(212,175,55,.4);background:rgba(212,175,55,.1);color:var(--gold2);
+  transition:all .2s;
+}
+.btn-run:hover{background:rgba(212,175,55,.22);border-color:rgba(212,175,55,.7)}
+.btn-run:disabled{opacity:.4;pointer-events:none}
+.btn-run.running{background:rgba(245,158,11,.15);border-color:var(--amber);
+  color:var(--amber);animation:runPulse 1.2s ease-in-out infinite}
+@keyframes runPulse{0%,100%{opacity:1}50%{opacity:.6}}
+.skill-log{
+  margin-top:.85rem;background:rgba(0,0,0,.4);border-radius:8px;
+  padding:.6rem .75rem;font-family:'Courier New',monospace;font-size:.7rem;
+  color:rgba(255,255,255,.55);max-height:180px;overflow-y:auto;
+  display:none;line-height:1.55;
+}
+.skill-log.visible{display:block}
+.log-line{white-space:pre-wrap;word-break:break-word}
+.log-err{color:#f87171}
+.log-done{color:#4ade80;font-weight:700}
+.scheduler-card{grid-column:1/-1}
+.sched-row{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+  padding:.75rem 0;border-bottom:1px solid var(--border)}
+.sched-row:last-child{border:none}
+.sched-label{flex:1;font-size:.85rem;color:rgba(255,255,255,.6)}
+.sched-val{font-size:.85rem;font-weight:600;color:#fff}
+
+/* ── AUTO-REFRESH INDICATOR ────────────────────────────────────────────────── */
+.refresh-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--green);
+  display:inline-block;margin-right:5px;
+  animation:blink 2s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ── RESPONSIVE ────────────────────────────────────────────────────────────── */
+@media(max-width:600px){
+  .stats-bar{gap:0}
+  .stat-pill{min-width:70px;padding:.5rem .4rem}
+  .stat-n{font-size:1.1rem}
+  .stat-l{font-size:.55rem}
+  .tab-btn{padding:.7rem .85rem;font-size:.78rem}
+  .content{padding:1rem}
+  .card-grid{grid-template-columns:1fr}
+  .sites-grid{grid-template-columns:1fr}
+  .pipeline-grid{grid-template-columns:1fr}
+  .report-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-main">
+    <div class="logo">Demo<span>Ready</span>.co<span class="logo-dot"></span></div>
+    <div class="header-right">
+      <div class="run-time">
+        <strong id="today-date"></strong>
+        &nbsp;·&nbsp; Last run: <span id="last-run">—</span>
+        &nbsp;<span class="refresh-dot"></span><span style="font-size:.7rem;color:rgba(255,255,255,.25)">auto-refresh 60s</span>
+      </div>
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-pill" onclick="switchTab(1)">
+      <div class="stat-n" id="stat-leads">—</div>
+      <div class="stat-l">Leads Today</div>
+    </div>
+    <div class="stat-pill" onclick="switchTab(1)">
+      <div class="stat-n" id="stat-sites">—</div>
+      <div class="stat-l">Sites Built</div>
+    </div>
+    <div class="stat-pill" onclick="switchTab(2)">
+      <div class="stat-n" id="stat-wa">—</div>
+      <div class="stat-l">WA Ready</div>
+    </div>
+    <div class="stat-pill" onclick="switchTab(3)">
+      <div class="stat-n" id="stat-followups">—</div>
+      <div class="stat-l">Follow-ups</div>
+    </div>
+    <div class="stat-pill" onclick="switchTab(5)">
+      <div class="stat-n" id="stat-total">—</div>
+      <div class="stat-l">Total Demos</div>
+    </div>
+  </div>
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab(1)">📊 Report</button>
+    <button class="tab-btn" onclick="switchTab(2)">💬 Outreach <span class="tab-badge" id="badge-wa">0</span></button>
+    <button class="tab-btn" onclick="switchTab(3)">🔁 Follow-ups <span class="tab-badge" id="badge-fu">0</span></button>
+    <button class="tab-btn" onclick="switchTab(4)">📋 Leads DB</button>
+    <button class="tab-btn" onclick="switchTab(5)">🌐 Demo Sites</button>
+    <button class="tab-btn" onclick="switchTab(6)">⚙️ Pipeline</button>
+  </nav>
+</header>
+
+<!-- ════════════════════════════════════════════════════════════════════════════
+     TAB 1 — MORNING REPORT
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="content active" id="tab-1">
+  <div class="report-grid">
+    <div>
+      <span class="section-label">Pipeline Report</span>
+      <div class="glass-card">
+        <pre class="report-text" id="report-text">Loading…</pre>
+      </div>
+    </div>
+    <div>
+      <span class="section-label">Rotation Progress</span>
+      <div class="glass-card rotation-ring">
+        <svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140">
+          <defs>
+            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#D4AF37"/>
+              <stop offset="100%" style="stop-color:#F5E088"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg" cx="70" cy="70" r="55"/>
+          <circle class="ring-fill" id="ring-fill" cx="70" cy="70" r="55"
+            stroke-dasharray="345.4" stroke-dashoffset="345.4"/>
+        </svg>
+        <div class="ring-text">
+          <div class="ring-pct" id="ring-pct">0%</div>
+          <div class="ring-sub">USED</div>
+        </div>
+      </div>
+      <div class="glass-card rotation-stats" style="margin-top:.75rem">
+        <div><strong id="rot-used">—</strong> / <strong id="rot-total">—</strong> combinations used</div>
+        <div><strong id="rot-remaining">—</strong> remaining</div>
+        <div><strong id="rot-days">—</strong> days of fresh leads</div>
+      </div>
+      <div id="combo-section" style="margin-top:.75rem;display:none">
+        <span class="section-label">Today's Combos</span>
+        <div id="combo-list" class="combo-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════════
+     TAB 2 — WHATSAPP OUTREACH
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="content" id="tab-2">
+  <div class="toolbar">
+    <button class="btn-open-all btn-open-all-green" id="btn-open-all-wa" onclick="openAllWa()">
+      📱 Open All (<span id="wa-count">0</span>)
+    </button>
+    <span class="count-badge" id="wa-badge-text">Loading…</span>
+  </div>
+  <div class="card-grid" id="wa-grid"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════════
+     TAB 3 — FOLLOW-UPS
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="content" id="tab-3">
+  <div class="toolbar">
+    <button class="btn-open-all btn-open-all-amber" id="btn-open-all-fu" onclick="openAllFu()">
+      🔁 Open All (<span id="fu-count">0</span>)
+    </button>
+    <span class="count-badge" style="border-color:rgba(245,158,11,.3);color:var(--amber);background:rgba(245,158,11,.08)" id="fu-badge-text">Loading…</span>
+  </div>
+  <div class="card-grid" id="fu-grid"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════════
+     TAB 4 — LEADS DATABASE
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="content" id="tab-4">
+  <div class="db-toolbar">
+    <input class="db-search" type="text" id="db-search"
+      placeholder="Search business name or city…" oninput="renderTable()"/>
+    <div class="filter-btns">
+      <button class="filter-btn active" data-filter="all"    onclick="setFilter(this)">All</button>
+      <button class="filter-btn" data-filter="contacted"  onclick="setFilter(this)">Contacted</button>
+      <button class="filter-btn" data-filter="followedup" onclick="setFilter(this)">Followed Up</button>
+      <button class="filter-btn" data-filter="drafted"    onclick="setFilter(this)">Drafted</button>
+      <button class="filter-btn" data-filter="no-email"   onclick="setFilter(this)">No Email</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table id="leads-table">
+      <thead>
+        <tr>
+          <th onclick="sortTable('name')">Business ↕</th>
+          <th onclick="sortTable('city')">City ↕</th>
+          <th onclick="sortTable('category')">Category ↕</th>
+          <th onclick="sortTable('rating')">⭐ ↕</th>
+          <th>Phone</th>
+          <th>Status</th>
+          <th onclick="sortTable('outreach_date')">Contacted ↕</th>
+          <th>Demo</th>
+        </tr>
+      </thead>
+      <tbody id="leads-tbody"></tbody>
+    </table>
+  </div>
+  <div style="margin-top:.6rem;font-size:.72rem;color:rgba(255,255,255,.25)" id="db-count"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════════
+     TAB 5 — DEMO SITES
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="content" id="tab-5">
+  <div class="toolbar">
+    <input class="db-search" type="text" id="sites-search"
+      placeholder="Search by city or category…" style="max-width:320px" oninput="renderSites()"/>
+    <span class="count-badge" id="sites-count">0 demos live</span>
+  </div>
+  <div class="sites-grid" id="sites-grid"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════════
+     TAB 6 — PIPELINE CONTROL
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="content" id="tab-6">
+  <div class="pipeline-grid">
+
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-name">🔍 Find Leads</div>
+        <button class="btn-run" id="run-find-leads" onclick="runSkill('find-leads',this)">Run</button>
+      </div>
+      <div class="skill-desc">Picks 5 fresh city+category combos, scrapes Google Maps for 20 no-website businesses each. Runs in parallel. ~2–3 min.</div>
+      <div class="skill-log" id="log-find-leads"></div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-name">🏗️ Build Sites</div>
+        <button class="btn-run" id="run-build-sites" onclick="runSkill('build-sites',this)">Run</button>
+      </div>
+      <div class="skill-desc">Generates demo HTML for each pending lead, pushes to GitHub, waits for Vercel deploy, patches index.html stats.</div>
+      <div class="skill-log" id="log-build-sites"></div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-name">📧 Find Contacts</div>
+        <button class="btn-run" id="run-find-contact" onclick="runSkill('find-contact',this)">Run</button>
+      </div>
+      <div class="skill-desc">Searches business website, Bing, Yelp, Facebook for email addresses. Marks no-email leads so they aren't retried.</div>
+      <div class="skill-log" id="log-find-contact"></div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-name">💬 Send Outreach</div>
+        <button class="btn-run" id="run-draft-outreach" onclick="runSkill('draft-outreach',this)">Run</button>
+      </div>
+      <div class="skill-desc">Builds WhatsApp links for all leads with phones, opens them in browser, saves Gmail drafts for leads with emails.</div>
+      <div class="skill-log" id="log-draft-outreach"></div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-name">🔁 Follow-ups</div>
+        <button class="btn-run" id="run-follow-up" onclick="runSkill('follow-up',this)">Run</button>
+      </div>
+      <div class="skill-desc">Sends follow-up WhatsApp messages to leads contacted 3+ days ago. Marks them followedup so no duplicates.</div>
+      <div class="skill-log" id="log-follow-up"></div>
+    </div>
+
+    <div class="skill-card" style="border-color:rgba(212,175,55,.25);background:rgba(212,175,55,.04)">
+      <div class="skill-header">
+        <div class="skill-name">🚀 Full Pipeline</div>
+        <button class="btn-run" id="run-morning" onclick="runSkill('morning',this)"
+          style="background:rgba(212,175,55,.2);border-color:rgba(212,175,55,.6);color:var(--gold2)">
+          Run All
+        </button>
+      </div>
+      <div class="skill-desc">Runs the complete morning pipeline: find-leads → build-sites → find-contact → draft-outreach → follow-up. ~15 min total.</div>
+      <div class="skill-log" id="log-morning"></div>
+    </div>
+
+    <div class="skill-card scheduler-card">
+      <span class="section-label">Windows Task Scheduler</span>
+      <div class="sched-row">
+        <div class="sched-label">Task name</div>
+        <div class="sched-val">DemoReady Morning Pipeline</div>
+      </div>
+      <div class="sched-row">
+        <div class="sched-label">Schedule</div>
+        <div class="sched-val">Daily at 6:00 AM</div>
+      </div>
+      <div class="sched-row">
+        <div class="sched-label">Status</div>
+        <div class="sched-val" id="sched-status">—</div>
+      </div>
+      <div class="sched-row">
+        <div class="sched-label">Next run</div>
+        <div class="sched-val">Tomorrow 6:00 AM</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const API   = 'http://localhost:3000';
+let   CFG   = { followupDays: 3, vercelBaseUrl: 'https://demoready.co' };
+let   LEADS = [];
+let   SITES = [];
+let   sortCol = 'outreach_date', sortAsc = false, dbFilter = 'all';
+
+const WA_MSG = (name, url, rating, reviews) =>
+  `Hey! I just built ${name} a free website — ${rating||'highly rated'} stars and ${reviews||'many'} reviews but no site? ` +
+  `You're losing customers every day to competitors with worse service but a better online presence.\n\n` +
+  `Here's what I built for you: ${url}\n\n` +
+  `It's live right now. Mobile-friendly, your number front and center, ready to launch. Reply if you want to keep it.\n\n— Vincent`;
+
+const FU_MSG = (name, url) =>
+  `Hey, just wanted to make sure you saw this — I built ${name} a free website last week: ${url} ` +
+  `Still free to look at, just reply if you want to keep it. — Vincent`;
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function normalisePhone(raw) {
+  if (!raw) return null;
+  const d = raw.replace(/\D/g, '');
+  if (d.length === 10) return '1' + d;
+  if (d.length === 11 && d[0] === '1') return d;
+  if (d.length > 11) return d;
+  if (d.length < 7) return null;
+  return d;
+}
+function waUrl(phone, name, demoUrl, rating, reviews) {
+  const p = normalisePhone(phone);
+  if (!p) return null;
+  return `https://wa.me/${p}?text=${encodeURIComponent(WA_MSG(name,demoUrl,rating,reviews))}`;
+}
+function fuUrl(phone, name, demoUrl) {
+  const p = normalisePhone(phone);
+  if (!p) return null;
+  return `https://wa.me/${p}?text=${encodeURIComponent(FU_MSG(name,demoUrl))}`;
+}
+function daysAgo(dateStr) {
+  if (!dateStr) return Infinity;
+  const d = new Date(dateStr);
+  return isNaN(d) ? Infinity : Math.floor((Date.now() - d)/86400000);
+}
+function today() { return new Date().toISOString().slice(0,10); }
+function esc(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function tagHtml(txt, cls='') {
+  if (!txt) return '';
+  return `<span class="tag ${cls}">${esc(txt)}</span>`;
+}
+function statusBadge(s) {
+  const map = { contacted:'s-contacted', followedup:'s-followedup', drafted:'s-drafted', 'no-email':'s-no-email' };
+  const cls = map[s] || 's-default';
+  return `<span class="status-badge ${cls}">${esc(s||'new')}</span>`;
+}
+
+// ── DATA LOADING ──────────────────────────────────────────────────────────────
+async function loadAll() {
+  try {
+    const [leadsRes, sitesRes, reportRes, rotRes, cfgRes] = await Promise.all([
+      fetch(`${API}/api/leads`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/api/sites`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/api/report`).then(r=>r.json()).catch(()=>({text:''})),
+      fetch(`${API}/api/rotation`).then(r=>r.json()).catch(()=>({})),
+      fetch(`${API}/api/config`).then(r=>r.json()).catch(()=>({})),
+    ]);
+    LEADS = leadsRes || [];
+    SITES = sitesRes || [];
+    CFG   = { ...CFG, ...cfgRes };
+    updateHeader(reportRes.text || '');
+    renderReport(reportRes.text || '', rotRes);
+    renderWa();
+    renderFu();
+    renderTable();
+    renderSites();
+  } catch(e) {
+    console.warn('Load error', e);
+  }
+}
+
+// ── HEADER ────────────────────────────────────────────────────────────────────
+function updateHeader(reportText) {
+  document.getElementById('today-date').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+
+  // Parse run time from report
+  const m = reportText.match(/Run at: (.+)/);
+  if (m) {
+    const d = new Date(m[1].trim());
+    document.getElementById('last-run').textContent =
+      isNaN(d) ? m[1].trim() : d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  }
+
+  const todayStr  = today();
+  const waLeads   = LEADS.filter(r => r.phone && r.demo_url && r.status !== 'contacted' && r.status !== 'followedup' && r.status !== 'followedup');
+  const fuLeads   = LEADS.filter(r => r.status === 'contacted' && r.demo_url && r.phone && daysAgo(r.outreach_date) >= CFG.followupDays);
+
+  // Leads found today = leads with no outreach date (fresh from today's run)
+  const todayLeads = LEADS.filter(r => !r.outreach_date && r.demo_url);
+
+  document.getElementById('stat-leads').textContent    = todayLeads.length;
+  document.getElementById('stat-sites').textContent    = SITES.length;
+  document.getElementById('stat-wa').textContent       = waLeads.length;
+  document.getElementById('stat-followups').textContent= fuLeads.length;
+  document.getElementById('stat-total').textContent    = SITES.length;
+
+  document.getElementById('badge-wa').textContent = waLeads.length;
+  document.getElementById('badge-fu').textContent = fuLeads.length;
+}
+
+// ── TAB 1 — REPORT ────────────────────────────────────────────────────────────
+function renderReport(text, rot) {
+  document.getElementById('report-text').textContent = text || 'No report yet.';
+
+  // Rotation ring
+  if (rot && rot.total) {
+    const pct = rot.pct || 0;
+    const circ = 345.4;
+    document.getElementById('ring-fill').style.strokeDashoffset = circ - (circ * pct / 100);
+    document.getElementById('ring-pct').textContent = pct + '%';
+    document.getElementById('rot-used').textContent = rot.used;
+    document.getElementById('rot-total').textContent = rot.total;
+    document.getElementById('rot-remaining').textContent = rot.remaining;
+    document.getElementById('rot-days').textContent = rot.daysLeft + ' days';
+  }
+
+  // Parse combos from report
+  const comboMatch = text.match(/Combinations searched:\n([\s\S]*?)(?:\n\n|\nRotation|$)/);
+  if (comboMatch) {
+    const lines = comboMatch[1].trim().split('\n')
+      .map(l => l.trim()).filter(Boolean);
+    const html = lines.map(l => {
+      const m = l.match(/(.+?)\s*\/\s*(.+?):\s*(\d+)/);
+      if (!m) return `<div class="combo-item"><span>${esc(l)}</span></div>`;
+      return `<div class="combo-item">
+        <span class="combo-cat">${esc(m[1].trim())}</span>
+        <span class="combo-city">${esc(m[2].trim())}</span>
+        <span class="combo-n">${m[3]}</span>
+      </div>`;
+    }).join('');
+    document.getElementById('combo-list').innerHTML = html;
+    document.getElementById('combo-section').style.display = 'block';
+  }
+}
+
+// ── TAB 2 — WHATSAPP OUTREACH ─────────────────────────────────────────────────
+let waEntries = [];
+function renderWa() {
+  waEntries = LEADS.filter(r =>
+    r.phone && r.demo_url &&
+    r.status !== 'contacted' && r.status !== 'followedup'
+  );
+  document.getElementById('wa-count').textContent = waEntries.length;
+  document.getElementById('wa-badge-text').textContent =
+    `${waEntries.length} lead${waEntries.length===1?'':'s'} ready`;
+
+  const grid = document.getElementById('wa-grid');
+  if (!waEntries.length) {
+    grid.innerHTML = '<div class="empty-state"><span>💬</span>No new leads ready for outreach today.<br>Run Find Leads + Build Sites first.</div>';
+    return;
+  }
+  grid.innerHTML = waEntries.map((l,i) => {
+    const url = waUrl(l.phone, l.name, l.demo_url, l.rating, l.reviews);
+    if (!url) return '';
+    const msg = WA_MSG(l.name, l.demo_url, l.rating, l.reviews).slice(0,120)+'…';
+    return `<div class="lead-card" id="wa-card-${i}">
+      <div class="card-top">
+        <div class="card-name">${esc(l.name)}</div>
+        <div class="card-meta">
+          ${tagHtml(l.city)}
+          ${tagHtml(l.category,'tag-cat')}
+          ${l.rating?tagHtml('⭐ '+l.rating,'tag-gold'):''}
+          ${l.reviews?tagHtml(l.reviews+' reviews'):''}
+        </div>
+        <div class="card-phone">${esc(l.phone)}</div>
+      </div>
+      <div class="card-msg">"${esc(msg)}"</div>
+      <div class="card-actions">
+        <a class="btn btn-green" href="${esc(url)}" target="_blank" onclick="markWaSent(${i})">
+          📱 Send on WhatsApp
+        </a>
+        ${l.demo_url?`<a class="demo-link" href="${esc(l.demo_url)}" target="_blank">View Demo →</a>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function markWaSent(i) {
+  const lead = waEntries[i];
+  if (!lead) return;
+  const card = document.getElementById('wa-card-'+i);
+  setTimeout(async () => {
+    if (card) card.classList.add('sent');
+    const actions = card?.querySelector('.card-actions');
+    if (actions) actions.innerHTML = '<span class="btn sent-label">✓ Sent</span>';
+    await fetch(`${API}/api/leads/update`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name: lead.name, updates: { status:'contacted', outreach_date: today() } }),
+    }).catch(()=>{});
+    // Refresh data silently
+    setTimeout(loadAll, 500);
+  }, 800);
+}
+
+function openAllWa() {
+  waEntries.forEach((l,i) => {
+    const url = waUrl(l.phone, l.name, l.demo_url, l.rating, l.reviews);
+    if (url) setTimeout(() => window.open(url,'_blank'), i*2000);
+  });
+  setTimeout(() => waEntries.forEach((_,i) => markWaSent(i)), waEntries.length*2000+500);
+}
+
+// ── TAB 3 — FOLLOW-UPS ────────────────────────────────────────────────────────
+let fuEntries = [];
+function renderFu() {
+  fuEntries = LEADS.filter(r =>
+    r.status === 'contacted' && r.demo_url && r.phone &&
+    daysAgo(r.outreach_date) >= CFG.followupDays
+  );
+  document.getElementById('fu-count').textContent = fuEntries.length;
+  document.getElementById('fu-badge-text').textContent =
+    `${fuEntries.length} follow-up${fuEntries.length===1?'':'s'} due`;
+
+  const grid = document.getElementById('fu-grid');
+  if (!fuEntries.length) {
+    grid.innerHTML = '<div class="empty-state"><span>🔁</span>No follow-ups due yet.<br>Check back in a few days.</div>';
+    return;
+  }
+  grid.innerHTML = fuEntries.map((l,i) => {
+    const url = fuUrl(l.phone, l.name, l.demo_url);
+    if (!url) return '';
+    const days = daysAgo(l.outreach_date);
+    const msg  = FU_MSG(l.name, l.demo_url).slice(0,120)+'…';
+    return `<div class="lead-card" id="fu-card-${i}">
+      <div class="card-top">
+        <div class="card-name">${esc(l.name)}</div>
+        <div class="card-meta">
+          ${tagHtml(l.city)}
+          ${tagHtml(l.category,'tag-cat')}
+          ${l.rating?tagHtml('⭐ '+l.rating,'tag-gold'):''}
+          ${days<Infinity?tagHtml(days+'d since contact','tag-age'):''}
+        </div>
+        <div class="card-phone">${esc(l.phone)}</div>
+      </div>
+      <div class="card-msg">"${esc(msg)}"</div>
+      <div class="card-actions">
+        <a class="btn btn-amber" href="${esc(url)}" target="_blank" onclick="markFuSent(${i})">
+          🔁 Send Follow-up
+        </a>
+        ${l.demo_url?`<a class="demo-link" href="${esc(l.demo_url)}" target="_blank">View Demo →</a>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function markFuSent(i) {
+  const lead = fuEntries[i];
+  if (!lead) return;
+  const card = document.getElementById('fu-card-'+i);
+  setTimeout(async () => {
+    if (card) card.classList.add('sent');
+    const actions = card?.querySelector('.card-actions');
+    if (actions) actions.innerHTML = '<span class="btn sent-label">✓ Sent</span>';
+    await fetch(`${API}/api/leads/update`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name: lead.name, updates: { status:'followedup' } }),
+    }).catch(()=>{});
+    setTimeout(loadAll, 500);
+  }, 800);
+}
+
+function openAllFu() {
+  fuEntries.forEach((l,i) => {
+    const url = fuUrl(l.phone, l.name, l.demo_url);
+    if (url) setTimeout(() => window.open(url,'_blank'), i*2000);
+  });
+  setTimeout(() => fuEntries.forEach((_,i) => markFuSent(i)), fuEntries.length*2000+500);
+}
+
+// ── TAB 4 — LEADS DATABASE ────────────────────────────────────────────────────
+function setFilter(btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  dbFilter = btn.dataset.filter;
+  renderTable();
+}
+
+function sortTable(col) {
+  if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+  document.querySelectorAll('thead th').forEach(th=>{
+    th.classList.remove('sorted');
+    if (th.textContent.startsWith(col.replace('_',' '))) th.classList.add('sorted');
+  });
+  renderTable();
+}
+
+function renderTable() {
+  const q = (document.getElementById('db-search')?.value || '').toLowerCase();
+  let rows = [...LEADS];
+
+  if (dbFilter !== 'all') rows = rows.filter(r => r.status === dbFilter);
+  if (q) rows = rows.filter(r =>
+    (r.name||'').toLowerCase().includes(q) ||
+    (r.city||'').toLowerCase().includes(q) ||
+    (r.category||'').toLowerCase().includes(q)
+  );
+
+  rows.sort((a,b) => {
+    const av = (a[sortCol]||'').toLowerCase(), bv = (b[sortCol]||'').toLowerCase();
+    return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+
+  document.getElementById('db-count').textContent =
+    `${rows.length} of ${LEADS.length} leads`;
+
+  document.getElementById('leads-tbody').innerHTML = rows.map(r => `
+    <tr>
+      <td title="${esc(r.name)}">${esc(r.name)}</td>
+      <td>${esc(r.city)}</td>
+      <td>${esc(r.category)}</td>
+      <td>${esc(r.rating)||'—'}</td>
+      <td style="font-variant-numeric:tabular-nums">${esc(r.phone)||'—'}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td>${esc(r.outreach_date)||'—'}</td>
+      <td>${r.demo_url?`<a class="url-link" href="${esc(r.demo_url)}" target="_blank">View →</a>`:'—'}</td>
+    </tr>`).join('');
+}
+
+// ── TAB 5 — DEMO SITES ────────────────────────────────────────────────────────
+function renderSites() {
+  const q = (document.getElementById('sites-search')?.value || '').toLowerCase();
+  let sites = [...SITES];
+  if (q) sites = sites.filter(s =>
+    (s.city||'').toLowerCase().includes(q) ||
+    (s.category||'').toLowerCase().includes(q) ||
+    (s.title||'').toLowerCase().includes(q)
+  );
+
+  document.getElementById('sites-count').textContent = `${SITES.length} demos live`;
+
+  document.getElementById('sites-grid').innerHTML = sites.map(s => `
+    <div class="site-card" onclick="window.open('${esc(s.url)}','_blank')">
+      <div class="site-preview">
+        <iframe src="/sites/${esc(s.slug)}/index.html" loading="lazy"
+          scrolling="no" tabindex="-1"></iframe>
+      </div>
+      <div class="site-body">
+        <div class="site-name">${esc(s.title)}</div>
+        <div class="site-meta">
+          ${tagHtml(s.city)}
+          ${tagHtml(s.category,'tag-cat')}
+        </div>
+        <div class="site-foot">
+          <span class="site-date">Built ${esc(s.built)}</span>
+          <span class="site-open">Open →</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── TAB 6 — PIPELINE CONTROL ──────────────────────────────────────────────────
+function runSkill(skill, btn) {
+  const logEl  = document.getElementById('log-'+skill);
+  if (!logEl) return;
+
+  btn.disabled = true;
+  btn.classList.add('running');
+  btn.textContent = 'Running…';
+  logEl.innerHTML = '';
+  logEl.classList.add('visible');
+
+  const evtSrc = new EventSource(`${API}/api/run?skill=${skill}`);
+
+  evtSrc.addEventListener('start', e => {
+    const d = JSON.parse(e.data);
+    appendLog(logEl, `▶ Starting ${d.script}…`, '');
+  });
+  evtSrc.addEventListener('log', e => {
+    appendLog(logEl, JSON.parse(e.data).line, '');
+  });
+  evtSrc.addEventListener('err', e => {
+    appendLog(logEl, JSON.parse(e.data).line, 'log-err');
+  });
+  evtSrc.addEventListener('error', e => {
+    if (e.data) appendLog(logEl, JSON.parse(e.data).msg, 'log-err');
+    evtSrc.close();
+    resetBtn(skill, btn);
+  });
+  evtSrc.addEventListener('done', e => {
+    const d = JSON.parse(e.data);
+    appendLog(logEl, `✓ Done (exit ${d.code})`, 'log-done');
+    evtSrc.close();
+    resetBtn(skill, btn);
+    setTimeout(loadAll, 1000);
+  });
+}
+
+function appendLog(el, text, cls) {
+  const line = document.createElement('div');
+  line.className = 'log-line' + (cls ? ' '+cls : '');
+  line.textContent = text;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function resetBtn(skill, btn) {
+  btn.disabled = false;
+  btn.classList.remove('running');
+  const labels = {
+    'find-leads':'Run','build-sites':'Run','find-contact':'Run',
+    'draft-outreach':'Run','follow-up':'Run','morning':'Run All'
+  };
+  btn.textContent = labels[skill] || 'Run';
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(n) {
+  document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+  document.querySelectorAll('.tab-btn')[n-1].classList.add('active');
+}
+
+// ── INIT + AUTO-REFRESH ───────────────────────────────────────────────────────
+loadAll();
+setInterval(loadAll, 60000);
+
+// Show scheduler status
+document.getElementById('sched-status').textContent = '✅ Ready (registered)';
+</script>
+</body>
+</html>

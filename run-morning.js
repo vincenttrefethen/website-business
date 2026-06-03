@@ -11,7 +11,10 @@
 
 'use strict';
 
-const fs = require('fs');
+const fs     = require('fs');
+const path   = require('path');
+const http   = require('http');
+const { exec, spawn } = require('child_process');
 const config = require('./config');
 
 const { findLeads }     = require('./find-leads');
@@ -87,6 +90,32 @@ async function main() {
   fs.writeFileSync(config.MORNING_REPORT, report, 'utf8');
   console.log('\n' + report);
   console.log(`Report saved → ${config.MORNING_REPORT}`);
+
+  // ── Open dashboard ───────────────────────────────────────────────────────
+  openDashboard();
+}
+
+function openDashboard() {
+  const DASH_URL = 'http://localhost:3000';
+
+  // Check if server is already up
+  http.get(DASH_URL, () => {
+    console.log(`\n📊 Dashboard already running → ${DASH_URL}`);
+    exec(`start "" "${DASH_URL}"`);
+  }).on('error', () => {
+    // Start server as detached background process
+    const srv = spawn('node', [path.join(__dirname, 'server.js')], {
+      detached: true, stdio: 'ignore',
+      cwd: __dirname, env: process.env,
+    });
+    srv.unref();
+
+    // Give it 1.5s to bind, then open browser
+    setTimeout(() => {
+      console.log(`\n📊 Opening dashboard → ${DASH_URL}`);
+      exec(`start "" "${DASH_URL}"`);
+    }, 1500);
+  });
 }
 
 main().catch(err => {
