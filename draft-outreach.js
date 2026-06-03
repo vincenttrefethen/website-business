@@ -27,9 +27,13 @@ const { readCSV, writeCSV } = require('./csv-utils');
 const WHATSAPP_QUEUE = path.join(__dirname, 'whatsapp-queue.txt');
 
 const WA_MESSAGE_TEMPLATE =
-  'Hi! We built a free website preview for {name}. ' +
-  'Take a look: {url} — No commitment, completely free. ' +
-  "Let us know if you'd like to keep it! — DemoReady.co";
+  "Hey! I just built {name} a free website — " +
+  "{rating} stars and {review_count} reviews but no site? " +
+  "You're losing customers every day to competitors with worse service but a better online presence.\n\n" +
+  "Here's what I built for you: {url}\n\n" +
+  "It's live right now. Mobile-friendly, your number front and center, ready to launch. " +
+  "Reply if you want to keep it.\n\n" +
+  "— Vincent";
 
 // ─── Phone helpers ─────────────────────────────────────────────────────────────
 
@@ -43,10 +47,12 @@ function normalisePhone(raw) {
   return null;                                       // too short to be useful
 }
 
-function buildWaUrl(phone, name, demoUrl) {
+function buildWaUrl(phone, lead) {
   const msg = WA_MESSAGE_TEMPLATE
-    .replace('{name}', name)
-    .replace('{url}', demoUrl);
+    .replace('{name}',         lead.name)
+    .replace('{url}',          lead.demo_url)
+    .replace('{rating}',       lead.rating       || 'highly rated')
+    .replace('{review_count}', lead.reviews       || 'many');
   return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
 }
 
@@ -78,7 +84,7 @@ function processWhatsApp(leads) {
       return;
     }
 
-    const url = buildWaUrl(phone, lead.name, lead.demo_url);
+    const url = buildWaUrl(phone, lead);
     lines.push(`[${i + 1}] ${lead.name} | +${phone}`);
     lines.push(`    ${url}`);
     lines.push('');
@@ -108,7 +114,9 @@ function buildEmailBody(lead, template) {
     .replace(/{{category}}/g,      lead.category)
     .replace(/{{city}}/g,          lead.city)
     .replace(/{{demo_url}}/g,      lead.demo_url)
-    .replace(/{{phone}}/g,         lead.phone || '');
+    .replace(/{{phone}}/g,         lead.phone        || '')
+    .replace(/{{rating}}/g,        lead.rating       || 'highly rated')
+    .replace(/{{review_count}}/g,  lead.reviews      || 'many');
 }
 
 async function waitFor(page, selector, timeout = 10000) {
@@ -116,7 +124,7 @@ async function waitFor(page, selector, timeout = 10000) {
 }
 
 async function createGmailDraft(page, lead, template) {
-  const subject = `We built ${lead.name} a free website`;
+  const subject = `I built ${lead.name} a free website`;
   const body    = buildEmailBody(lead, template);
 
   // Click "Compose"

@@ -1,19 +1,18 @@
-Subject: We built {{business_name}} a free website
+Subject: I built {{business_name}} a free website
 
-Hi {{business_name}} team,
+Hey,
 
-I was searching for {{category}} services in {{city}} and noticed you didn't have a website — so we went ahead and built one for you.
+I came across {{business_name}} while looking for {{category}} services in {{city}} — {{rating}} stars with {{review_count}} reviews is seriously impressive. Clearly people love what you do.
+
+The one thing I noticed was you didn't have a website, so I went ahead and built one for you.
 
 Here it is: {{demo_url}}
 
-It's live right now, fully mobile-friendly, and ready to start bringing in customers. No strings attached — we built it on spec because we liked what we saw about your business.
+It's live right now — mobile-friendly, your number {{phone}} front and center, and designed to turn people searching online into actual customers calling you.
 
-If you want to keep it (and get your phone number, {{phone}}, front and center so customers can reach you), just reply to this email. We'll hand it over and get it set up under your own domain in about 24 hours.
+If you want to keep it, just reply and I'll get it live under your own domain within 24 hours. Flat fee, no surprises.
 
-If it's not the right fit, no worries at all — we appreciate you taking a look.
+If it's not for you, no worries at all — hope business keeps booming either way.
 
-Either way, hope things are going great in {{city}}.
-
-Best,
-[Your Name]
-[Your Phone / Website]
+— Vincent
+DemoReady.co | hello@demoready.co
