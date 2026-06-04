@@ -201,62 +201,6 @@ function pickRegions(count) {
   return picked;
 }
 
-// ─── RSS fetch & parse ────────────────────────────────────────────────────────
-
-async function fetchRSS(region, section, keyword) {
-  if (_ipBlocked) return [];
-
-  const q   = encodeURIComponent(keyword);
-  const url = `https://${region}.craigslist.org/search/${section}?query=${q}&format=rss&sort=date`;
-
-  try {
-    const res = await axios.get(url, {
-      timeout: 15000,
-      headers: {
-        'User-Agent':      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept':          'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Cache-Control':   'no-cache',
-        'Referer':         'https://www.google.com/',
-      },
-      responseType: 'text',
-    });
-    const parsed = await PARSER.parseStringPromise(res.data);
-    const items  = parsed?.rss?.channel?.item;
-    if (!items) return [];
-    return Array.isArray(items) ? items : [items];
-  } catch (e) {
-    const status = e.response?.status;
-    // 403 = IP blocked by Craigslist — trip circuit breaker and abort the run
-    if (status === 403 || (e.response?.data || '').includes('has been blocked')) {
-      _ipBlocked = true;
-      return [];
-    }
-    // 404 = section doesn't exist in this region — silent skip
-    if (status !== 404) {
-      console.log(`  [CL] ${region}/${section}/${keyword}: ${e.code || status || e.message}`);
-    }
-    return [];
-  }
-}
-
-function parseItem(item, region, category) {
-  const title       = String(item.title || '').trim();
-  const url         = String(item.link  || item.guid?._ || item.guid || '').trim();
-  const rawDesc     = String(item.description || item['content:encoded'] || '').trim();
-  const description = stripHtml(rawDesc);
-  const postedDate  = String(item.pubDate || '').trim();
-
-  // Location: some feeds include in enclosure or dc:rights or title suffix
-  const locEl = item['dc:rights'] || item.location || '';
-  const city   = typeof locEl === 'string' ? locEl : String(locEl?._ || locEl || region);
-
-  const budget = extractBudget(title + ' ' + description);
-
-  return { title, url, description, postedDate, city, budget, category, region };
-}
-
 // ─── Puppeteer browser + page helpers ─────────────────────────────────────────
 
 /**
@@ -460,14 +404,12 @@ async function monitorCraigslist() {
     else browser.disconnect();
   }
 
-  // IP block detection — tell user what happened and when to retry
-  if (_ipBlocked) {
-    console.log('\n[CL] ⚠ IP TEMPORARILY BLOCKED BY CRAIGSLIST');
-    console.log('[CL]   Your IP was flagged from rapid requests during setup/testing.');
-    console.log('[CL]   Craigslist blocks clear automatically in 24-48 hours.');
-    console.log('[CL]   The 7 AM scheduled task will work normally tomorrow.');
-    console.log('[CL]   No action needed — just wait.');
-    writeStatus({ status: 'blocked', last_run: startTime, leads_found: 0, regions_searched: regionsDone, blocked: true });
+  if (regionsSkipped > 0) {
+    console.log(`\n[CL] ${regionsSkipped} region(s) were blocked or skipped`);
+    if (regionsSkipped === regions.length) {
+      console.log('[CL] All regions blocked — try re-visiting CL in Chrome to refresh cookies');
+      writeStatus({ status: 'blocked', last_run: startTime, leads_found: 0, regions_searched: 0, blocked: true });
+    }
   }
 
   // Sort new leads by score desc before saving
@@ -501,8 +443,8 @@ async function monitorCraigslist() {
   console.log(`  Regions done:    ${regions.length}`);
   console.log(`  Elapsed:         ${elapsed}s`);
 
-  if (!_ipBlocked) {
-    writeStatus({ status: 'complete', last_run: startTime, leads_found: newLeads.length, regions_searched: regionsDone, blocked: false, hot, good, elapsed_s: elapsed });
+  if (regionsSkipped < regions.length) {
+    writeStatus({ status: 'complete', last_run: startTime, leads_found: newLeads.length, regions_searched: regions.length - regionsSkipped, blocked: false, hot, good, elapsed_s: elapsed });
   }
 
   return { newLeads: newLeads.length, hot, good, elapsed: `${elapsed}s`, totalFetched };
