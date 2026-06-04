@@ -158,6 +158,31 @@ function apiRotation(res) {
   } catch (e) { err(res, e.message); }
 }
 
+function apiClLeads(res) {
+  try {
+    if (!fs.existsSync(config.CL_LEADS_CSV)) { json(res, []); return; }
+    const { readCSV: rcsv } = require('./csv-utils');
+    const { CL_HEADERS } = require('./craigslist-monitor');
+    json(res, rcsv(config.CL_LEADS_CSV, CL_HEADERS));
+  } catch (e) { err(res, e.message); }
+}
+
+async function apiClLeadsUpdate(req, res) {
+  try {
+    const body = await parseBody(req);
+    const { url: postUrl, updates } = body;
+    if (!postUrl || !updates) { err(res, 'url and updates required', 400); return; }
+    const { readCSV: rcsv, writeCSV: wcsv } = require('./csv-utils');
+    const { CL_HEADERS } = require('./craigslist-monitor');
+    const leads = rcsv(config.CL_LEADS_CSV, CL_HEADERS);
+    const idx   = leads.findIndex(r => r.url === postUrl);
+    if (idx === -1) { err(res, 'Lead not found', 404); return; }
+    Object.assign(leads[idx], updates);
+    wcsv(config.CL_LEADS_CSV, leads, CL_HEADERS);
+    json(res, { ok: true, lead: leads[idx] });
+  } catch (e) { err(res, e.message); }
+}
+
 function apiStatsLog(res) {
   try {
     if (!fs.existsSync(config.STATS_LOG)) { json(res, []); return; }
@@ -187,12 +212,13 @@ function apiConfig(res) {
 // ─── SSE script runner ────────────────────────────────────────────────────────
 
 const SKILLS = {
-  'find-leads':     'find-leads.js',
-  'build-sites':    'build-sites.js',
-  'find-contact':   'find-contact.js',
-  'draft-outreach': 'draft-outreach.js',
-  'follow-up':      'follow-up.js',
-  'morning':        'run-morning.js',
+  'find-leads':          'find-leads.js',
+  'build-sites':         'build-sites.js',
+  'find-contact':        'find-contact.js',
+  'draft-outreach':      'draft-outreach.js',
+  'follow-up':           'follow-up.js',
+  'craigslist-monitor':  'craigslist-monitor.js',
+  'morning':             'run-morning.js',
 };
 
 const running = new Map(); // track active runs
@@ -268,7 +294,9 @@ const server = http.createServer(async (req, res) => {
   if (p === '/api/sites'  && method === 'GET')  { apiSites(res); return; }
   if (p === '/api/rotation'  && method === 'GET') { apiRotation(res); return; }
   if (p === '/api/config'    && method === 'GET') { apiConfig(res); return; }
-  if (p === '/api/stats-log' && method === 'GET') { apiStatsLog(res); return; }
+  if (p === '/api/stats-log'       && method === 'GET')  { apiStatsLog(res); return; }
+  if (p === '/api/cl-leads'        && method === 'GET')  { apiClLeads(res); return; }
+  if (p === '/api/cl-leads/update' && method === 'POST') { await apiClLeadsUpdate(req, res); return; }
 
   if (p === '/api/run' && method === 'GET') {
     apiRunStream(req, res, url.searchParams.get('skill') || '');

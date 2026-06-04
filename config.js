@@ -34,6 +34,8 @@ module.exports = {
   TARGETS_FILE:      path.join(__dirname, 'targets.json'),
   SITE_TEMPLATE:     path.join(__dirname, 'site-template.html'),
   STATS_LOG:         path.join(__dirname, 'stats-log.csv'),
+  CL_LEADS_CSV:      path.join(__dirname, 'craigslist-leads.csv'),
+  CL_SEEN_CSV:       path.join(__dirname, 'craigslist-seen.csv'),
 
   ROTATION_LOG: path.join(__dirname, 'rotation-log.json'),
 
@@ -45,6 +47,10 @@ module.exports = {
   VERCEL_DEPLOY_WAIT_MS: 15000,
   PUPPETEER_TIMEOUT:     30000,
   FOLLOWUP_DAYS:          3, // days after "sent" before follow-up is due
+  CL_REGIONS_PER_RUN:    10, // Craigslist regions to search each morning
+  CL_HOT_SCORE:          10, // score threshold for "Hot Lead 🔥"
+  CL_GOOD_SCORE:          7, // score threshold for "Good Lead ⭐"
+  CL_SKIP_SCORE:          3, // auto-skip if score <= this
   ARCHIVE_AFTER_DAYS:    30, // move sent/followedup/skip leads older than this to archive
 
   // ── Status lifecycle ──────────────────────────────────────────────────────
