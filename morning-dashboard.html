@@ -480,6 +480,7 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
       📱 Open All (<span id="wa-count">0</span>)
     </button>
     <span class="count-badge" id="wa-badge-text">Loading…</span>
+    <button class="btn btn-ghost" onclick="document.getElementById('add-lead-modal').style.display='flex'" style="font-size:.8rem">+ Add Lead</button>
   </div>
   <div class="funnel-bar" id="funnel-bar"></div>
   <div class="card-grid" id="wa-grid"></div>
@@ -517,6 +518,7 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
     <table id="leads-table">
       <thead>
         <tr>
+          <th>Actions</th>
           <th onclick="sortTable('name')">Business ↕</th>
           <th onclick="sortTable('city')">City ↕</th>
           <th onclick="sortTable('category')">Category ↕</th>
@@ -757,6 +759,9 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
     <div class="cl-stat" style="margin-left:auto;font-size:.72rem;color:rgba(255,255,255,.3)" id="cl-last-run">CL monitor runs at 7 AM daily</div>
   </div>
 
+  <div style="display:flex;justify-content:flex-end;margin-bottom:.5rem">
+    <button class="btn btn-ghost" onclick="document.getElementById('add-gig-modal').style.display='flex'" style="font-size:.8rem">+ Add Gig</button>
+  </div>
   <!-- CL Status bar -->
   <div id="cl-status-bar" class="glass-card" style="margin-bottom:1rem;display:flex;
     align-items:center;gap:1.25rem;flex-wrap:wrap;padding:.85rem 1.25rem">
@@ -869,6 +874,99 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
 </style>
 
 
+
+<!-- Add Lead modal -->
+<div id="add-lead-modal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:#0F1629;border:1px solid rgba(212,175,55,.3);border-radius:18px;padding:1.75rem;max-width:460px;width:90%;max-height:90vh;overflow-y:auto;position:relative">
+    <button onclick="document.getElementById('add-lead-modal').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer">✕</button>
+    <div style="font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(212,175,55,.7);margin-bottom:.75rem">Add Manual Lead</div>
+    <input class="crm-input" id="al-name"     placeholder="Business name *"         style="margin-bottom:.5rem"/>
+    <input class="crm-input" id="al-phone"    placeholder="Phone number"             style="margin-bottom:.5rem"/>
+    <input class="crm-input" id="al-city"     placeholder="City"                     style="margin-bottom:.5rem"/>
+    <input class="crm-input" id="al-category" placeholder="Category (e.g. handyman)" style="margin-bottom:.5rem"/>
+    <select class="crm-select" id="al-source" style="margin-bottom:.5rem">
+      <option value="">Source...</option><option value="WhatsApp">WhatsApp</option>
+      <option value="Referral">Referral</option><option value="Craigslist">Craigslist</option><option value="Other">Other</option>
+    </select>
+    <textarea class="crm-input" id="al-notes" placeholder="Notes" rows="2" style="margin-bottom:.75rem"></textarea>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn btn-green" onclick="saveManualLead()" style="flex:1">Save Lead</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('add-lead-modal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add CRM Lead modal -->
+<div id="add-crm-modal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:#0F1629;border:1px solid rgba(212,175,55,.3);border-radius:18px;padding:1.75rem;max-width:460px;width:90%;max-height:90vh;overflow-y:auto;position:relative">
+    <button onclick="document.getElementById('add-crm-modal').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer">✕</button>
+    <div style="font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(212,175,55,.7);margin-bottom:.75rem">Add CRM Lead</div>
+    <input class="crm-input" id="acrm-name"     placeholder="Business name *" style="margin-bottom:.5rem"/>
+    <input class="crm-input" id="acrm-phone"    placeholder="Phone number"    style="margin-bottom:.5rem"/>
+    <input class="crm-input" id="acrm-city"     placeholder="City"            style="margin-bottom:.5rem"/>
+    <input class="crm-input" id="acrm-category" placeholder="Category"        style="margin-bottom:.5rem"/>
+    <select class="crm-select" id="acrm-source" style="margin-bottom:.5rem">
+      <option value="WhatsApp">WhatsApp</option><option value="Email">Email</option>
+      <option value="Phone">Phone</option><option value="Craigslist">Craigslist</option><option value="Other">Other</option>
+    </select>
+    <select class="crm-select" id="acrm-status" style="margin-bottom:.5rem">
+      <option value="connected">Connected</option><option value="quoted">Quoted</option>
+      <option value="negotiating">Negotiating</option><option value="won">Won</option>
+    </select>
+    <input class="crm-input" id="acrm-revenue" placeholder="Revenue if won (e.g. 500)" type="number" style="margin-bottom:.5rem"/>
+    <textarea class="crm-input" id="acrm-notes" placeholder="Notes" rows="2" style="margin-bottom:.75rem"></textarea>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn btn-green" onclick="saveCRMEntry()" style="flex:1">Add to CRM</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('add-crm-modal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Manual Gig modal -->
+<div id="add-gig-modal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:#0F1629;border:1px solid rgba(37,211,102,.25);border-radius:18px;padding:1.75rem;max-width:460px;width:90%;max-height:90vh;overflow-y:auto;position:relative">
+    <button onclick="document.getElementById('add-gig-modal').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer">✕</button>
+    <div style="font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(37,211,102,.7);margin-bottom:.75rem">Add Manual Gig</div>
+    <input class="crm-input" id="ag-title"    placeholder="Gig title *"        style="margin-bottom:.5rem"/>
+    <input class="crm-input" id="ag-city"     placeholder="City"                style="margin-bottom:.5rem"/>
+    <input class="crm-input" id="ag-budget"   placeholder="Budget (e.g. $500)"  style="margin-bottom:.5rem"/>
+    <input class="crm-input" id="ag-url"      placeholder="Post URL (optional)" style="margin-bottom:.5rem"/>
+    <select class="crm-select" id="ag-category" style="margin-bottom:.5rem">
+      <option value="Website/Design">Website/Design</option>
+      <option value="Marketing/SEO">Marketing/SEO</option>
+      <option value="Branding/Design">Branding/Design</option>
+      <option value="VA/Admin">VA/Admin</option>
+      <option value="Other Digital">Other Digital</option>
+    </select>
+    <textarea class="crm-input" id="ag-desc" placeholder="Description / notes" rows="3" style="margin-bottom:.75rem"></textarea>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn btn-green" onclick="saveManualGig()" style="flex:1">Save Gig</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('add-gig-modal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Push to CRM modal -->
+<div id="push-crm-modal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:#0F1629;border:1px solid rgba(212,175,55,.3);border-radius:18px;padding:1.75rem;max-width:400px;width:90%;position:relative">
+    <div style="font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(212,175,55,.7);margin-bottom:.5rem">Move to CRM</div>
+    <div id="push-crm-name" style="font-size:1rem;font-weight:700;margin-bottom:1rem;color:#fff"></div>
+    <select class="crm-select" id="push-crm-status" style="margin-bottom:.5rem">
+      <option value="connected">Connected</option><option value="quoted">Quoted</option>
+      <option value="negotiating">Negotiating</option><option value="won">Won</option><option value="lost">Lost</option>
+    </select>
+    <select class="crm-select" id="push-crm-channel" style="margin-bottom:.5rem">
+      <option value="WhatsApp">WhatsApp</option><option value="Email">Email</option>
+      <option value="Phone">Phone</option><option value="Craigslist">Craigslist</option><option value="Other">Other</option>
+    </select>
+    <textarea class="crm-input" id="push-crm-note" placeholder="Note (optional)" rows="2" style="margin-bottom:.75rem"></textarea>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn btn-green" onclick="confirmPushCRM()" style="flex:1">Move to CRM</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('push-crm-modal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- Confetti overlay -->
 <div id="confetti-overlay" style="position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden"></div>
 
@@ -940,6 +1038,9 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
 <!-- Tab 9 — CRM -->
 <div class="content" id="tab-9">
 
+  <div style="display:flex;justify-content:flex-end;margin-bottom:.75rem">
+    <button class="btn btn-ghost" onclick="document.getElementById('add-crm-modal').style.display='flex'" style="font-size:.82rem">+ Add CRM Lead</button>
+  </div>
   <!-- Stats bar -->
   <div class="glass-card" style="margin-bottom:1.25rem;display:flex;flex-wrap:wrap;gap:1.5rem">
     <div style="text-align:center;min-width:90px">
@@ -1311,7 +1412,18 @@ function markSent(i) {
       card.style.marginTop='0';card.style.marginBottom='0';
     });
   }
-  patchLead(lead.name,{status:'sent',outreach_date:today()}).then(()=>setTimeout(loadAll,600));
+  patchLead(lead.name,{status:'sent',outreach_date:today()}).then(()=>{
+    setTimeout(loadAll, 600);
+    const acts = card ? card.querySelector('.card-actions') : null;
+    if (acts && !acts.querySelector('.btn-connected')) {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-ghost btn-connected';
+      btn.style.cssText = 'font-size:.75rem;color:#4ade80';
+      btn.textContent = 'Connected?';
+      btn.onclick = () => openCRMEntryModal(lead);
+      acts.appendChild(btn);
+    }
+  });
 }
 
 function skipLead(i) {
@@ -1445,6 +1557,14 @@ function renderTable() {
 
   document.getElementById('leads-tbody').innerHTML = rows.map(r => `
     <tr>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost" onclick="openPushCRM(${JSON.stringify(r.name)})"
+          style="font-size:.68rem;padding:2px 7px;margin-right:3px">→ CRM</button>
+        ${isSentStatus(r.status) && r.status !== 'connected'
+          ? `<button class="btn btn-ghost" onclick="openCRMEntryModal(LEADS.find(l=>l.name===${JSON.stringify(r.name)}))"
+              style="font-size:.68rem;padding:2px 7px;color:#4ade80">Connected?</button>`
+          : ''}
+      </td>
       <td title="${esc(r.name)}">${esc(r.name)}</td>
       <td>${esc(r.city)}</td>
       <td>${esc(r.category)}</td>
@@ -2535,6 +2655,109 @@ async function loadPipelineStatus() {
       if (extra) extra.textContent = `${st.leads_found} leads found`;
     }
   } catch {}
+}
+
+
+// -- MANUAL LEAD SAVE ---------------------------------------------------------
+async function saveManualLead() {
+  const name = document.getElementById('al-name')?.value?.trim();
+  if (!name) { alert('Business name is required'); return; }
+  await fetch(`${API}/api/leads/add`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      name, status:'new',
+      phone:    document.getElementById('al-phone')?.value    || '',
+      city:     document.getElementById('al-city')?.value     || '',
+      category: document.getElementById('al-category')?.value || '',
+      notes:    document.getElementById('al-notes')?.value    || '',
+      source_channel: document.getElementById('al-source')?.value || '',
+    }),
+  }).catch(()=>{});
+  document.getElementById('add-lead-modal').style.display = 'none';
+  ['al-name','al-phone','al-city','al-category','al-notes'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  await loadAll();
+}
+
+// -- ADD CRM LEAD (manual) ----------------------------------------------------
+async function saveCRMEntry() {
+  const name = document.getElementById('acrm-name')?.value?.trim();
+  if (!name) { alert('Business name is required'); return; }
+  const status  = document.getElementById('acrm-status')?.value   || 'connected';
+  const channel = document.getElementById('acrm-source')?.value   || 'Other';
+  const revenue = document.getElementById('acrm-revenue')?.value  || '';
+  const notes   = document.getElementById('acrm-notes')?.value    || '';
+  // 1. Add row to leads.csv
+  await fetch(`${API}/api/leads/add`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      name, status, revenue, notes, source_channel: channel,
+      phone:    document.getElementById('acrm-phone')?.value    || '',
+      city:     document.getElementById('acrm-city')?.value     || '',
+      category: document.getElementById('acrm-category')?.value || '',
+    }),
+  }).catch(()=>{});
+  // 2. Promote to CRM
+  await fetch(`${API}/api/leads/crm`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ name, crm_status: status, source_channel: channel }),
+  }).catch(()=>{});
+  document.getElementById('add-crm-modal').style.display = 'none';
+  ['acrm-name','acrm-phone','acrm-city','acrm-category','acrm-revenue','acrm-notes'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  await loadAll(); await loadCRM();
+  switchTab(9);
+}
+
+// -- ADD MANUAL GIG -----------------------------------------------------------
+async function saveManualGig() {
+  const title = document.getElementById('ag-title')?.value?.trim();
+  if (!title) { alert('Gig title is required'); return; }
+  await fetch(`${API}/api/cl-leads/add`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      title, score:'7', status:'new', region:'manual', remote:'yes',
+      city:        document.getElementById('ag-city')?.value     || '',
+      category:    document.getElementById('ag-category')?.value || 'Other Digital',
+      budget:      document.getElementById('ag-budget')?.value   || '',
+      url:         document.getElementById('ag-url')?.value      || '',
+      description: document.getElementById('ag-desc')?.value     || '',
+      posted_date: new Date().toISOString(),
+    }),
+  }).catch(()=>{});
+  document.getElementById('add-gig-modal').style.display = 'none';
+  ['ag-title','ag-city','ag-budget','ag-url','ag-desc'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  await loadCLLeads();
+}
+
+// -- PUSH TO CRM from Leads DB ------------------------------------------------
+let _pushCRMName = null;
+function openPushCRM(name) {
+  _pushCRMName = name;
+  const el = document.getElementById('push-crm-name');
+  if (el) el.textContent = name;
+  const noteEl = document.getElementById('push-crm-note');
+  if (noteEl) noteEl.value = '';
+  const modal = document.getElementById('push-crm-modal');
+  if (modal) modal.style.display = 'flex';
+}
+async function confirmPushCRM() {
+  if (!_pushCRMName) return;
+  const status  = document.getElementById('push-crm-status')?.value  || 'connected';
+  const channel = document.getElementById('push-crm-channel')?.value || 'WhatsApp';
+  const note    = document.getElementById('push-crm-note')?.value    || '';
+  await fetch(`${API}/api/leads/crm`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ name: _pushCRMName, crm_status: status, source_channel: channel }),
+  }).catch(()=>{});
+  if (note) await patchLead(_pushCRMName, { notes: note });
+  document.getElementById('push-crm-modal').style.display = 'none';
+  _pushCRMName = null;
+  await loadAll(); await loadCRM();
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────

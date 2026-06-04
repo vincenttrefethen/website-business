@@ -269,6 +269,36 @@ function apiDeleteReminder(res, id) {
   json(res, { ok: true });
 }
 
+async function apiLeadsAdd(req, res) {
+  try {
+    const body  = await parseBody(req);
+    const leads = readCSV(config.LEADS_CSV, config.CSV_HEADERS);
+    const row   = {};
+    config.CSV_HEADERS.forEach(h => { row[h] = body[h] || ''; });
+    if (!row.name) { err(res, 'name required', 400); return; }
+    row.status = row.status || 'new';
+    leads.push(row);
+    writeCSV(config.LEADS_CSV, leads, config.CSV_HEADERS);
+    json(res, { ok: true, lead: row });
+  } catch (e) { err(res, e.message); }
+}
+
+async function apiClLeadsAdd(req, res) {
+  try {
+    const body  = await parseBody(req);
+    const leads = fs.existsSync(config.CL_LEADS_CSV)
+      ? readCSV(config.CL_LEADS_CSV, CL_HEADERS) : [];
+    const row   = {};
+    CL_HEADERS.forEach(h => { row[h] = body[h] || ''; });
+    if (!row.title) { err(res, 'title required', 400); return; }
+    row.status = row.status || 'new';
+    row.score  = row.score  || '5';
+    leads.push(row);
+    writeCSV(config.CL_LEADS_CSV, leads, CL_HEADERS);
+    json(res, { ok: true, lead: row });
+  } catch (e) { err(res, e.message); }
+}
+
 function apiCLStatus(res) {
   if (!fs.existsSync(config.CL_STATUS)) {
     json(res, { status: 'never_run', last_run: null, leads_found: 0, regions_searched: 0, blocked: false });
@@ -405,7 +435,9 @@ const server = http.createServer(async (req, res) => {
   if (p === '/api/cl-leads/update' && method === 'POST') { await apiClLeadsUpdate(req, res); return; }
   if (p === '/api/crm-data'        && method === 'GET')  { apiCRMData(res); return; }
   if (p === '/api/crm-data'        && method === 'POST') { await apiCRMDataUpdate(req, res); return; }
-  if (p === '/api/leads/crm'       && method === 'POST') { await apiLeadsCRM(req, res); return; }
+  if (p === '/api/leads/crm'        && method === 'POST') { await apiLeadsCRM(req, res); return; }
+  if (p === '/api/leads/add'        && method === 'POST') { await apiLeadsAdd(req, res); return; }
+  if (p === '/api/cl-leads/add'     && method === 'POST') { await apiClLeadsAdd(req, res); return; }
   if (p === '/api/reminders'       && method === 'GET')  { apiGetReminders(res); return; }
   if (p === '/api/reminders'       && method === 'POST') { await apiAddReminder(req, res); return; }
   if (p.startsWith('/api/reminders/') && method === 'DELETE') {

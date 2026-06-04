@@ -16,11 +16,10 @@
 
 'use strict';
 
-const axios  = require('axios');
-const xml2js = require('xml2js');
-const fs     = require('fs');
-const path   = require('path');
-const config = require('./config');
+const puppeteer = require('puppeteer');
+const fs        = require('fs');
+const path      = require('path');
+const config    = require('./config');
 const { readCSV, writeCSV } = require('./csv-utils');
 
 // ─── CL leads CSV schema ──────────────────────────────────────────────────────
@@ -203,11 +202,6 @@ function pickRegions(count) {
 
 // ─── RSS fetch & parse ────────────────────────────────────────────────────────
 
-const PARSER = new xml2js.Parser({ explicitArray: false, ignoreAttrs: false });
-
-// Circuit breaker — set true when IP is blocked so we exit fast
-let _ipBlocked = false;
-
 async function fetchRSS(region, section, keyword) {
   if (_ipBlocked) return [];
 
@@ -289,33 +283,48 @@ async function monitorCraigslist() {
     ? readCSV(config.CL_LEADS_CSV, CL_HEADERS) : [];
   const existingUrls = new Set(existing.map(r => r.url));
 
+  const { browser, owned } = await createCLBrowser();
   const newLeads   = [];
   const newHashes  = new Set(seenSet);
-  let   totalFetched = 0;
-  let   hardFiltered = 0;
-  let   dupeSkipped  = 0;
-  let   requestsDone = 0;
+  let totalFetched = 0, hardFiltered = 0, dupeSkipped = 0, requestsDone = 0, regionsSkipped = 0;
 
-  for (const region of regions) {
-    if (_ipBlocked) break;
-    console.log(`\n[CL] Region: ${region}`);
+  const page = await browser.newPage();
+  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36');
 
-    for (const [category, keywords] of allCats) {
-      if (_ipBlocked) break;
-      // Use a subset of keywords per category to keep runtime short
-      const kws = keywords.slice(0, 5);
+  try {
+    for (const region of regions) {
+      console.log('\n[CL] Region: ' + region);
+      let regionBlocked = false;
 
-      for (const keyword of kws) {
-        for (const section of SECTIONS) {
-          const items = await fetchRSS(region, section, keyword);
-          totalFetched += items.length;
+      for (const [category, keywords] of allCats) {
+        if (regionBlocked) break;
+        const kws = keywords.slice(0, 4);
+
+        for (const keyword of kws) {
+          if (regionBlocked) break;
+          console.log('  [CL] Searching: "' + keyword + '" in ' + region);
+
+          const items = await searchCLPage(page, region, keyword);
           requestsDone++;
 
+          if (items === null) { regionBlocked = true; regionsSkipped++; break; }
+          totalFetched += items.length;
+
           for (const rawItem of items) {
-            const post = parseItem(rawItem, region, category);
+            const desc   = rawItem.description || '';
+            const budget = extractBudget(rawItem.title + ' ' + rawItem.budget + ' ' + desc);
+            const post   = {
+              title:       rawItem.title,
+              url:         rawItem.url,
+              description: desc,
+              postedDate:  rawItem.posted_date,
+              city:        rawItem.city || region,
+              budget,
+              category,
+              region,
+            };
             if (!post.title || !post.url) continue;
 
-            // Dedup by hash
             const hash = descHash(post.title, post.budget, post.description);
             if (seenSet.has(hash) || newHashes.has(hash)) { dupeSkipped++; continue; }
             if (existingUrls.has(post.url))                { dupeSkipped++; continue; }
@@ -352,10 +361,15 @@ async function monitorCraigslist() {
           }
 
           // 500ms between requests — polite, keeps total time under 2 min
+
           await sleep(500);
         }
       }
     }
+  } finally {
+    await page.close().catch(() => {});
+    if (owned) await browser.close().catch(() => {});
+    else browser.disconnect();
   }
 
   // IP block detection — tell user what happened and when to retry
