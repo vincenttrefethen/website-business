@@ -36,6 +36,8 @@ module.exports = {
   STATS_LOG:         path.join(__dirname, 'stats-log.csv'),
   CL_LEADS_CSV:      path.join(__dirname, 'craigslist-leads.csv'),
   CL_SEEN_CSV:       path.join(__dirname, 'craigslist-seen.csv'),
+  CRM_DATA:          path.join(__dirname, 'crm-data.json'),
+  REMINDERS:         path.join(__dirname, 'reminders.json'),
 
   ROTATION_LOG: path.join(__dirname, 'rotation-log.json'),
 
@@ -69,7 +71,7 @@ module.exports = {
     'name', 'category', 'phone', 'address', 'hours',
     'rating', 'reviews', 'city', 'website_found',
     'email', 'demo_url', 'status', 'outreach_date', 'followup_date',
-    'message_version',
+    'message_version', 'crm', 'crm_status', 'revenue', 'source_channel', 'notes',
   ],
 
   STATS_HEADERS: [

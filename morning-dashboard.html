@@ -424,6 +424,7 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
     <button class="tab-btn" onclick="switchTab(6)">⚙️ Pipeline</button>
     <button class="tab-btn" onclick="switchTab(7)">📈 Analytics</button>
     <button class="tab-btn" onclick="switchTab(8)">📋 CL Gigs <span class="tab-badge" id="badge-cl">0</span></button>
+    <button class="tab-btn" onclick="switchTab(9)">💼 CRM <span class="tab-badge" id="badge-crm">0</span></button>
   </nav>
 </header>
 
@@ -851,6 +852,204 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
 .fiverr-link{display:block;color:#8aabff;margin:.2rem 0;font-size:.75rem}
 </style>
 
+
+<!-- Confetti overlay -->
+<div id="confetti-overlay" style="position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden"></div>
+
+<!-- CRM slide-in detail panel -->
+<div id="crm-panel" style="position:fixed;top:0;right:-520px;width:500px;max-width:96vw;
+  height:100vh;background:#0F1629;border-left:1px solid rgba(212,175,55,.2);
+  z-index:800;overflow-y:auto;transition:right .35s cubic-bezier(.19,1,.22,1);
+  box-shadow:-20px 0 60px rgba(0,0,0,.6)">
+  <div style="padding:1.5rem">
+    <button onclick="closeCRMPanel()" style="position:absolute;top:1rem;right:1rem;
+      background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer">✕</button>
+    <div id="crm-panel-content"></div>
+  </div>
+</div>
+<div id="crm-panel-backdrop" onclick="closeCRMPanel()" style="display:none;position:fixed;
+  inset:0;background:rgba(0,0,0,.5);z-index:799;backdrop-filter:blur(2px)"></div>
+
+<!-- Move to CRM modal -->
+<div id="crm-entry-modal" style="display:none;position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center">
+  <div style="background:#0F1629;border:1px solid rgba(212,175,55,.3);border-radius:18px;
+    padding:1.75rem;max-width:420px;width:90%">
+    <div style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;color:#fff"
+      id="crm-entry-name"></div>
+    <div style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:1rem">
+      How did they respond?
+    </div>
+    <select id="crm-source-channel" style="width:100%;background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:.6rem .9rem;
+      font-size:.85rem;color:#fff;outline:none;margin-bottom:1.25rem">
+      <option value="WhatsApp">💬 WhatsApp</option>
+      <option value="Email">📧 Email</option>
+      <option value="Phone">📞 Phone</option>
+      <option value="Craigslist">📋 Craigslist reply</option>
+      <option value="Other">Other</option>
+    </select>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn btn-green" onclick="confirmCRMEntry()" style="flex:1">Move to CRM</button>
+      <button class="btn btn-ghost" onclick="closeCRMEntryModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Won modal -->
+<div id="won-modal" style="display:none;position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center">
+  <div style="background:#0F1629;border:1px solid rgba(212,175,55,.5);border-radius:18px;
+    padding:1.75rem;max-width:380px;width:90%;text-align:center">
+    <div style="font-size:2rem;margin-bottom:.5rem">🎉</div>
+    <div style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;color:var(--gold2)">
+      Congratulations!
+    </div>
+    <div style="font-size:.82rem;color:rgba(255,255,255,.5);margin-bottom:1rem">
+      What was the deal value?
+    </div>
+    <input id="won-amount" type="number" placeholder="e.g. 500"
+      style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);
+             border-radius:8px;padding:.6rem .9rem;font-size:1rem;color:#fff;
+             outline:none;margin-bottom:1.25rem;text-align:center"/>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn btn-green" onclick="confirmWon()" style="flex:1">Save</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('won-modal').style.display='none'">Skip</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tab 9 — CRM -->
+<div class="content" id="tab-9">
+
+  <!-- Stats bar -->
+  <div class="glass-card" style="margin-bottom:1.25rem;display:flex;flex-wrap:wrap;gap:1.5rem">
+    <div style="text-align:center;min-width:90px">
+      <div class="stat-n" id="crm-active">—</div>
+      <div class="stat-l">Active Deals</div>
+    </div>
+    <div style="text-align:center;min-width:90px">
+      <div class="stat-n" id="crm-pipeline">—</div>
+      <div class="stat-l">Pipeline $</div>
+    </div>
+    <div style="text-align:center;min-width:90px">
+      <div class="stat-n" id="crm-won-month">—</div>
+      <div class="stat-l">Won This Month</div>
+    </div>
+    <div style="text-align:center;min-width:90px">
+      <div class="stat-n" id="crm-avg-deal">—</div>
+      <div class="stat-l">Avg Deal $</div>
+    </div>
+    <div style="text-align:center;min-width:90px">
+      <div class="stat-n" id="crm-winrate">—</div>
+      <div class="stat-l">Win Rate</div>
+    </div>
+    <div style="text-align:center;min-width:90px">
+      <div class="stat-n" id="crm-best-source">—</div>
+      <div class="stat-l">Best Source</div>
+    </div>
+  </div>
+
+  <!-- Kanban board -->
+  <div id="kanban-board" style="display:flex;gap:1rem;overflow-x:auto;padding-bottom:1rem;min-height:400px"></div>
+</div>
+
+<style>
+/* Kanban */
+.kanban-col{min-width:220px;flex:1;display:flex;flex-direction:column;gap:.75rem}
+.kanban-col-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.65rem .9rem;border-radius:10px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+}
+.col-label{font-size:.8rem;font-weight:700;letter-spacing:.04em}
+.col-count{font-size:.72rem;font-weight:600;padding:1px 8px;border-radius:99px;
+  background:rgba(255,255,255,.1);color:rgba(255,255,255,.5)}
+.col-value{font-size:.68rem;color:rgba(37,211,102,.7);margin-top:1px}
+.kanban-cards{
+  flex:1;min-height:200px;border-radius:12px;padding:.5rem;
+  background:rgba(255,255,255,.02);border:2px dashed transparent;
+  transition:border-color .2s,background .2s;
+}
+.kanban-cards.drag-over{
+  border-color:rgba(212,175,55,.4);background:rgba(212,175,55,.05);
+}
+.kanban-col[data-status="won"] .kanban-col-head{border-color:rgba(212,175,55,.3);background:rgba(212,175,55,.06)}
+.kanban-col[data-status="lost"] .kanban-col-head{border-color:rgba(239,68,68,.2);background:rgba(239,68,68,.04)}
+/* CRM cards */
+.crm-card{
+  background:var(--glass2);border:1px solid var(--border);border-radius:10px;
+  padding:.85rem 1rem;cursor:grab;transition:border-color .2s,box-shadow .2s,opacity .2s;
+  position:relative;
+}
+.crm-card:hover{border-color:rgba(212,175,55,.35);box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.crm-card.dragging{opacity:.45;cursor:grabbing}
+.crm-card-name{font-size:.88rem;font-weight:700;margin-bottom:.35rem;letter-spacing:-.02em}
+.crm-card-meta{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem}
+.crm-card-days{font-size:.68rem;color:rgba(255,255,255,.3);margin-top:.35rem}
+.crm-card-note{font-size:.7rem;color:rgba(255,255,255,.38);margin-top:.4rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+  font-style:italic}
+/* Panel */
+.panel-section{margin-bottom:1.5rem}
+.panel-section-title{font-size:.68rem;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(212,175,55,.7);margin-bottom:.75rem;display:block}
+.log-entry{display:flex;gap:.65rem;padding:.65rem .75rem;border-radius:8px;
+  background:rgba(255,255,255,.04);border-left:3px solid;margin-bottom:.4rem;
+  font-size:.78rem}
+.log-wa{border-left-color:#25D366}
+.log-email{border-left-color:#3B82F6}
+.log-phone{border-left-color:#a855f7}
+.log-cl{border-left-color:#F59E0B}
+.log-other{border-left-color:rgba(255,255,255,.2)}
+.log-time{font-size:.68rem;color:rgba(255,255,255,.3);white-space:nowrap}
+.log-status{font-size:.68rem;padding:1px 6px;border-radius:99px;
+  background:rgba(255,255,255,.06);color:rgba(255,255,255,.45)}
+/* Timeline */
+.crm-timeline{position:relative;height:40px;margin:1rem 0}
+.tl-track{position:absolute;top:50%;left:0;right:0;height:2px;
+  background:rgba(255,255,255,.1);transform:translateY(-50%)}
+.tl-dot{position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:10px;height:10px;border-radius:50%;cursor:pointer;
+  transition:transform .2s}
+.tl-dot:hover{transform:translate(-50%,-50%) scale(1.6)}
+.tl-dot-wa{background:#25D366}
+.tl-dot-email{background:#3B82F6}
+.tl-dot-phone{background:#a855f7}
+.tl-dot-cl{background:#F59E0B}
+.tl-dot-other{background:rgba(255,255,255,.4)}
+.tl-tip{position:absolute;bottom:140%;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.9);color:#fff;font-size:.65rem;padding:3px 7px;
+  border-radius:5px;white-space:nowrap;pointer-events:none;z-index:10;
+  opacity:0;transition:opacity .15s}
+.tl-dot:hover .tl-tip{opacity:1}
+/* Notes */
+.note-entry{padding:.6rem .75rem;border-radius:8px;background:rgba(255,255,255,.04);
+  margin-bottom:.4rem}
+.note-ts{font-size:.65rem;color:rgba(255,255,255,.3);margin-bottom:.25rem}
+.note-text{font-size:.8rem;color:rgba(255,255,255,.75);line-height:1.5}
+/* Confetti */
+@keyframes confettiFall{
+  0%  {transform:translateY(-20px) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}
+}
+.confetti-dot{position:absolute;width:8px;height:8px;border-radius:2px;
+  animation:confettiFall 3.5s ease-in forwards}
+/* Form elements */
+.crm-input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;padding:.55rem .75rem;font-size:.8rem;color:#fff;
+  outline:none;transition:border-color .2s;margin-bottom:.6rem}
+.crm-input:focus{border-color:rgba(212,175,55,.4)}
+.crm-select{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;padding:.55rem .75rem;font-size:.8rem;color:#fff;outline:none;margin-bottom:.6rem}
+textarea.crm-input{min-height:80px;resize:vertical}
+/* Source channel colors */
+.src-wa{color:#25D366}.src-email{color:#60a5fa}.src-phone{color:#c084fc}
+.src-cl{color:var(--amber)}.src-other{color:rgba(255,255,255,.5)}
+</style>
+
 <script>
 'use strict';
 
@@ -931,6 +1130,7 @@ async function loadAll() {
     renderTable();
     renderSites();
     await loadAnalytics();
+    if (_openPanelName) await loadCRM();
   } catch(e) {
     console.warn('Load error', e);
   }
@@ -1332,10 +1532,17 @@ function runSkill(skill, btn) {
     appendLog(logEl, `✓ Done (exit ${d.code})`, 'log-done');
     evtSrc.close();
     resetBtn(skill, btn);
-    // Mark last active step done
     if (skill === 'morning' && activeStep) {
       const pill = document.getElementById(activeStep);
       if (pill) pill.className = d.code === 0 ? 'step-pill done' : 'step-pill failed';
+    }
+    // Desktop notification on pipeline complete
+    if (skill === 'morning' && d.code === 0 && Notification.permission === 'granted') {
+      const newCount = LEADS.filter(r=>isNewStatus(r.status)&&r.demo_url).length;
+      const clCount  = CL_LEADS.filter(r=>+r.score>=7).length;
+      new Notification('DemoReady: Pipeline Complete', {
+        body: `${newCount} leads, ${clCount} CL gigs. Open your dashboard.`,
+      });
     }
     setTimeout(loadAll, 1000);
   });
@@ -1376,6 +1583,8 @@ function resetLead(i) {
 function markConnected(i, arr) {
   const lead = (arr || waEntries)[i];
   if (!lead) return;
+  // Open CRM entry modal to capture channel
+  openCRMEntryModal(lead);
   const cardId = arr ? `fu-card-${i}` : `wa-card-${i}`;
   const card   = document.getElementById(cardId);
   if (card) {
@@ -1511,9 +1720,10 @@ function generatePrompt() {
   LEADS.forEach(r=>{if(r.message_version){if(!vmap[r.message_version])vmap[r.message_version]={sent:0,connected:0};if(['sent','followedup','connected','contacted'].includes(r.status))vmap[r.message_version].sent++;if(r.status==='connected'||r.status==='converted')vmap[r.message_version].connected++;}});
   const msgStats = Object.entries(vmap).map(([v,s])=>`  ${v}: ${s.sent} sent, ${s.connected} connected`).join('\n');
 
-  const prompt = `Here are my DemoReady pipeline stats. Review and suggest specific code improvements:
+  const crmStats = getCRMStatsText ? getCRMStatsText() : '  No CRM data yet';
+  const prompt = `Here are my DemoReady pipeline + sales stats:
 
-PIPELINE PERFORMANCE:
+OUTREACH PERFORMANCE:
   Total leads scraped: ${total}
   Total contacted (WA sent): ${contacted}
   Total connected (replied): ${connected}
@@ -1526,8 +1736,16 @@ ${msgStats||'  No data yet'}
 RECENT DAILY STATS (last 7 days):
 ${STATS_LOG.slice(-7).map(r=>`  ${r.date}: ${r.leads_scraped} leads, ${r.wa_sent||0} sent, ${r.connected||0} connected`).join('\n')||'  No data yet'}
 
-Focus on: improving lead quality, contact rate, and connection rate.
-Give me one master prompt to paste into Claude Code that I can use to make specific improvements to the pipeline code.`;
+SALES CRM:
+${crmStats}
+
+IMPROVE:
+  1. Lead targeting (which cities/categories convert best)
+  2. Outreach messaging (which versions get connected most)
+  3. Follow-up timing (days to first response)
+  4. Pricing strategy (what deal sizes are winning)
+
+Give me one master Claude Code prompt to implement all improvements.`;
 
   txt.value = prompt;
 }
@@ -1792,6 +2010,436 @@ document.getElementById('cl-modal')?.addEventListener('click', function(e) {
   if (e.target === this) closeCLModal();
 });
 
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CRM SYSTEM
+// ══════════════════════════════════════════════════════════════════════════════
+let CRM_LEADS   = [];
+let CRM_DATA    = {};   // per-lead rich data from crm-data.json
+let REMINDERS   = [];
+let _crmEntryLead  = null;
+let _wonLead       = null;
+let _openPanelName = null;
+
+const CRM_COLS = [
+  { status:'connected',   label:'Connected',   color:'rgba(99,120,255,.4)'  },
+  { status:'quoted',      label:'Quoted',      color:'rgba(245,158,11,.4)'  },
+  { status:'negotiating', label:'Negotiating', color:'rgba(168,85,247,.4)'  },
+  { status:'won',         label:'Won 🎉',      color:'rgba(212,175,55,.5)'  },
+  { status:'lost',        label:'Lost',        color:'rgba(239,68,68,.3)'   },
+];
+
+const CH_CLASS = {
+  WhatsApp:'log-wa', Email:'log-email', Phone:'log-phone',
+  Craigslist:'log-cl', Other:'log-other',
+};
+const DOT_CLASS = {
+  WhatsApp:'tl-dot-wa', Email:'tl-dot-email', Phone:'tl-dot-phone',
+  Craigslist:'tl-dot-cl', Other:'tl-dot-other',
+};
+
+async function loadCRM() {
+  [CRM_DATA, REMINDERS] = await Promise.all([
+    fetch(`${API}/api/crm-data`).then(r=>r.json()).catch(()=>({})),
+    fetch(`${API}/api/reminders`).then(r=>r.json()).catch(()=>[]),
+  ]);
+  CRM_LEADS = LEADS.filter(r => r.crm === 'true' &&
+    ['connected','quoted','negotiating','won','lost'].includes(r.crm_status || r.status));
+  renderKanban();
+  renderCRMStats();
+  document.getElementById('badge-crm').textContent =
+    CRM_LEADS.filter(r => !['won','lost'].includes(r.crm_status||r.status)).length;
+}
+
+// ── Kanban ────────────────────────────────────────────────────────────────────
+function renderKanban() {
+  const board = document.getElementById('kanban-board');
+  if (!board) return;
+  board.innerHTML = CRM_COLS.map(col => {
+    const leads = CRM_LEADS.filter(r => (r.crm_status || r.status) === col.status);
+    const total = leads.reduce((s,r) => s + (parseFloat(r.revenue)||0), 0);
+    return `<div class="kanban-col" data-status="${col.status}"
+        ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'${col.status}')">
+      <div class="kanban-col-head" style="border-color:${col.color}">
+        <span class="col-label">${col.label}</span>
+        <div>
+          <span class="col-count">${leads.length}</span>
+          ${total ? `<div class="col-value">$${total.toLocaleString()}</div>` : ''}
+        </div>
+      </div>
+      <div class="kanban-cards" id="kc-${col.status}">
+        ${leads.map(l => renderCRMCard(l)).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCRMCard(lead) {
+  const rich      = CRM_DATA[lead.name] || {};
+  const log       = rich.contactLog || [];
+  const lastNote  = (rich.notesHistory || []).slice(-1)[0];
+  const days      = lead.outreach_date
+    ? Math.floor((Date.now()-new Date(lead.outreach_date))/86400000) : '?';
+  const srcClass  = lead.source_channel ? `src-${lead.source_channel.toLowerCase()}` : 'src-other';
+  const revBadge  = lead.revenue ? `<span class="tag tag-gold">$${parseFloat(lead.revenue).toLocaleString()}</span>` : '';
+  const srcBadge  = lead.source_channel
+    ? `<span class="${srcClass}" style="font-size:.65rem;font-weight:600">${lead.source_channel}</span>` : '';
+
+  return `<div class="crm-card" draggable="true"
+      ondragstart="kanbanDragStart(event,'${esc(lead.name)}')"
+      ondragend="kanbanDragEnd(event)"
+      onclick="openCRMPanel('${esc(lead.name)}')"
+      id="crm-card-${esc(lead.name).replace(/[^a-z0-9]/gi,'_')}">
+    <div class="crm-card-name">${esc(lead.name)}</div>
+    <div class="crm-card-meta">
+      ${tagHtml(lead.city)}
+      ${tagHtml(lead.category,'tag-cat')}
+      ${revBadge}
+      ${srcBadge}
+    </div>
+    ${lastNote ? `<div class="crm-card-note">${esc(lastNote.text)}</div>` : ''}
+    <div class="crm-card-days">${log.length} touches · ${days}d in pipeline</div>
+  </div>`;
+}
+
+// ── Drag and drop ─────────────────────────────────────────────────────────────
+let _dragName = null;
+function kanbanDragStart(e, name) {
+  _dragName = name;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.setData('text', name);
+}
+function kanbanDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.kanban-cards').forEach(c=>c.classList.remove('drag-over'));
+}
+function kanbanDragOver(e) {
+  e.preventDefault();
+  const col = e.currentTarget.querySelector('.kanban-cards');
+  if (col) col.classList.add('drag-over');
+}
+async function kanbanDrop(e, newStatus) {
+  e.preventDefault();
+  document.querySelectorAll('.kanban-cards').forEach(c=>c.classList.remove('drag-over'));
+  const name = e.dataTransfer.getData('text') || _dragName;
+  if (!name) return;
+  const lead = CRM_LEADS.find(r => r.name === name);
+  if (!lead || (lead.crm_status || lead.status) === newStatus) return;
+
+  if (newStatus === 'won') { openWonModal(name); return; }
+
+  await patchLead(name, { crm_status: newStatus, status: newStatus });
+  await loadAll();
+  await loadCRM();
+}
+
+// ── CRM Stats ─────────────────────────────────────────────────────────────────
+function renderCRMStats() {
+  const active = CRM_LEADS.filter(r => !['won','lost'].includes(r.crm_status||r.status));
+  const won    = CRM_LEADS.filter(r => (r.crm_status||r.status) === 'won');
+  const lost   = CRM_LEADS.filter(r => (r.crm_status||r.status) === 'lost');
+  const thisMonth = new Date().toISOString().slice(0,7);
+  const wonMonth  = won.filter(r => (r.outreach_date||'').startsWith(thisMonth));
+  const pipeline  = active.reduce((s,r)=>s+(parseFloat(r.revenue)||0),0);
+  const wonRev    = won.reduce((s,r)=>s+(parseFloat(r.revenue)||0),0);
+  const avgDeal   = won.length ? Math.round(wonRev/won.length) : 0;
+  const total     = won.length + lost.length;
+  const winRate   = total ? Math.round((won.length/total)*100) : 0;
+
+  // Best source
+  const srcMap = {};
+  won.forEach(r => { const s=r.source_channel||'Unknown'; srcMap[s]=(srcMap[s]||0)+1; });
+  const bestSrc = Object.entries(srcMap).sort((a,b)=>b[1]-a[1])[0];
+
+  const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  set('crm-active',    active.length);
+  set('crm-pipeline',  pipeline ? `$${pipeline.toLocaleString()}` : '—');
+  set('crm-won-month', wonMonth.length ? `${wonMonth.length} / $${wonMonth.reduce((s,r)=>s+(parseFloat(r.revenue)||0),0).toLocaleString()}` : '—');
+  set('crm-avg-deal',  avgDeal ? `$${avgDeal}` : '—');
+  set('crm-winrate',   total ? `${winRate}%` : '—');
+  set('crm-best-src',  bestSrc ? `${bestSrc[0]} (${bestSrc[1]})` : '—');
+}
+
+// ── Move to CRM ───────────────────────────────────────────────────────────────
+function openCRMEntryModal(lead) {
+  _crmEntryLead = lead;
+  const el = document.getElementById('crm-entry-name');
+  if (el) el.textContent = `Move "${lead.name}" to CRM`;
+  const modal = document.getElementById('crm-entry-modal');
+  if (modal) modal.style.display = 'flex';
+}
+function closeCRMEntryModal() {
+  document.getElementById('crm-entry-modal').style.display = 'none';
+  _crmEntryLead = null;
+}
+async function confirmCRMEntry() {
+  if (!_crmEntryLead) return;
+  const channel = document.getElementById('crm-source-channel')?.value || 'WhatsApp';
+  await fetch(`${API}/api/leads/crm`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ name: _crmEntryLead.name, crm_status:'connected', source_channel: channel }),
+  });
+  closeCRMEntryModal();
+  await loadAll(); await loadCRM();
+  switchTab(9);
+}
+
+// ── Won modal + confetti ──────────────────────────────────────────────────────
+function openWonModal(name) {
+  _wonLead = name;
+  document.getElementById('won-amount').value = '';
+  document.getElementById('won-modal').style.display = 'flex';
+}
+async function confirmWon() {
+  const amount = parseFloat(document.getElementById('won-amount').value) || 0;
+  if (_wonLead) {
+    await patchLead(_wonLead, { crm_status:'won', status:'won', revenue: String(amount) });
+  }
+  document.getElementById('won-modal').style.display = 'none';
+  fireConfetti();
+  await loadAll(); await loadCRM();
+  _wonLead = null;
+}
+function fireConfetti() {
+  const el = document.getElementById('confetti-overlay');
+  if (!el) return;
+  const colors = ['#D4AF37','#EDD060','#fff','#4ade80','#f59e0b','#a78bfa'];
+  for (let i = 0; i < 60; i++) {
+    const d = document.createElement('div');
+    d.className = 'confetti-dot';
+    d.style.cssText = `left:${Math.random()*100}%;top:-10px;` +
+      `animation-delay:${Math.random()*1.5}s;animation-duration:${3+Math.random()*2}s;` +
+      `background:${colors[Math.floor(Math.random()*colors.length)]};` +
+      `width:${6+Math.random()*8}px;height:${6+Math.random()*8}px`;
+    el.appendChild(d);
+  }
+  setTimeout(() => { el.innerHTML = ''; }, 6000);
+}
+
+// ── CRM Detail Panel ──────────────────────────────────────────────────────────
+async function openCRMPanel(name) {
+  _openPanelName = name;
+  const lead = CRM_LEADS.find(r => r.name === name) ||
+    LEADS.find(r => r.name === name);
+  if (!lead) return;
+  const rich = CRM_DATA[name] || { contactLog:[], notesHistory:[] };
+  const days = lead.outreach_date
+    ? Math.floor((Date.now()-new Date(lead.outreach_date))/86400000) : '?';
+
+  document.getElementById('crm-panel-content').innerHTML = buildPanelHTML(lead, rich, days);
+  document.getElementById('crm-panel').style.right = '0';
+  document.getElementById('crm-panel-backdrop').style.display = 'block';
+}
+function closeCRMPanel() {
+  document.getElementById('crm-panel').style.right = '-520px';
+  document.getElementById('crm-panel-backdrop').style.display = 'none';
+  _openPanelName = null;
+}
+
+function buildPanelHTML(lead, rich, days) {
+  const log   = rich.contactLog  || [];
+  const notes = rich.notesHistory|| [];
+  const stage = lead.crm_status  || lead.status;
+
+  // Timeline data
+  const tl = buildTimelineHTML(log, lead.outreach_date);
+
+  // Contact log rows
+  const logRows = log.slice().reverse().map(e => {
+    const cls = CH_CLASS[e.channel] || 'log-other';
+    return `<div class="log-entry ${cls}">
+      <div style="flex:1">
+        <div style="font-weight:600;margin-bottom:2px">${esc(e.channel)} — <span class="log-status">${esc(e.status)}</span></div>
+        ${e.notes ? `<div style="color:rgba(255,255,255,.55);margin-top:2px">${esc(e.notes)}</div>` : ''}
+      </div>
+      <div class="log-time">${new Date(e.timestamp).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</div>
+    </div>`;
+  }).join('');
+
+  const noteRows = notes.slice().reverse().map(n =>
+    `<div class="note-entry"><div class="note-ts">${new Date(n.timestamp).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</div><div class="note-text">${esc(n.text)}</div></div>`
+  ).join('');
+
+  return `
+    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.35rem;padding-right:2rem">${esc(lead.name)}</h3>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.25rem">
+      ${tagHtml(lead.city)} ${tagHtml(lead.category,'tag-cat')}
+      ${tagHtml(lead.source_channel||'WA')} ${tagHtml(stage,'tag-gold')}
+      <span style="font-size:.72rem;color:rgba(255,255,255,.3)">${days}d in pipeline</span>
+    </div>
+
+    ${tl}
+
+    <div class="panel-section">
+      <span class="panel-section-title">Contact Log (${log.length})</span>
+      ${logRows || '<div style="font-size:.78rem;color:rgba(255,255,255,.3)">No contacts logged yet</div>'}
+      <div style="margin-top:.85rem;background:rgba(255,255,255,.04);border-radius:10px;padding:.85rem">
+        <div style="font-size:.72rem;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:.6rem">Add Contact Attempt</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+          <select class="crm-select" id="log-channel">
+            <option>WhatsApp</option><option>Email</option><option>Phone</option><option>Craigslist</option><option>Other</option>
+          </select>
+          <select class="crm-select" id="log-status">
+            <option>Sent</option><option>Delivered</option><option>Read</option><option>Replied</option><option>No Response</option><option>Wrong Number</option>
+          </select>
+        </div>
+        <textarea class="crm-input" id="log-notes" placeholder="Notes (optional)"></textarea>
+        <button class="btn btn-ghost" onclick="addContactLog('${esc(lead.name)}')" style="font-size:.78rem">+ Add Entry</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <span class="panel-section-title">Notes</span>
+      ${noteRows || '<div style="font-size:.78rem;color:rgba(255,255,255,.3)">No notes yet</div>'}
+      <div style="margin-top:.75rem">
+        <textarea class="crm-input" id="new-note" placeholder="Add a note..."></textarea>
+        <button class="btn btn-ghost" onclick="addNote('${esc(lead.name)}')" style="font-size:.78rem">+ Save Note</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <span class="panel-section-title">Follow-up Reminder</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+        <input class="crm-input" type="datetime-local" id="reminder-dt" style="margin:0"/>
+        <input class="crm-input" type="text" id="reminder-note" placeholder="What to do" style="margin:0"/>
+      </div>
+      <button class="btn btn-ghost" onclick="saveReminder('${esc(lead.name)}')" style="font-size:.78rem">🔔 Set Reminder</button>
+    </div>
+
+    ${stage !== 'won' ? `
+    <div class="panel-section">
+      <span class="panel-section-title">Revenue</span>
+      ${lead.revenue ? `<div style="font-size:1.2rem;font-weight:700;color:var(--gold2);margin-bottom:.75rem">$${parseFloat(lead.revenue).toLocaleString()}</div>` : ''}
+      <button class="btn btn-green" onclick="openWonModal('${esc(lead.name)}')" style="font-size:.82rem">🎉 Mark as Won</button>
+    </div>` : `
+    <div class="panel-section">
+      <div style="font-size:1.3rem;font-weight:800;color:var(--gold2)">🎉 Won — $${parseFloat(lead.revenue||0).toLocaleString()}</div>
+    </div>`}
+  `;
+}
+
+function buildTimelineHTML(log, startDate) {
+  if (!log.length) return '';
+  const start = new Date(startDate || log[0]?.timestamp || Date.now()).getTime();
+  const end   = Date.now();
+  const span  = Math.max(end - start, 86400000);
+
+  const dots = log.map(e => {
+    const pct = Math.round(((new Date(e.timestamp).getTime()-start)/span)*90)+5;
+    const cls = DOT_CLASS[e.channel] || 'tl-dot-other';
+    const label = `${e.channel} — ${e.status} (${new Date(e.timestamp).toLocaleDateString()})`;
+    return `<div class="tl-dot ${cls}" style="left:${pct}%" title="${esc(label)}">
+      <span class="tl-tip">${esc(label)}</span>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="panel-section">
+      <span class="panel-section-title">Timeline</span>
+      <div class="crm-timeline"><div class="tl-track">${dots}</div></div>
+      <div style="display:flex;justify-content:space-between;font-size:.65rem;color:rgba(255,255,255,.25)">
+        <span>${new Date(start).toLocaleDateString()}</span><span>Today</span>
+      </div>
+    </div>`;
+}
+
+// ── Contact log save ──────────────────────────────────────────────────────────
+async function addContactLog(name) {
+  const channel = document.getElementById('log-channel')?.value;
+  const status  = document.getElementById('log-status')?.value;
+  const notes   = document.getElementById('log-notes')?.value || '';
+  const entry   = { id: Date.now().toString(36), timestamp: new Date().toISOString(), channel, status, notes };
+  const rich    = CRM_DATA[name] || { contactLog:[], notesHistory:[] };
+  rich.contactLog = [...(rich.contactLog||[]), entry];
+  CRM_DATA[name] = rich;
+  await fetch(`${API}/api/crm-data`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ name, data: rich }),
+  });
+  openCRMPanel(name); // re-render panel
+}
+
+async function addNote(name) {
+  const txt = document.getElementById('new-note')?.value?.trim();
+  if (!txt) return;
+  const entry = { timestamp: new Date().toISOString(), text: txt };
+  const rich  = CRM_DATA[name] || { contactLog:[], notesHistory:[] };
+  rich.notesHistory = [...(rich.notesHistory||[]), entry];
+  CRM_DATA[name] = rich;
+  await fetch(`${API}/api/crm-data`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ name, data: rich }),
+  });
+  // Update notes column in CSV
+  await patchLead(name, { notes: txt });
+  openCRMPanel(name);
+}
+
+// ── Reminders ────────────────────────────────────────────────────────────────
+async function saveReminder(name) {
+  const dt   = document.getElementById('reminder-dt')?.value;
+  const note = document.getElementById('reminder-note')?.value;
+  if (!dt) return;
+  await fetch(`${API}/api/reminders`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ name, datetime: new Date(dt).toISOString(), note }),
+  });
+  alert('Reminder set!');
+}
+
+async function checkReminders() {
+  try {
+    const list = await fetch(`${API}/api/reminders`).then(r=>r.json());
+    const now  = Date.now();
+    list.filter(r => !r.dismissed && new Date(r.datetime).getTime() <= now)
+      .forEach(r => {
+        if (Notification.permission === 'granted') {
+          new Notification(`DemoReady: ${r.name}`, { body: r.note || 'Follow-up due' });
+        }
+        fetch(`${API}/api/reminders/${r.id}`, { method:'DELETE' }).catch(()=>{});
+      });
+  } catch {}
+}
+setInterval(checkReminders, 30000);
+
+// Request notification permission on load
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
+// ── Analytics tab CRM injection ───────────────────────────────────────────────
+function getCRMStatsText() {
+  if (!CRM_LEADS.length) return '  No CRM data yet';
+  const won   = CRM_LEADS.filter(r => (r.crm_status||r.status)==='won');
+  const lost  = CRM_LEADS.filter(r => (r.crm_status||r.status)==='lost');
+  const total = won.length + lost.length;
+  const wonRev   = won.reduce((s,r)=>s+(parseFloat(r.revenue)||0),0);
+  const winRate  = total ? Math.round((won.length/total)*100) : 0;
+  const avgDeal  = won.length ? Math.round(wonRev/won.length) : 0;
+
+  const srcMap = {};
+  CRM_LEADS.forEach(r => { const s=r.source_channel||'Unknown'; srcMap[s]=(srcMap[s]||0)+1; });
+  const bestSrc = Object.entries(srcMap).sort((a,b)=>b[1]-a[1])[0];
+
+  const catMap = {};
+  won.forEach(r => { catMap[r.category]=(catMap[r.category]||0)+1; });
+  const bestCat = Object.entries(catMap).sort((a,b)=>b[1]-a[1])[0];
+
+  const cityMap = {};
+  won.forEach(r => { cityMap[r.city]=(cityMap[r.city]||0)+1; });
+  const bestCity = Object.entries(cityMap).sort((a,b)=>b[1]-a[1])[0];
+
+  return [
+    `  Total revenue: $${wonRev.toLocaleString()}`,
+    `  Won deals: ${won.length} | Lost: ${lost.length}`,
+    `  Win rate: ${winRate}%`,
+    `  Avg deal size: $${avgDeal}`,
+    `  Best channel: ${bestSrc ? `${bestSrc[0]} (${bestSrc[1]} deals)` : 'N/A'}`,
+    `  Best category: ${bestCat ? bestCat[0] : 'N/A'}`,
+    `  Best city: ${bestCity ? bestCity[0] : 'N/A'}`,
+  ].join('\n');
+}
+
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function switchTab(n) {
   document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
@@ -1799,6 +2447,7 @@ function switchTab(n) {
   document.getElementById('tab-'+n).classList.add('active');
   document.querySelectorAll('.tab-btn')[n-1].classList.add('active');
   if (n === 8) loadCLLeads();
+  if (n === 9) loadCRM();
 }
 
 // ── INIT + AUTO-REFRESH ───────────────────────────────────────────────────────

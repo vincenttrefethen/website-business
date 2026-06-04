@@ -183,6 +183,80 @@ async function apiClLeadsUpdate(req, res) {
   } catch (e) { err(res, e.message); }
 }
 
+// ─── CRM data (crm-data.json — rich per-lead data: contact log, notes) ───────
+
+function loadCRMData() {
+  if (!fs.existsSync(config.CRM_DATA)) return {};
+  try { return JSON.parse(fs.readFileSync(config.CRM_DATA, 'utf8')); } catch { return {}; }
+}
+function saveCRMData(data) {
+  fs.writeFileSync(config.CRM_DATA, JSON.stringify(data, null, 2), 'utf8');
+}
+
+function apiCRMData(res) {
+  json(res, loadCRMData());
+}
+
+async function apiCRMDataUpdate(req, res) {
+  try {
+    const body = await parseBody(req);
+    const { name, data } = body;
+    if (!name) { err(res, 'name required', 400); return; }
+    const all = loadCRMData();
+    all[name] = { ...(all[name] || {}), ...data };
+    saveCRMData(all);
+    json(res, { ok: true });
+  } catch (e) { err(res, e.message); }
+}
+
+async function apiLeadsCRM(req, res) {
+  // Promote a lead into CRM: sets crm=true, crm_status, source_channel
+  try {
+    const body = await parseBody(req);
+    const { name, crm_status, source_channel } = body;
+    if (!name) { err(res, 'name required', 400); return; }
+    const leads = readCSV(config.LEADS_CSV, config.CSV_HEADERS);
+    const idx   = leads.findIndex(r => r.name === name);
+    if (idx === -1) { err(res, 'Lead not found', 404); return; }
+    leads[idx].crm            = 'true';
+    leads[idx].crm_status     = crm_status     || 'connected';
+    leads[idx].source_channel = source_channel || 'WhatsApp';
+    if (!leads[idx].status || leads[idx].status === 'sent' || leads[idx].status === 'followedup')
+      leads[idx].status = crm_status || 'connected';
+    writeCSV(config.LEADS_CSV, leads, config.CSV_HEADERS);
+    json(res, { ok: true, lead: leads[idx] });
+  } catch (e) { err(res, e.message); }
+}
+
+// ─── Reminders (reminders.json) ───────────────────────────────────────────────
+
+function loadReminders() {
+  if (!fs.existsSync(config.REMINDERS)) return [];
+  try { return JSON.parse(fs.readFileSync(config.REMINDERS, 'utf8')); } catch { return []; }
+}
+function saveReminders(list) {
+  fs.writeFileSync(config.REMINDERS, JSON.stringify(list, null, 2), 'utf8');
+}
+
+function apiGetReminders(res) { json(res, loadReminders()); }
+
+async function apiAddReminder(req, res) {
+  try {
+    const body     = await parseBody(req);
+    const list     = loadReminders();
+    const reminder = { id: Date.now().toString(36), ...body, dismissed: false };
+    list.push(reminder);
+    saveReminders(list);
+    json(res, { ok: true, reminder });
+  } catch (e) { err(res, e.message); }
+}
+
+function apiDeleteReminder(res, id) {
+  const list = loadReminders().map(r => r.id === id ? { ...r, dismissed: true } : r);
+  saveReminders(list);
+  json(res, { ok: true });
+}
+
 function apiStatsLog(res) {
   try {
     if (!fs.existsSync(config.STATS_LOG)) { json(res, []); return; }
@@ -297,6 +371,14 @@ const server = http.createServer(async (req, res) => {
   if (p === '/api/stats-log'       && method === 'GET')  { apiStatsLog(res); return; }
   if (p === '/api/cl-leads'        && method === 'GET')  { apiClLeads(res); return; }
   if (p === '/api/cl-leads/update' && method === 'POST') { await apiClLeadsUpdate(req, res); return; }
+  if (p === '/api/crm-data'        && method === 'GET')  { apiCRMData(res); return; }
+  if (p === '/api/crm-data'        && method === 'POST') { await apiCRMDataUpdate(req, res); return; }
+  if (p === '/api/leads/crm'       && method === 'POST') { await apiLeadsCRM(req, res); return; }
+  if (p === '/api/reminders'       && method === 'GET')  { apiGetReminders(res); return; }
+  if (p === '/api/reminders'       && method === 'POST') { await apiAddReminder(req, res); return; }
+  if (p.startsWith('/api/reminders/') && method === 'DELETE') {
+    apiDeleteReminder(res, p.split('/').pop()); return;
+  }
 
   if (p === '/api/run' && method === 'GET') {
     apiRunStream(req, res, url.searchParams.get('skill') || '');
