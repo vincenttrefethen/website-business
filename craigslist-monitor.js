@@ -198,12 +198,27 @@ function scoreFullText(post) {
   };
 }
 
-function descHash(title, budget, desc) {
-  const t = (String(title) + String(budget || '') + String(desc).slice(0, 50))
-    .toLowerCase().replace(/\s+/g, '');
-  let h = 0;
-  for (let i = 0; i < t.length; i++) { h = ((h << 5) - h) + t.charCodeAt(i); h |= 0; }
-  return String(h);
+// ─── Seen-URL store (cross-run dedup with 30-day TTL) ─────────────────────────
+
+const SEEN_HEADERS = ['url', 'seen_at'];
+const SEEN_TTL_DAYS = 30;
+
+function loadSeenUrls() {
+  if (!fs.existsSync(config.CL_SEEN_CSV)) return new Map();
+  const rows  = readCSV(config.CL_SEEN_CSV, SEEN_HEADERS);
+  const cutoff = Date.now() - SEEN_TTL_DAYS * 86400000;
+  const map   = new Map();
+  for (const r of rows) {
+    if (!r.url) continue;
+    const ts = r.seen_at ? new Date(r.seen_at).getTime() : 0;
+    if (ts >= cutoff) map.set(r.url, r.seen_at); // keep if < 30 days old
+  }
+  return map;
+}
+
+function saveSeenUrls(map) {
+  const rows = [...map.entries()].map(([url, seen_at]) => ({ url, seen_at }));
+  writeCSV(config.CL_SEEN_CSV, rows, SEEN_HEADERS);
 }
 
 // No rotation — all 6 regions run every morning for full US coverage
@@ -365,12 +380,23 @@ async function monitorCraigslist() {
   console.log(`[CL] Regions: ${regions.map(r => r.name).join(', ')}`);
 
   // Load dedup state
-  const seenSet      = new Set();
-  if (fs.existsSync(config.CL_SEEN_CSV))
-    readCSV(config.CL_SEEN_CSV, ['hash']).forEach(r => seenSet.add(r.hash));
+  // seenMap: URL → seen_at timestamp (purged >30 days old on load)
+  const seenMap      = loadSeenUrls();
+  const prevRunSize  = seenMap.size;
+  console.log(`[CL] Seen from previous runs: ${prevRunSize} URLs (${SEEN_TTL_DAYS}-day window)`);
+
   const existing     = fs.existsSync(config.CL_LEADS_CSV)
     ? readCSV(config.CL_LEADS_CSV, CL_HEADERS) : [];
-  const existingUrls = new Set(existing.map(r => r.url));
+  // Also block URLs already in leads.csv (avoids re-processing won/applied gigs)
+  const leadsUrls    = new Set(existing.map(r => r.url));
+
+  // Combined cross-run skip set
+  const skipUrl = url => seenMap.has(url) || leadsUrls.has(url);
+
+  // Within-run URL set (tracks what we've seen THIS run across all regions)
+  const thisRunUrls  = new Set();
+  let   dupWithinRun = 0;
+  let   dupPrevRuns  = 0;
 
   const { browser, owned } = await createCLBrowser();
   const page = await browser.newPage();
@@ -397,7 +423,10 @@ async function monitorCraigslist() {
           if (items === null) { regionBlocked = true; regionsSkipped++; break; }
           rssTotal += items.length;
           for (const item of items) {
-            if (existingUrls.has(item.url)) continue;
+            if (!item.url) continue;
+            if (thisRunUrls.has(item.url)) { dupWithinRun++; continue; }
+            if (skipUrl(item.url))         { dupPrevRuns++;  continue; }
+            thisRunUrls.add(item.url);
             candidates.push({ ...item, category, region: region.name });
           }
           await sleep(500);
@@ -409,15 +438,9 @@ async function monitorCraigslist() {
     console.error('[CL] Stage 1 error:', e.message);
   }
 
-  // Deduplicate candidates by URL
-  const seenUrls  = new Set();
-  const uniq      = candidates.filter(c => {
-    if (seenUrls.has(c.url)) return false;
-    seenUrls.add(c.url);
-    return true;
-  });
-
-  console.log(`[CL] Stage 1 complete: ${rssTotal} results → ${uniq.length} unique candidates`);
+  // candidates is already fully deduped (within-run + cross-run both handled above)
+  const uniq = candidates;
+  console.log(`[CL] Stage 1 complete: ${rssTotal} raw → ${dupWithinRun} dups this run → ${dupPrevRuns} seen before → ${uniq.length} new candidates`);
 
   // ── STAGE 2: read post pages (max 50) ─────────────────────────────────────
   const MAX_PAGES   = 50;
@@ -426,31 +449,25 @@ async function monitorCraigslist() {
   console.log(`\n[CL] Stage 2 — reading ${toRead.length} post pages for full text...`);
 
   const newLeads     = [];
-  const newHashes    = new Set(seenSet);
+  const nowIso       = new Date().toISOString();
   let   pagesRead    = 0;
   let   spamFiltered = 0;
-  let   noIntent     = 0;
 
   try {
     for (const cand of toRead) {
-      const hash = descHash(cand.title, cand.budget_hint, '');
-      if (seenSet.has(hash) || newHashes.has(hash)) continue;
-
       pagesRead++;
       process.stdout.write(`  [CL] (${pagesRead}/${toRead.length}) ${cand.title.slice(0, 55)}...\r`);
 
       const post = await readPostPage(page, cand);
 
+      // Mark URL as seen regardless of outcome — prevents re-processing on next run
+      seenMap.set(cand.url, nowIso);
+
       if (!post) {
-        // readPostPage returns null for spam or no buyer intent
-        // We need to figure out which — check manually
-        newHashes.add(hash); // mark as seen so we don't re-check
-        // Count as spam/no-intent (we can't distinguish here, count together)
         spamFiltered++;
         continue;
       }
 
-      newHashes.add(hash);
       newLeads.push({
         title:           post.title.slice(0, 120),
         city:            post.city   || cand.region,
@@ -471,7 +488,6 @@ async function monitorCraigslist() {
         email_extracted: (post.emails || []).join(', '),
       });
 
-      existingUrls.add(post.url);
       await sleep(randInt(1000, 3000));
     }
   } finally {
@@ -489,19 +505,24 @@ async function monitorCraigslist() {
   if (newLeads.length)
     writeCSV(config.CL_LEADS_CSV, [...existing, ...newLeads], CL_HEADERS);
 
-  // Save seen hashes
-  writeCSV(config.CL_SEEN_CSV, [...newHashes].map(h => ({ hash: h })), ['hash']);
+  // Save seen URLs (includes new ones stamped this run + purged old ones)
+  saveSeenUrls(seenMap);
+  const purgedCount = prevRunSize - (seenMap.size - pagesRead); // rough purge estimate
+  console.log(`[CL] Seen file: ${seenMap.size} URLs saved (30-day window)`);
+  if (purgedCount > 0) console.log(`[CL] Purged ${purgedCount} expired entries (>30 days)`);
 
   const elapsed   = Math.round((Date.now() - startMs) / 1000);
   const hot       = newLeads.filter(l => l.score >= (config.CL_HOT_SCORE  || 10)).length;
   const good      = newLeads.filter(l => l.score >= (config.CL_GOOD_SCORE ||  7) && l.score < (config.CL_HOT_SCORE || 10)).length;
 
   console.log(`\n[CL] ─── Summary ───────────────────────────────────────`);
-  console.log(`  Total from search pages:  ${rssTotal}`);
-  console.log(`  Unique candidates:        ${uniq.length}`);
-  console.log(`  Pages read:               ${pagesRead}`);
-  console.log(`  Filtered (spam/no intent):${spamFiltered}`);
-  console.log(`  New leads saved:          ${newLeads.length}`);
+  console.log(`  Total from search pages:          ${rssTotal}`);
+  console.log(`  Duplicates (this run, cross-region):${dupWithinRun}`);
+  console.log(`  Already seen (previous runs):     ${dupPrevRuns}`);
+  console.log(`  New unique posts:                  ${uniq.length}`);
+  console.log(`  Pages read:                       ${pagesRead}`);
+  console.log(`  Filtered (spam / no buyer intent):${spamFiltered}`);
+  console.log(`  New leads saved:                  ${newLeads.length}`);
   console.log(`  🔥 Hot (10+):             ${hot}`);
   console.log(`  ⭐ Good (7-9):            ${good}`);
   console.log(`  US Coverage:              ${regions.length} regions × 1000mi radius = Full US`);
