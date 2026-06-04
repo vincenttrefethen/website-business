@@ -256,6 +256,93 @@ function parseItem(item, region, category) {
   return { title, url, description, postedDate, city, budget, category, region };
 }
 
+// ─── Puppeteer browser + page helpers ─────────────────────────────────────────
+
+/**
+ * Try CDP first (connect to existing Chrome on --remote-debugging-port=9222),
+ * then fall back to launching Chrome with the real user profile.
+ */
+async function createCLBrowser() {
+  // Option 1: connect to already-running Chrome debug instance (from run-cl.js)
+  try {
+    const b = await puppeteer.connect({
+      browserURL: 'http://localhost:9222',
+      defaultViewport: { width: 1440, height: 900 },
+    });
+    console.log('[CL] Connected to Chrome via CDP (port 9222)');
+    return { browser: b, owned: false };
+  } catch {}
+
+  // Option 2: fall back to launching Chrome with the dedicated CL profile
+  console.log('[CL] CDP not available — launching Chrome with CL profile...');
+  const b = await puppeteer.launch({
+    headless: false,
+    executablePath: config.CHROME_PATH,
+    userDataDir: config.CHROME_CL_DATA_DIR || config.CHROME_USER_DATA_DIR,
+    args: [
+      `--profile-directory=${config.CHROME_PROFILE}`,
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--disable-blink-features=AutomationControlled',
+      '--window-size=1280,800',
+      '--window-position=-32000,-32000',
+    ],
+    defaultViewport: { width: 1280, height: 800 },
+  });
+  return { browser: b, owned: true };
+}
+
+/**
+ * Search one CL page and return an array of raw post objects.
+ * Returns null if the region is blocked, [] on error/timeout.
+ */
+async function searchCLPage(page, region, keyword) {
+  const q   = encodeURIComponent(keyword);
+  const url = `https://${region}.craigslist.org/search/ggg?query=${q}&sort=date`;
+  try {
+    const res    = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
+    const status = res ? res.status() : 0;
+    if (status === 403 || status === 429) {
+      console.log(`  [CL] ${region}: HTTP ${status} — blocked`);
+      return null;
+    }
+    await new Promise(r => setTimeout(r, randInt(1500, 3000)));
+    const title = await page.title().catch(() => '');
+    if (/blocked|captcha|robot|unusual/i.test(title)) {
+      console.log(`  [CL] ${region}: blocked page — skipping region`);
+      return null;
+    }
+    const items = await page.evaluate(() => {
+      const results = [];
+      document.querySelectorAll('.cl-search-result, li[data-pid]').forEach(el => {
+        const titleEl = el.querySelector('.titlestring, .title-anchor, a.posting-title span, [class*="title"] a');
+        const priceEl = el.querySelector('.price, [class*="price"]');
+        const dateEl  = el.querySelector('time[datetime], .date, [class*="date"]');
+        const locEl   = el.querySelector('.location, [class*="location"]');
+        const linkEl  = el.querySelector('a[href*="/d/"]') || el.querySelector('a');
+        const descEl  = el.querySelector('.result-text, .description, p[class*="desc"]');
+        const t = titleEl ? titleEl.textContent.trim() : '';
+        const u = linkEl  ? linkEl.href : '';
+        if (!t || !u) return;
+        results.push({
+          title:       t,
+          url:         u,
+          budget:      priceEl ? priceEl.textContent.trim() : '',
+          posted_date: dateEl  ? (dateEl.getAttribute('datetime') || dateEl.textContent.trim()) : '',
+          city:        locEl   ? locEl.textContent.trim() : '',
+          description: descEl  ? descEl.textContent.trim() : '',
+        });
+      });
+      return results;
+    });
+    return items || [];
+  } catch (e) {
+    const msg = e.message.slice(0, 80);
+    if (!msg.includes('Target closed')) console.log(`  [CL] ${region}/${keyword}: ${msg}`);
+    return [];
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 function writeStatus(data) {
   try {
@@ -420,7 +507,7 @@ async function monitorCraigslist() {
   return { newLeads: newLeads.length, hot, good, elapsed: `${elapsed}s`, totalFetched };
 }
 
-module.exports = { monitorCraigslist, CL_HEADERS };
+module.exports = { monitorCraigslist, createCLBrowser, CL_HEADERS };
 
 if (require.main === module) {
   monitorCraigslist()
