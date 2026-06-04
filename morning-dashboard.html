@@ -600,14 +600,22 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
 
     <div class="skill-card" style="border-color:rgba(37,211,102,.2);background:rgba(37,211,102,.03)">
       <div class="skill-header">
-        <div class="skill-name">📋 Craigslist Monitor</div>
-        <button class="btn-run" id="run-craigslist-monitor" onclick="runSkill('craigslist-monitor',this)"
+        <div class="skill-name">🔍 Run Craigslist Monitor</div>
+        <button class="btn-run" id="run-run-cl" onclick="runCLMonitor(this)"
           style="background:rgba(37,211,102,.12);border-color:rgba(37,211,102,.45);color:#4ade80">
           Run
         </button>
       </div>
-      <div class="skill-desc">Searches 10 US Craigslist regions for freelance gigs. Scores, filters spam, deduplicates. ~20–45 min. Normally runs auto at 7 AM.</div>
-      <div class="skill-log" id="log-craigslist-monitor"></div>
+      <div class="skill-desc">Launches Chrome in debug mode → connects via CDP → searches 10 CL regions → scores and saves gigs. Fully automatic. ~20–45 min.</div>
+      <!-- Step status pills -->
+      <div style="display:flex;gap:.5rem;margin:.75rem 0;flex-wrap:wrap" id="cl-step-pills">
+        <span class="step-pill" id="cls-chrome">1. Start Chrome</span>
+        <span class="step-pill" id="cls-connect">2. Connect</span>
+        <span class="step-pill" id="cls-search">3. Searching CL</span>
+        <span class="step-pill" id="cls-done">4. Complete</span>
+      </div>
+      <div id="cl-status-inline" style="font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:.5rem;min-height:1.2em"></div>
+      <div class="skill-log" id="log-run-cl"></div>
     </div>
 
     <div class="skill-card" style="border-color:rgba(212,175,55,.25);background:rgba(212,175,55,.04)">
@@ -1698,7 +1706,7 @@ function resetBtn(skill, btn) {
   const labels = {
     'find-leads':'Run','build-sites':'Run','find-contact':'Run',
     'draft-outreach':'Run','follow-up':'Run',
-    'craigslist-monitor':'Run','morning':'Run All'
+    'craigslist-monitor':'Run','run-cl':'Run','morning':'Run All'
   };
   btn.textContent = labels[skill] || 'Run';
 }
@@ -2085,7 +2093,7 @@ function renderCLGigs() {
       <span style="font-size:.78rem;color:rgba(255,255,255,.3);margin-top:.5rem;display:block">${lastRun}</span>
       ${blocked}
       <div style="margin-top:1rem">
-        <button class="btn btn-ghost" onclick="runSkill('craigslist-monitor',this)" style="font-size:.82rem">
+        <button class="btn btn-ghost" onclick="switchTab(6)" style="font-size:.82rem">
           ▶ Run Now
         </button>
       </div>
@@ -2759,6 +2767,87 @@ async function confirmPushCRM() {
   _pushCRMName = null;
   await loadAll(); await loadCRM();
 }
+
+// -- CL MONITOR (run-cl.js wrapper) ------------------------------------------
+function runCLMonitor(btn) {
+  const logEl = document.getElementById('log-run-cl');
+  const statusEl = document.getElementById('cl-status-inline');
+  if (!logEl) return;
+
+  // Reset step pills
+  ['cls-chrome','cls-connect','cls-search','cls-done'].forEach(id => {
+    const p = document.getElementById(id);
+    if (p) p.className = 'step-pill';
+  });
+  logEl.innerHTML = '';
+  logEl.classList.add('visible');
+  btn.disabled = true;
+  btn.classList.add('running');
+  btn.textContent = 'Running...';
+
+  function setStep(id, label, state) {
+    const p = document.getElementById(id);
+    if (p) p.className = 'step-pill ' + state;
+    if (statusEl) statusEl.textContent = label;
+  }
+
+  const evtSrc = new EventSource(`${API}/api/run?skill=run-cl`);
+
+  evtSrc.addEventListener('start', () => {
+    setStep('cls-chrome', 'Starting Chrome...', 'active');
+  });
+
+  evtSrc.addEventListener('log', e => {
+    const line = JSON.parse(e.data).line;
+    appendLog(logEl, line, '');
+
+    // Map output lines to step pills
+    if (/Step 1.*Launch|Launching Chrome/.test(line)) {
+      setStep('cls-chrome', 'Starting Chrome...', 'active');
+    } else if (/Chrome ready|debug port to be ready/.test(line)) {
+      setStep('cls-chrome', 'Chrome ready', 'done');
+      setStep('cls-connect', 'Connecting to CL...', 'active');
+    } else if (/Connected.*CDP|starting.*monitor/i.test(line)) {
+      setStep('cls-connect', 'Connected', 'done');
+      setStep('cls-search', 'Searching Craigslist...', 'active');
+    } else if (/Region:|Searching:/.test(line)) {
+      setStep('cls-search', line.replace(/\s*\[run-cl\]|\s*\[CL\]/g,'').trim(), 'active');
+    } else if (/Complete|Done.*leads/.test(line)) {
+      setStep('cls-search', 'Search complete', 'done');
+      setStep('cls-done', line.trim().replace(/^\[run-cl\]\s*/,''), 'done');
+    }
+  });
+
+  evtSrc.addEventListener('err', e => {
+    appendLog(logEl, JSON.parse(e.data).line, 'log-err');
+  });
+
+  evtSrc.addEventListener('error', e => {
+    if (e.data) {
+      const msg = JSON.parse(e.data).msg;
+      appendLog(logEl, msg, 'log-err');
+      setStep('cls-done', 'Error: ' + msg, 'failed');
+    }
+    evtSrc.close();
+    resetBtn('run-cl', btn);
+  });
+
+  evtSrc.addEventListener('done', e => {
+    const d = JSON.parse(e.data);
+    if (d.code === 0) {
+      appendLog(logEl, '✓ Done', 'log-done');
+    } else {
+      appendLog(logEl, `✗ Exited with code ${d.code}`, 'log-err');
+      setStep('cls-done', 'Error (exit ' + d.code + ')', 'failed');
+    }
+    evtSrc.close();
+    resetBtn('run-cl', btn);
+    setTimeout(loadCLLeads, 1500);  // refresh CL gigs tab
+  });
+
+  evtSrc.onerror = () => { evtSrc.close(); resetBtn('run-cl', btn); };
+}
+
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function switchTab(n) {

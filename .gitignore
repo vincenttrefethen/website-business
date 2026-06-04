@@ -2,3 +2,4 @@ node_modules/
 .chrome-puppeteer/
 craigslist-leads.csv
 craigslist-seen.csv
+.chrome-cl/

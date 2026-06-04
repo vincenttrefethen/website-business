@@ -42,7 +42,7 @@
   <Actions Context="Author">
     <Exec>
       <Command>C:\Program Files\nodejs\node.exe</Command>
-      <Arguments>craigslist-monitor.js</Arguments>
+      <Arguments>run-cl.js</Arguments>
       <WorkingDirectory>C:\Users\vintr\OneDrive\Documents\website-business</WorkingDirectory>
     </Exec>
   </Actions>

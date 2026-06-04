@@ -39,6 +39,7 @@ module.exports = {
   CRM_DATA:          path.join(__dirname, 'crm-data.json'),
   REMINDERS:         path.join(__dirname, 'reminders.json'),
   CL_STATUS:         path.join(__dirname, 'cl-status.json'),
+  CHROME_CL_DATA_DIR: path.join(__dirname, '.chrome-cl'),
   PIPELINE_STATUS:   path.join(__dirname, 'pipeline-status.json'),
 
   ROTATION_LOG: path.join(__dirname, 'rotation-log.json'),

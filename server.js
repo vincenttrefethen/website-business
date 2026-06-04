@@ -352,6 +352,7 @@ const SKILLS = {
   'draft-outreach':      'draft-outreach.js',
   'follow-up':           'follow-up.js',
   'craigslist-monitor':  'craigslist-monitor.js',
+  'run-cl':              'run-cl.js',
   'morning':             'run-morning.js',
 };
 
