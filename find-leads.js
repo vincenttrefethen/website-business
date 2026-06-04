@@ -188,6 +188,7 @@ async function scrapeCombo(browser, combo, skipNames, skipPhones, targetCount) {
         status:        'new',
         outreach_date: '',
         followup_date: '',
+        message_version: '',
       });
 
       await new Promise(r => setTimeout(r, 1000));
@@ -236,13 +237,16 @@ async function findLeads() {
   let   batchCount  = 0;
 
   try {
-    while (allNew.length < config.MAX_LEADS_PER_RUN) {
+    // Phone-verified count is the real target — leads without phones don't count
+    const phoneCount = () => allNew.filter(r => r.phone && r.phone.replace(/\D/g,'').length >= 7).length;
+
+    while (phoneCount() < config.MAX_LEADS_PER_RUN) {
       if (batchCount >= config.MAX_COMBO_BATCHES) {
         console.log(`[find-leads] Hit MAX_COMBO_BATCHES (${config.MAX_COMBO_BATCHES}) — stopping`);
         break;
       }
 
-      const needed = config.MAX_LEADS_PER_RUN - allNew.length;
+      const needed = config.MAX_LEADS_PER_RUN - phoneCount();
       // Request one extra combo to compensate for low-yield combos
       const batchSize = Math.min(
         config.COMBOS_PER_RUN,
@@ -273,9 +277,11 @@ async function findLeads() {
         comboLogs.push(`    ${r.combo.category} / ${r.combo.city}: ${r.found.length}`);
       }
 
+      const verifiedSoFar = phoneCount();
       console.log(
         `[find-leads] Batch ${batchCount} yielded ${batchYield} — ` +
-        `total: ${allNew.length}/${config.MAX_LEADS_PER_RUN}`
+        `phone-verified: ${verifiedSoFar}/${config.MAX_LEADS_PER_RUN}` +
+        (verifiedSoFar < config.MAX_LEADS_PER_RUN ? ` — pulling more combos...` : ` — target reached!`)
       );
 
       if (batchYield === 0) {
@@ -304,9 +310,13 @@ async function findLeads() {
   console.log(comboText);
   console.log(`[find-leads] Written to CSV: ${finalLeads.length} new leads`);
 
+  const phonesInFinal = finalLeads.filter(r => r.phone && r.phone.replace(/\D/g,'').length >= 7).length;
+  console.log(`[find-leads] Final: ${finalLeads.length} leads written (${phonesInFinal} with valid phones)`);
+
   // Return accurate count — what was actually written
   return {
     total:    finalLeads.length,
+    withPhones: phonesInFinal,
     elapsed:  `${elapsed}s`,
     batches:  batchCount,
     combos:   comboText,

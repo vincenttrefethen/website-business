@@ -385,9 +385,10 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
   <div class="header-main">
     <div class="logo">Demo<span>Ready</span>.co<span class="logo-dot"></span></div>
     <div class="header-right">
+      <button class="btn btn-ghost" onclick="loadAll()" style="font-size:.75rem;padding:.35rem .85rem">⟳ Refresh</button>
       <div class="run-time">
         <strong id="today-date"></strong>
-        &nbsp;·&nbsp; Last run: <span id="last-run">—</span>
+        &nbsp;·&nbsp; Last run: <span id="last-run">—</span> &nbsp;·&nbsp; <span id="last-updated" style="color:rgba(255,255,255,.2)">—</span>
         &nbsp;<span class="refresh-dot"></span><span style="font-size:.7rem;color:rgba(255,255,255,.25)">auto-refresh 60s</span>
       </div>
     </div>
@@ -421,6 +422,7 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
     <button class="tab-btn" onclick="switchTab(4)">📋 Leads DB</button>
     <button class="tab-btn" onclick="switchTab(5)">🌐 Demo Sites</button>
     <button class="tab-btn" onclick="switchTab(6)">⚙️ Pipeline</button>
+    <button class="tab-btn" onclick="switchTab(7)">📈 Analytics</button>
   </nav>
 </header>
 
@@ -634,6 +636,94 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
   </div>
 </div>
 
+
+<!-- ════════════════════════════════════════════════════════════════════════════
+     TAB 7 — ANALYTICS & IMPROVE
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="content" id="tab-7">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem" class="analytics-grid">
+    <!-- Cumulative stats -->
+    <div class="glass-card">
+      <span class="section-label">Cumulative Performance</span>
+      <div id="cumulative-stats" style="font-size:.85rem;line-height:2;color:rgba(255,255,255,.7)">Loading…</div>
+    </div>
+    <!-- Best performers -->
+    <div class="glass-card">
+      <span class="section-label">Best Performing</span>
+      <div id="best-performers" style="font-size:.82rem;line-height:1.8;color:rgba(255,255,255,.6)">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Message version performance -->
+  <div class="glass-card" style="margin-bottom:1.25rem">
+    <span class="section-label">Message Version Performance</span>
+    <div id="msg-versions" style="display:flex;flex-wrap:wrap;gap:.75rem;min-height:60px">Loading…</div>
+  </div>
+
+  <!-- Trend chart: leads per day -->
+  <div class="glass-card" style="margin-bottom:1.25rem">
+    <span class="section-label">Leads Per Day — Last 30 Runs</span>
+    <div id="trend-chart" style="display:flex;align-items:flex-end;gap:4px;height:120px;padding-top:8px">Loading…</div>
+    <div id="trend-labels" style="display:flex;gap:4px;margin-top:4px;font-size:.6rem;color:rgba(255,255,255,.25)"></div>
+  </div>
+
+  <!-- Daily stats table -->
+  <div class="glass-card" style="margin-bottom:1.25rem">
+    <span class="section-label">Daily Stats Log</span>
+    <div style="overflow-x:auto">
+      <table id="stats-table" style="width:100%;border-collapse:collapse;font-size:.75rem">
+        <thead>
+          <tr id="stats-thead"></tr>
+        </thead>
+        <tbody id="stats-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Improvement prompt generator -->
+  <div class="glass-card">
+    <span class="section-label">Generate Improvement Prompt</span>
+    <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:1rem;line-height:1.6">
+      Compile all stats into a prompt you can paste into Claude to get specific code improvements.
+    </p>
+    <button class="btn btn-glass" onclick="generatePrompt()" style="margin-bottom:1rem">
+      ⚡ Generate Prompt
+    </button>
+    <div id="prompt-box" style="display:none">
+      <textarea id="prompt-text" readonly
+        style="width:100%;height:260px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);
+               border-radius:10px;padding:.75rem;font-size:.75rem;font-family:'Courier New',monospace;
+               color:rgba(255,255,255,.75);resize:vertical;line-height:1.55;outline:none"></textarea>
+      <button class="btn btn-ghost" onclick="copyPrompt()" style="margin-top:.5rem">
+        📋 Copy to Clipboard
+      </button>
+      <span id="copy-confirm" style="font-size:.75rem;color:#4ade80;margin-left:.75rem;opacity:0;transition:opacity .3s"></span>
+    </div>
+  </div>
+</div>
+
+<style>
+@media(max-width:700px){.analytics-grid{grid-template-columns:1fr!important}}
+.trend-bar{
+  flex:1;min-width:6px;max-width:24px;border-radius:3px 3px 0 0;
+  background:linear-gradient(to top,var(--gold),var(--gold2));
+  transition:height .5s ease;cursor:default;
+  position:relative;
+}
+.trend-bar:hover::after{
+  content:attr(title);position:absolute;bottom:105%;left:50%;
+  transform:translateX(-50%);background:rgba(0,0,0,.9);
+  color:#fff;font-size:.65rem;padding:3px 7px;border-radius:5px;
+  white-space:nowrap;pointer-events:none;z-index:10;
+}
+.msg-pill{
+  padding:.35rem .85rem;border-radius:99px;font-size:.72rem;font-weight:600;
+  border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);
+  color:rgba(255,255,255,.6);
+}
+.msg-pill.best{border-color:rgba(212,175,55,.5);background:rgba(212,175,55,.1);color:var(--gold2)}
+</style>
+
 <script>
 'use strict';
 
@@ -693,6 +783,9 @@ function statusBadge(s) {
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
 async function loadAll() {
+  lastLoadedAt = Date.now();
+  const updEl = document.getElementById('last-updated');
+  if (updEl) updEl.textContent = 'just now';
   try {
     const [leadsRes, sitesRes, reportRes, rotRes, cfgRes] = await Promise.all([
       fetch(`${API}/api/leads`).then(r=>r.json()).catch(()=>[]),
@@ -710,6 +803,7 @@ async function loadAll() {
     renderFu();
     renderTable();
     renderSites();
+    await loadAnalytics();
   } catch(e) {
     console.warn('Load error', e);
   }
@@ -835,6 +929,7 @@ function renderWa() {
         ${waBtn}
         <button class="btn btn-ghost" onclick="markSent(${i})" style="font-size:.75rem">✓ Mark Sent</button>
         <button class="btn btn-ghost" onclick="skipLead(${i})" style="font-size:.75rem;color:rgba(255,255,255,.3)">Skip</button>
+        ${l.status==='skip'||l.status==='error'?`<button class="btn btn-ghost" onclick="resetLead(${i})" style="font-size:.75rem;color:#60a5fa">Reset</button>`:''}
         ${l.demo_url?`<a class="demo-link" href="${esc(l.demo_url)}" target="_blank">Demo →</a>`:''}
       </div>
     </div>`;
@@ -984,7 +1079,13 @@ function renderTable() {
   const q = (document.getElementById('db-search')?.value || '').toLowerCase();
   let rows = [...LEADS];
 
-  if (dbFilter !== 'all') rows = rows.filter(r => r.status === dbFilter);
+  if (dbFilter !== 'all') {
+    if (dbFilter === 'contacted') {
+      rows = rows.filter(r => ['sent','followedup','connected','converted','contacted'].includes(r.status));
+    } else {
+      rows = rows.filter(r => r.status === dbFilter);
+    }
+  }
   if (q) rows = rows.filter(r =>
     (r.name||'').toLowerCase().includes(q) ||
     (r.city||'').toLowerCase().includes(q) ||
@@ -1131,6 +1232,187 @@ function resetBtn(skill, btn) {
   btn.textContent = labels[skill] || 'Run';
 }
 
+
+// ── RESET LEAD ────────────────────────────────────────────────────────────────
+function resetLead(i) {
+  const lead = waEntries[i];
+  if (!lead) return;
+  const card = document.getElementById('wa-card-'+i);
+  patchLead(lead.name, { status:'new' }).then(()=>{
+    if (card) { card.style.opacity='0.5'; setTimeout(()=>card.remove(),300); }
+    setTimeout(loadAll, 400);
+  });
+}
+
+// ── CONNECTED ─────────────────────────────────────────────────────────────────
+function markConnected(i, arr) {
+  const lead = (arr || waEntries)[i];
+  if (!lead) return;
+  const cardId = arr ? `fu-card-${i}` : `wa-card-${i}`;
+  const card   = document.getElementById(cardId);
+  if (card) {
+    card.style.borderColor = 'rgba(212,175,55,.5)';
+    const acts = card.querySelector('.card-actions');
+    if (acts) {
+      const connBtn = acts.querySelector('.btn-connected');
+      if (connBtn) { connBtn.textContent = '⭐ Connected!'; connBtn.style.background='rgba(212,175,55,.2)'; }
+    }
+  }
+  patchLead(lead.name, { status:'connected' }).then(()=>setTimeout(loadAll,600));
+}
+
+// ── LAST UPDATED COUNTER ──────────────────────────────────────────────────────
+let lastLoadedAt = Date.now();
+const origLoadAll = loadAll;
+// Patched below after definition
+
+// ── ANALYTICS DATA ────────────────────────────────────────────────────────────
+let STATS_LOG = [];
+
+async function loadAnalytics() {
+  STATS_LOG = await fetch(`${API}/api/stats-log`).then(r=>r.json()).catch(()=>[]);
+  renderAnalytics();
+}
+
+function renderAnalytics() {
+  renderCumulativeStats();
+  renderBestPerformers();
+  renderMsgVersions();
+  renderTrendChart();
+  renderStatsTable();
+}
+
+function renderCumulativeStats() {
+  const el = document.getElementById('cumulative-stats');
+  if (!el) return;
+  const total     = LEADS.length;
+  const contacted = LEADS.filter(r => ['sent','followedup','connected','converted','contacted'].includes(r.status)).length;
+  const connected = LEADS.filter(r => r.status==='connected'||r.status==='converted').length;
+  const contactRate  = total ? Math.round((contacted/total)*100) : 0;
+  const connectRate  = contacted ? Math.round((connected/contacted)*100) : 0;
+  el.innerHTML = `
+    <div>Total leads ever scraped: <strong>${total}</strong></div>
+    <div>Total contacted (sent): <strong>${contacted}</strong></div>
+    <div>Total connected (replied): <strong style="color:var(--gold2)">${connected}</strong></div>
+    <div>Contact rate: <strong>${contactRate}%</strong></div>
+    <div>Connection rate: <strong style="color:var(--gold2)">${connectRate}%</strong> of contacted</div>`;
+}
+
+function renderBestPerformers() {
+  const el = document.getElementById('best-performers');
+  if (!el) return;
+  // Best cities
+  const cityMap = {};
+  const catMap  = {};
+  LEADS.filter(r => r.status==='connected'||r.status==='converted').forEach(r => {
+    cityMap[r.city] = (cityMap[r.city]||0)+1;
+    catMap[r.category] = (catMap[r.category]||0)+1;
+  });
+  const topCities = Object.entries(cityMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const topCats   = Object.entries(catMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  el.innerHTML = `
+    <div style="margin-bottom:.5rem"><strong style="color:var(--gold2)">Best cities</strong></div>
+    ${topCities.length ? topCities.map(([c,n])=>`<div>${c}: <strong>${n}</strong> connections</div>`).join('') : '<div style="color:rgba(255,255,255,.3)">No connections yet</div>'}
+    <div style="margin-top:.75rem;margin-bottom:.5rem"><strong style="color:var(--gold2)">Best categories</strong></div>
+    ${topCats.length ? topCats.map(([c,n])=>`<div>${c}: <strong>${n}</strong> connections</div>`).join('') : '<div style="color:rgba(255,255,255,.3)">No connections yet</div>'}`;
+}
+
+function renderMsgVersions() {
+  const el = document.getElementById('msg-versions');
+  if (!el) return;
+  const vmap = {};
+  LEADS.forEach(r => {
+    if (!r.message_version) return;
+    if (!vmap[r.message_version]) vmap[r.message_version] = { sent:0, connected:0 };
+    if (['sent','followedup','connected','converted','opened','contacted'].includes(r.status)) vmap[r.message_version].sent++;
+    if (r.status==='connected'||r.status==='converted') vmap[r.message_version].connected++;
+  });
+  const entries = Object.entries(vmap).sort((a,b)=>b[1].connected-a[1].connected);
+  if (!entries.length) { el.innerHTML = '<div style="color:rgba(255,255,255,.3);font-size:.82rem">No message data yet — messages are tracked after first pipeline run.</div>'; return; }
+  const bestV = entries[0][0];
+  el.innerHTML = entries.map(([v,s]) =>
+    `<div class="msg-pill ${v===bestV&&s.connected>0?'best':''}" title="${v}: ${s.sent} sent, ${s.connected} connected">
+      ${v} · ${s.sent} sent · ${s.connected} connected ${v===bestV&&s.connected>0?'⭐':''}
+    </div>`
+  ).join('');
+}
+
+function renderTrendChart() {
+  const el  = document.getElementById('trend-chart');
+  const lbl = document.getElementById('trend-labels');
+  if (!el) return;
+  const rows = STATS_LOG.slice(-30);
+  if (!rows.length) { el.innerHTML='<div style="color:rgba(255,255,255,.3);font-size:.82rem">No data yet.</div>'; return; }
+  const max = Math.max(...rows.map(r=>+r.leads_scraped||0), 1);
+  el.innerHTML = rows.map(r => {
+    const n = +r.leads_scraped||0;
+    const h = Math.round((n/max)*100);
+    return `<div class="trend-bar" style="height:${Math.max(h,3)}%" title="${r.date}: ${n} leads"></div>`;
+  }).join('');
+  if (lbl) {
+    lbl.innerHTML = rows.map((r,i) =>
+      i===0||i===rows.length-1||i%7===0
+        ? `<span style="flex:1;text-align:center">${r.date.slice(5)}</span>`
+        : `<span style="flex:1"></span>`
+    ).join('');
+  }
+}
+
+function renderStatsTable() {
+  const tbody = document.getElementById('stats-tbody');
+  const thead = document.getElementById('stats-thead');
+  if (!tbody||!STATS_LOG.length) return;
+  const headers = ['date','leads_scraped','leads_with_phones','wa_sent','connected','followups_sent'];
+  if (thead) thead.innerHTML = headers.map(h=>`<th style="padding:.5rem .75rem;text-align:left;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.35);border-bottom:1px solid rgba(255,255,255,.06)">${h.replace(/_/g,' ')}</th>`).join('');
+  tbody.innerHTML = STATS_LOG.slice().reverse().slice(0,30).map(r =>
+    `<tr style="border-bottom:1px solid rgba(255,255,255,.04)">${headers.map(h=>`<td style="padding:.45rem .75rem;font-size:.78rem;color:rgba(255,255,255,.6)">${r[h]||'—'}</td>`).join('')}</tr>`
+  ).join('');
+}
+
+function generatePrompt() {
+  const box = document.getElementById('prompt-box');
+  const txt = document.getElementById('prompt-text');
+  if (!box||!txt) return;
+  box.style.display = 'block';
+
+  const total     = LEADS.length;
+  const contacted = LEADS.filter(r=>['sent','followedup','connected','converted','contacted'].includes(r.status)).length;
+  const connected = LEADS.filter(r=>r.status==='connected'||r.status==='converted').length;
+
+  const vmap = {};
+  LEADS.forEach(r=>{if(r.message_version){if(!vmap[r.message_version])vmap[r.message_version]={sent:0,connected:0};if(['sent','followedup','connected','contacted'].includes(r.status))vmap[r.message_version].sent++;if(r.status==='connected'||r.status==='converted')vmap[r.message_version].connected++;}});
+  const msgStats = Object.entries(vmap).map(([v,s])=>`  ${v}: ${s.sent} sent, ${s.connected} connected`).join('\n');
+
+  const prompt = `Here are my DemoReady pipeline stats. Review and suggest specific code improvements:
+
+PIPELINE PERFORMANCE:
+  Total leads scraped: ${total}
+  Total contacted (WA sent): ${contacted}
+  Total connected (replied): ${connected}
+  Contact rate: ${total?Math.round((contacted/total)*100):0}%
+  Connection rate: ${contacted?Math.round((connected/contacted)*100):0}% of contacted
+
+MESSAGE VERSION PERFORMANCE:
+${msgStats||'  No data yet'}
+
+RECENT DAILY STATS (last 7 days):
+${STATS_LOG.slice(-7).map(r=>`  ${r.date}: ${r.leads_scraped} leads, ${r.wa_sent||0} sent, ${r.connected||0} connected`).join('\n')||'  No data yet'}
+
+Focus on: improving lead quality, contact rate, and connection rate.
+Give me one master prompt to paste into Claude Code that I can use to make specific improvements to the pipeline code.`;
+
+  txt.value = prompt;
+}
+
+function copyPrompt() {
+  const txt = document.getElementById('prompt-text');
+  if (!txt) return;
+  navigator.clipboard.writeText(txt.value).then(()=>{
+    const c = document.getElementById('copy-confirm');
+    if (c) { c.textContent='✓ Copied!'; c.style.opacity='1'; setTimeout(()=>c.style.opacity='0',2000); }
+  });
+}
+
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function switchTab(n) {
   document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
@@ -1141,7 +1423,13 @@ function switchTab(n) {
 
 // ── INIT + AUTO-REFRESH ───────────────────────────────────────────────────────
 loadAll();
-setInterval(loadAll, 60000);
+setInterval(loadAll, 30000);
+setInterval(()=>{
+  const el = document.getElementById('last-updated');
+  if (!el||!lastLoadedAt) return;
+  const s = Math.floor((Date.now()-lastLoadedAt)/1000);
+  el.textContent = s<5?'just now':s<60?`${s}s ago`:`${Math.floor(s/60)}m ago`;
+},5000);
 
 // Show scheduler status
 document.getElementById('sched-status').textContent = '✅ Ready (registered)';

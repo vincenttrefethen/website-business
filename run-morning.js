@@ -22,6 +22,7 @@ const { buildSites }    = require('./build-sites');
 const { draftOutreach } = require('./draft-outreach');
 const { followUp }      = require('./follow-up');
 const { archiveLeads }  = require('./archive');
+const { readCSV, writeCSV } = require('./csv-utils');
 
 async function runSkill(name, fn) {
   const bar = '='.repeat(52);
@@ -93,7 +94,37 @@ async function main() {
   console.log('\n' + report);
   console.log(`Report saved → ${config.MORNING_REPORT}`);
 
+  appendStatsLog(results, runAt);
   openDashboard();
+}
+
+function appendStatsLog(results, runAt) {
+  try {
+    const leads   = readCSV(config.LEADS_CSV, config.CSV_HEADERS);
+    const leadsR  = results[0]?.ok ? results[0].result : {};
+    const row = {
+      date:                runAt.slice(0, 10),
+      leads_scraped:       leadsR.total        || 0,
+      leads_with_phones:   leadsR.withPhones   || 0,
+      wa_opened:           leads.filter(r => r.status === 'opened').length,
+      wa_sent:             leads.filter(r => r.status === 'sent' || r.status === 'contacted').length,
+      connected:           leads.filter(r => r.status === 'connected' || r.status === 'converted').length,
+      followups_sent:      results[3]?.ok ? (results[3].result || 0) : 0,
+      combos_used:         leadsR.batches ? leadsR.batches * config.COMBOS_PER_RUN : 0,
+      cities_searched:     '',
+      categories_searched: '',
+    };
+
+    // Write headers if file doesn't exist
+    if (!fs.existsSync(config.STATS_LOG)) {
+      fs.writeFileSync(config.STATS_LOG, config.STATS_HEADERS.join(',') + '\n', 'utf8');
+    }
+    const line = config.STATS_HEADERS.map(h => String(row[h] || '')).join(',');
+    fs.appendFileSync(config.STATS_LOG, line + '\n', 'utf8');
+    console.log(`[stats] Row appended to stats-log.csv`);
+  } catch (e) {
+    console.warn(`[stats] Could not write stats-log: ${e.message}`);
+  }
 }
 
 function openDashboard() {

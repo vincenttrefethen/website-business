@@ -158,6 +158,22 @@ function apiRotation(res) {
   } catch (e) { err(res, e.message); }
 }
 
+function apiStatsLog(res) {
+  try {
+    if (!fs.existsSync(config.STATS_LOG)) { json(res, []); return; }
+    const lines = fs.readFileSync(config.STATS_LOG, 'utf8').trim().split('\n');
+    if (lines.length < 2) { json(res, []); return; }
+    const headers = lines[0].split(',');
+    const rows = lines.slice(1).map(line => {
+      const vals = line.split(',');
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
+      return obj;
+    });
+    json(res, rows);
+  } catch (e) { err(res, e.message); }
+}
+
 function apiConfig(res) {
   json(res, {
     vercelBaseUrl:    config.VERCEL_BASE_URL,
@@ -250,8 +266,9 @@ const server = http.createServer(async (req, res) => {
   if (p === '/api/leads/update' && method === 'POST') { await apiLeadsUpdate(req, res); return; }
   if (p === '/api/report' && method === 'GET')  { apiReport(res); return; }
   if (p === '/api/sites'  && method === 'GET')  { apiSites(res); return; }
-  if (p === '/api/rotation' && method === 'GET') { apiRotation(res); return; }
-  if (p === '/api/config' && method === 'GET')  { apiConfig(res); return; }
+  if (p === '/api/rotation'  && method === 'GET') { apiRotation(res); return; }
+  if (p === '/api/config'    && method === 'GET') { apiConfig(res); return; }
+  if (p === '/api/stats-log' && method === 'GET') { apiStatsLog(res); return; }
 
   if (p === '/api/run' && method === 'GET') {
     apiRunStream(req, res, url.searchParams.get('skill') || '');

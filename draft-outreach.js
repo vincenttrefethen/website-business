@@ -18,22 +18,13 @@
 'use strict';
 
 const puppeteer = require('puppeteer');
-const { exec }  = require('child_process');
 const fs        = require('fs');
 const path      = require('path');
 const config    = require('./config');
-const { readCSV, writeCSV } = require('./csv-utils');
+const { readCSV, writeCSV }  = require('./csv-utils');
+const { getWaTemplate }      = require('./message-templates');
 
 const WHATSAPP_QUEUE = path.join(__dirname, 'whatsapp-queue.txt');
-
-const WA_MESSAGE_TEMPLATE =
-  "Hey! I just built {name} a free website — " +
-  "{rating} stars and {review_count} reviews but no site? " +
-  "You're losing customers every day to competitors with worse service but a better online presence.\n\n" +
-  "Here's what I built for you: {url}\n\n" +
-  "It's live right now. Mobile-friendly, your number front and center, ready to launch. " +
-  "Reply if you want to keep it.\n\n" +
-  "— Vincent";
 
 // ─── Phone helpers ─────────────────────────────────────────────────────────────
 
@@ -68,20 +59,11 @@ function normalisePhone(raw) {
 }
 
 function buildWaUrl(phone, lead) {
-  const msg = WA_MESSAGE_TEMPLATE
-    .replace('{name}',         lead.name)
-    .replace('{url}',          lead.demo_url)
-    .replace('{rating}',       lead.rating       || 'highly rated')
-    .replace('{review_count}', lead.reviews       || 'many');
-  return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  const { text, version } = getWaTemplate(lead);
+  lead._msgVersion = version; // stash for logging
+  return { url: `https://wa.me/${phone}?text=${encodeURIComponent(text)}`, version };
 }
 
-// ─── Open a URL in the default browser (Windows) ──────────────────────────────
-
-function openInBrowser(url) {
-  // "start" with an empty title string handles URLs that contain special chars
-  exec(`start "" "${url}"`);
-}
 
 // ─── WhatsApp HTML dashboard ──────────────────────────────────────────────────
 
@@ -267,48 +249,34 @@ function processWhatsApp(leads) {
   eligible.forEach((lead, i) => {
     const phone = normalisePhone(lead.phone);
     if (!phone) {
-      console.warn(`[draft-outreach:wa] ✗ SKIP  ${lead.name} — bad phone: "${lead.phone}"`);
+      console.warn(`[draft-outreach:wa] ✗ INVALID  ${lead.name} — bad phone: "${lead.phone}" → marking skip`);
+      lead.status = 'skip'; // bad number — remove from queue permanently
       return;
     }
-    console.log(`[draft-outreach:wa] ✓ OK   ${lead.name} → +${phone}`);
-    const waUrl = buildWaUrl(phone, lead);
-    txtLines.push(`[${i + 1}] ${lead.name} | +${phone}`);
+    const { url: waUrl, version } = buildWaUrl(phone, lead);
+    console.log(`[draft-outreach:wa] ✓ ${lead.name} +${phone} [${version}]`);
+    txtLines.push(`[${i + 1}] ${lead.name} | +${phone} | ${version}`);
     txtLines.push(`    ${waUrl}`);
     txtLines.push('');
     entries.push({ ...lead, phone: `+${phone}`, waUrl });
 
-    // Stamp outreach_date on the original lead object so it persists to CSV
-    if (!lead.outreach_date) lead.outreach_date = today;
-    if (!lead.status) lead.status = 'contacted';
+    // Record message version — status stays 'new' until user clicks "Mark Sent" in dashboard
+    lead.message_version = version;
   });
 
   // Write plain-text queue file
   fs.writeFileSync(WHATSAPP_QUEUE, txtLines.join('\n'), 'utf8');
-  console.log(`[draft-outreach:wa] Wrote ${entries.length} link(s) to whatsapp-queue.txt`);
+  console.log(`[draft-outreach:wa] ${entries.length} WA links written to whatsapp-queue.txt`);
+  console.log('[draft-outreach:wa] No tabs auto-opened — use dashboard to send');
 
-  // Write HTML dashboard
+  // Write HTML dashboard (for standalone use)
   const htmlPath = path.join(__dirname, 'whatsapp-queue.html');
   const genAt    = new Date().toLocaleString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
     hour: 'numeric', minute: '2-digit',
   });
   fs.writeFileSync(htmlPath, buildWaHtml(entries, genAt), 'utf8');
-  console.log(`[draft-outreach:wa] Wrote whatsapp-queue.html`);
-
-  // Open ALL wa.me links with a 2s gap between each
-  entries.forEach((e, i) => {
-    setTimeout(() => {
-      console.log(`[draft-outreach:wa] Opening ${i + 1}/${entries.length}: ${e.name}`);
-      openInBrowser(e.waUrl);
-    }, i * 2000);
-  });
-
-  // Open the HTML dashboard after all links have been queued
-  const dashboardDelay = entries.length * 2000 + 1000;
-  setTimeout(() => {
-    console.log(`[draft-outreach:wa] Opening outreach dashboard…`);
-    openInBrowser(htmlPath);
-  }, dashboardDelay);
+  console.log('[draft-outreach:wa] Wrote whatsapp-queue.html');
 
   return entries.length;
 }

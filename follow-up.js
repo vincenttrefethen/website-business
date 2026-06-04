@@ -15,11 +15,11 @@
 
 'use strict';
 
-const { exec } = require('child_process');
 const fs   = require('fs');
 const path = require('path');
 const config = require('./config');
 const { readCSV, writeCSV } = require('./csv-utils');
+const { getFuTemplate }    = require('./message-templates');
 
 const FOLLOWUP_HTML = path.join(__dirname, 'followup-queue.html');
 
@@ -49,14 +49,9 @@ function normalisePhone(raw) {
 }
 
 function buildFollowUpUrl(phone, lead) {
-  const msg = FOLLOWUP_MESSAGE
-    .replace('{name}', lead.name)
-    .replace('{url}',  lead.demo_url);
-  return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-}
-
-function openInBrowser(url) {
-  exec(`start "" "${url}"`);
+  const { text, version } = getFuTemplate(lead);
+  lead._fuVersion = version;
+  return { url: `https://wa.me/${phone}?text=${encodeURIComponent(text)}`, version };
 }
 
 // ─── HTML dashboard ───────────────────────────────────────────────────────────
@@ -234,7 +229,8 @@ async function followUp() {
       console.warn(`[follow-up] Skipping ${lead.name} — bad phone: "${lead.phone}"`);
       return;
     }
-    const waUrl = buildFollowUpUrl(phone, lead);
+    const { url: waUrl, version: fuVer } = buildFollowUpUrl(phone, lead);
+    lead.message_version = fuVer;
     entries.push({ ...lead, waUrl });
 
     // Mark as followed up so we don't send again tomorrow
@@ -250,18 +246,7 @@ async function followUp() {
   fs.writeFileSync(FOLLOWUP_HTML, buildFollowUpHtml(entries, genAt), 'utf8');
   console.log(`[follow-up] Wrote followup-queue.html`);
 
-  // Open all follow-up links with 2s gap
-  entries.forEach((e, i) => {
-    setTimeout(() => {
-      console.log(`[follow-up] Opening ${i + 1}/${entries.length}: ${e.name}`);
-      openInBrowser(e.waUrl);
-    }, i * 2000);
-  });
-
-  // Open dashboard after all links queued
-  setTimeout(() => {
-    openInBrowser(FOLLOWUP_HTML);
-  }, entries.length * 2000 + 1000);
+  console.log('[follow-up] No tabs auto-opened — use the dashboard to send follow-ups');
 
   // Persist status changes
   writeCSV(config.LEADS_CSV, leads, config.CSV_HEADERS);

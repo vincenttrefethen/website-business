@@ -33,6 +33,7 @@ module.exports = {
   WHATSAPP_QUEUE:    path.join(__dirname, 'whatsapp-queue.txt'),
   TARGETS_FILE:      path.join(__dirname, 'targets.json'),
   SITE_TEMPLATE:     path.join(__dirname, 'site-template.html'),
+  STATS_LOG:         path.join(__dirname, 'stats-log.csv'),
 
   ROTATION_LOG: path.join(__dirname, 'rotation-log.json'),
 
@@ -62,5 +63,12 @@ module.exports = {
     'name', 'category', 'phone', 'address', 'hours',
     'rating', 'reviews', 'city', 'website_found',
     'email', 'demo_url', 'status', 'outreach_date', 'followup_date',
+    'message_version',
+  ],
+
+  STATS_HEADERS: [
+    'date', 'leads_scraped', 'leads_with_phones',
+    'wa_opened', 'wa_sent', 'connected', 'followups_sent',
+    'combos_used', 'cities_searched', 'categories_searched',
   ],
 };
