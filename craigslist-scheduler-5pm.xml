@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>DemoReady Craigslist Gig Monitor — evening run (5 PM daily).</Description>
+    <Author>vintr</Author>
+  </RegistrationInfo>
+
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>2026-06-05T17:00:00</StartBoundary>
+      <ExecutionTimeLimit>PT2H</ExecutionTimeLimit>
+      <Enabled>true</Enabled>
+      <ScheduleByDay>
+        <DaysInterval>1</DaysInterval>
+      </ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+
+  <Principals>
+    <Principal id="Author">
+      <UserId>vintr</UserId>
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>true</RunOnlyIfNetworkAvailable>
+    <WakeToRun>false</WakeToRun>
+    <Enabled>true</Enabled>
+    <Hidden>true</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <ExecutionTimeLimit>PT2H</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+
+  <Actions Context="Author">
+    <Exec>
+      <Command>C:\Program Files\nodejs\node.exe</Command>
+      <Arguments>run-cl.js</Arguments>
+      <WorkingDirectory>C:\Users\vintr\OneDrive\Documents\website-business</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
