@@ -62,26 +62,48 @@ const KEYWORDS = {
 // ─── Stage-2 filters ──────────────────────────────────────────────────────────
 
 const SPAM_SIGNALS = [
-  'model', 'clinical study', 'clinical trial', 'paid study', 'research study',
+  // Jobs/hiring (not buying)
   'sales rep', 'commission only', 'earn money', 'make money',
   'hiring full time', 'hiring part time', 'per hour', 'per year', 'salary',
-  'must be local', 'local only', 'in person', 'in-person', 'on site', 'on-site',
-  'come to our office', 'in our office', 'no experience required',
-  'foreclosure leads', 'inpatient', 'outpatient', 'galleria',
-  'real estate agent', 'insurance agent', 'mlm', 'multi level',
-  'network marketing', 'pyramid', 'passive income',
+  'no experience required', 'no experience needed', 'same day pay',
+  'work now', 'side hustle', 'high paying', 'earn up to $',
+  'mover', 'movers wanted', 'helpers wanted', 'handy',
+  'cleaner', 'roadside', 'dispatcher',
+  'heavy equipment', 'equipment operator', 'dirt worker', 'grading crew',
+  // Gig economy / influencer spam
+  'tiktok', 'tiktok creator', 'ugc', 'ugc creator',
+  'content creator', 'instagram creator', 'per video',
+  // Studies / surveys
+  'clinical study', 'clinical trial', 'paid study', 'research study',
+  'survey', 'surveys', 'paid survey',
+  // Gender / reproductive
+  'surrogate', 'surrogacy', 'egg donor', 'female only', 'women only',
+  'mothers', 'birthing', 'fertility', 'pregnancy',
+  // MLM / scams
+  'mlm', 'multi level', 'network marketing', 'pyramid', 'passive income',
   'drop shipping', 'dropshipping', 'amazon fba', 'crypto', 'nft',
+  // Local-only / office required
+  'must be local', 'local only', 'in person', 'in-person', 'on site', 'on-site',
+  'come to our office', 'in our office', 'street team', 'acts of kindness',
+  // Real estate / insurance recruiting
+  'foreclosure leads', 'real estate agent', 'insurance agent',
+  // Misc spam
+  'inpatient', 'outpatient', 'galleria',
   'photo model', 'acting', 'casting', 'nude', 'adult',
 ];
 
+// Tighter buyer intent — post MUST contain at least one of these
 const BUYER_INTENT = [
-  'need a website', 'need website', 'looking for', 'need help with',
-  'need someone to', 'want to hire', 'quote', 'how much would',
-  'what would it cost', 'budget', 'willing to pay', 'need a designer',
-  'need a developer', 'need seo', 'need a logo', 'need a va',
-  'need virtual', 'need someone who can', 'can anyone', 'does anyone',
-  'seeking', 'wanted', 'request', 'project', 'build me', 'create for me',
-  'redesign', 'fix my', 'update my', 'help me with', 'assist with',
+  'need a website', 'need website', 'need web', 'looking for web',
+  'need help with website', 'need developer', 'need a developer',
+  'need designer', 'need a designer', 'need seo', 'need marketing help',
+  'need logo', 'need a logo', 'looking for va', 'need virtual assistant',
+  'need admin help', 'need someone to manage',
+  'hire a', 'hiring a', 'looking to hire',
+  'need freelancer', 'freelance help needed',
+  'need someone who can build', 'need someone who can create',
+  'budget', 'willing to pay', 'will pay',
+  'quote', 'how much would', 'what would it cost',
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -143,10 +165,21 @@ function hoursAgo(dateStr) {
   return isNaN(d) ? 9999 : (Date.now() - d.getTime()) / 3600000;
 }
 
+/** Normalise a title for dedup — lowercase, strip punctuation + extra spaces */
+function normaliseTitle(t) {
+  return (t || '').toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
+}
+
 function scoreFullText(post) {
+  const text   = ((post.title || '') + ' ' + (post.fullText || '')).toLowerCase();
+
+  // CONTENT QUALITY GATE — must have buyer intent, otherwise score 0 and skip
+  if (!passesBuyerIntentFilter(text)) {
+    return { score: 0, breakdown: 'no buyer intent' };
+  }
+
   const parts  = [];
   let   score  = 0;
-  const text   = ((post.title || '') + ' ' + (post.fullText || '')).toLowerCase();
   const age    = hoursAgo(post.postedDate);
 
   // Recency
@@ -390,13 +423,29 @@ async function monitorCraigslist() {
   // Also block URLs already in leads.csv (avoids re-processing won/applied gigs)
   const leadsUrls    = new Set(existing.map(r => r.url));
 
+  // Auto-rescore and clean existing leads with updated filters
+  const rescored = existing.filter(l => {
+    const { score } = scoreFullText({
+      title: l.title, fullText: l.description,
+      phones: [], emails: [],
+      budget: parseInt((l.budget || '').replace(/[^0-9]/g, '')) || null,
+      postedDate: l.posted_date, remote: l.remote,
+    });
+    return score > 0;
+  });
+  if (rescored.length !== existing.length) {
+    writeCSV(config.CL_LEADS_CSV, rescored, CL_HEADERS);
+    console.log(`[CL] Rescored existing leads: removed ${existing.length - rescored.length} that no longer pass filters`);
+  }
+
   // Combined cross-run skip set
   const skipUrl = url => seenMap.has(url) || leadsUrls.has(url);
 
-  // Within-run URL set (tracks what we've seen THIS run across all regions)
-  const thisRunUrls  = new Set();
-  let   dupWithinRun = 0;
-  let   dupPrevRuns  = 0;
+  // Within-run dedup — by URL AND normalised title
+  const thisRunUrls   = new Set();
+  const thisRunTitles = new Set();
+  let   dupWithinRun  = 0;
+  let   dupPrevRuns   = 0;
 
   const { browser, owned } = await createCLBrowser();
   const page = await browser.newPage();
@@ -424,9 +473,11 @@ async function monitorCraigslist() {
           rssTotal += items.length;
           for (const item of items) {
             if (!item.url) continue;
-            if (thisRunUrls.has(item.url)) { dupWithinRun++; continue; }
-            if (skipUrl(item.url))         { dupPrevRuns++;  continue; }
+            const normTitle = normaliseTitle(item.title);
+            if (thisRunUrls.has(item.url) || thisRunTitles.has(normTitle)) { dupWithinRun++; continue; }
+            if (skipUrl(item.url))                                          { dupPrevRuns++;  continue; }
             thisRunUrls.add(item.url);
+            if (normTitle) thisRunTitles.add(normTitle);
             candidates.push({ ...item, category, region: region.name });
           }
           await sleep(500);
@@ -457,6 +508,14 @@ async function monitorCraigslist() {
     for (const cand of toRead) {
       pagesRead++;
       process.stdout.write(`  [CL] (${pagesRead}/${toRead.length}) ${cand.title.slice(0, 55)}...\r`);
+
+      // Quick pre-check on title alone before loading the page
+      const titleScore = scoreFullText({ title: cand.title, fullText: '', phones: [], emails: [], budget: null, postedDate: cand.date_hint, remote: 'no' });
+      if (titleScore.score === 0) {
+        seenMap.set(cand.url, nowIso);
+        spamFiltered++;
+        continue; // don't waste a page load on a no-intent title
+      }
 
       const post = await readPostPage(page, cand);
 

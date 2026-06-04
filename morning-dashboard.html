@@ -975,6 +975,32 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
   </div>
 </div>
 
+
+<!-- Got Reply modal -->
+<div id="got-reply-modal" style="display:none;position:fixed;inset:0;z-index:1100;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:#0F1629;border:1px solid rgba(37,211,102,.3);border-radius:18px;
+    padding:1.75rem;max-width:460px;width:90%;position:relative">
+    <button onclick="document.getElementById('got-reply-modal').style.display='none'"
+      style="position:absolute;top:1rem;right:1rem;background:none;border:none;
+             color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer">✕</button>
+    <div style="font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+      color:rgba(37,211,102,.7);margin-bottom:.5rem">💬 Got a Reply!</div>
+    <div id="got-reply-title" style="font-size:.9rem;font-weight:700;margin-bottom:1rem;color:#fff"></div>
+    <textarea class="crm-input" id="got-reply-notes" placeholder="What did they say? Any budget or timeline mentioned?"
+      rows="3" style="margin-bottom:.5rem"></textarea>
+    <input class="crm-input" type="datetime-local" id="got-reply-reminder"
+      style="margin-bottom:.75rem" title="Set a follow-up reminder"/>
+    <div style="font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:.75rem">
+      This will move the lead to your CRM as "Connected" and set a follow-up reminder.
+    </div>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn btn-green" onclick="confirmGotReply()" style="flex:1">→ Add to CRM</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('got-reply-modal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- Confetti overlay -->
 <div id="confetti-overlay" style="position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden"></div>
 
@@ -1864,7 +1890,9 @@ function generatePrompt() {
   LEADS.forEach(r=>{if(r.message_version){if(!vmap[r.message_version])vmap[r.message_version]={sent:0,connected:0};if(['sent','followedup','connected','contacted'].includes(r.status))vmap[r.message_version].sent++;if(r.status==='connected'||r.status==='converted')vmap[r.message_version].connected++;}});
   const msgStats = Object.entries(vmap).map(([v,s])=>`  ${v}: ${s.sent} sent, ${s.connected} connected`).join('\n');
 
-  const crmStats = getCRMStatsText ? getCRMStatsText() : '  No CRM data yet';
+  // Include CL replied leads in connected count
+  const clReplied = CL_LEADS.filter(r => r.status === 'replied' || r.status === 'applied').length;
+  const crmStats  = getCRMStatsText ? getCRMStatsText(clReplied) : '  No CRM data yet';
   const prompt = `Here are my DemoReady pipeline + sales stats:
 
 OUTREACH PERFORMANCE:
@@ -2121,6 +2149,8 @@ function renderCLGigs() {
     const appliedBadge = l.status==='applied'
       ? '<span class="tag" style="color:#4ade80;border-color:rgba(74,222,128,.3)">✓ Applied</span>' : '';
 
+    const visitedSet  = JSON.parse(localStorage.getItem("cl_visited")||"{}"); 
+    const visitedBadge = visitedSet[l.url] ? `<span class="tag" style="border-color:rgba(59,130,246,.25);color:#60a5fa">👁 Visited</span>` : '';
     const phoneBadge  = l.phone_extracted ? `<span class="tag" style="border-color:rgba(37,211,102,.3);color:#4ade80" title="${esc(l.phone_extracted)}">📞 ${esc(l.phone_extracted.split(',')[0].trim())}</span>` : '';
     const emailBadge  = l.email_extracted  ? `<span class="tag" style="border-color:rgba(59,130,246,.3);color:#60a5fa" title="${esc(l.email_extracted)}">✉ ${esc(l.email_extracted.split(',')[0].trim())}</span>` : '';
     const breakdownTip = l.score_breakdown ? `title="Score breakdown: ${esc(l.score_breakdown)}"` : '';
@@ -2138,6 +2168,7 @@ function renderCLGigs() {
           ${appliedBadge}
           ${phoneBadge}
           ${emailBadge}
+          ${visitedBadge}
         </div>
         <div style="font-size:.7rem;color:rgba(255,255,255,.3)">${hoursAgoLabel(l.posted_date)}</div>
       </div>
@@ -2145,8 +2176,9 @@ function renderCLGigs() {
       <div class="card-actions" style="flex-wrap:wrap;gap:.5rem">
         <button class="btn btn-green" onclick="openCLApply(${i})" style="font-size:.78rem">✏️ Apply</button>
         <button class="btn btn-ghost" onclick="copyCLResponse(${i})" style="font-size:.78rem">📋 Copy Response</button>
-        <a class="btn btn-ghost" href="${esc(l.url)}" target="_blank" rel="noopener" style="font-size:.78rem">🔗 Post</a>
+        <a class="btn btn-ghost" href="${esc(l.url)}" target="_blank" rel="noopener" style="font-size:.78rem" onclick="markCLVisited(${i})">🔗 Post</a>
         <button class="btn btn-ghost" onclick="skipCLLead(${i})" style="font-size:.75rem;color:rgba(255,255,255,.3)">Skip</button>
+        <button class="btn btn-ghost" onclick="openGotReply(${i})" style="font-size:.75rem;color:#4ade80">💬 Got Reply</button>
       </div>
     </div>`;
   }).join('');
@@ -2625,9 +2657,11 @@ if ('Notification' in window && Notification.permission === 'default') {
 }
 
 // ── Analytics tab CRM injection ───────────────────────────────────────────────
-function getCRMStatsText() {
+function getCRMStatsText(clReplied) {
   if (!CRM_LEADS.length) return '  No CRM data yet';
   const won   = CRM_LEADS.filter(r => (r.crm_status||r.status)==='won');
+  // Add CL replied leads to connected count
+  const totalConnected = (won.length + CRM_LEADS.filter(r=>(r.crm_status||r.status)==='connected').length) + (clReplied||0);
   const lost  = CRM_LEADS.filter(r => (r.crm_status||r.status)==='lost');
   const total = won.length + lost.length;
   const wonRev   = won.reduce((s,r)=>s+(parseFloat(r.revenue)||0),0);
@@ -2905,6 +2939,77 @@ function copyCLResponse(i) {
       if (tmpl) tmpl.value = text;
     }, 100);
   });
+}
+
+
+// -- CL VISITED TRACKING + GOT REPLY -----------------------------------------
+function markCLVisited(i) {
+  const leads = window._clLeadsFiltered || CL_LEADS;
+  const lead  = leads[i];
+  if (!lead) return;
+  const visited = JSON.parse(localStorage.getItem('cl_visited') || '{}');
+  visited[lead.url] = true;
+  localStorage.setItem('cl_visited', JSON.stringify(visited));
+  // Add badge to card if not already there
+  const card = document.getElementById('cl-card-'+i);
+  if (card && !card.querySelector('.visited-badge')) {
+    const meta = card.querySelector('.card-meta');
+    if (meta) {
+      meta.insertAdjacentHTML('beforeend',
+        '<span class="tag visited-badge" style="border-color:rgba(59,130,246,.25);color:#60a5fa">👁 Visited</span>');
+    }
+  }
+}
+
+let _gotReplyIdx = null;
+function openGotReply(i) {
+  _gotReplyIdx = i;
+  const leads = window._clLeadsFiltered || CL_LEADS;
+  const lead  = leads[i];
+  if (!lead) return;
+  const titleEl = document.getElementById('got-reply-title');
+  if (titleEl) titleEl.textContent = lead.title;
+  const notesEl = document.getElementById('got-reply-notes');
+  if (notesEl) notesEl.value = '';
+  // Default reminder = tomorrow 9 AM
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1); tomorrow.setHours(9,0,0,0);
+  const remEl = document.getElementById('got-reply-reminder');
+  if (remEl) remEl.value = tomorrow.toISOString().slice(0,16);
+  document.getElementById('got-reply-modal').style.display = 'flex';
+}
+
+async function confirmGotReply() {
+  const leads = window._clLeadsFiltered || CL_LEADS;
+  const lead  = (_gotReplyIdx !== null) ? leads[_gotReplyIdx] : null;
+  if (!lead) return;
+  const notes    = document.getElementById('got-reply-notes')?.value    || '';
+  const reminder = document.getElementById('got-reply-reminder')?.value || '';
+  await fetch(`${API}/api/cl-leads/got-reply`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      url:             lead.url,
+      name:            lead.title,
+      category:        lead.category,
+      city:            lead.city    || lead.region,
+      region:          lead.region,
+      phone_extracted: lead.phone_extracted || '',
+      email_extracted: lead.email_extracted || '',
+      notes,
+      reminder: reminder ? new Date(reminder).toISOString() : '',
+    }),
+  }).catch(()=>{});
+  // Update CL card to show "Replied" badge
+  const card = document.getElementById('cl-card-'+_gotReplyIdx);
+  if (card) {
+    const meta = card.querySelector('.card-meta');
+    if (meta) meta.insertAdjacentHTML('beforeend',
+      '<span class="tag" style="border-color:rgba(37,211,102,.4);color:#4ade80">💬 Replied</span>');
+    card.style.borderColor = 'rgba(37,211,102,.4)';
+  }
+  document.getElementById('got-reply-modal').style.display = 'none';
+  _gotReplyIdx = null;
+  await loadAll(); await loadCRM();
+  switchTab(9); // jump to CRM to see the new lead
 }
 
 function switchTab(n) {

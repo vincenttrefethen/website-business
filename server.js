@@ -299,6 +299,56 @@ async function apiClLeadsAdd(req, res) {
   } catch (e) { err(res, e.message); }
 }
 
+/** Promote a CL gig lead into CRM when the poster replies */
+async function apiClGotReply(req, res) {
+  try {
+    const body = await parseBody(req);
+    const { url: postUrl, name, category, city, region, phone_extracted, email_extracted, notes, reminder } = body;
+    if (!postUrl) { err(res, 'url required', 400); return; }
+
+    // 1. Update CL lead status to 'replied'
+    if (fs.existsSync(config.CL_LEADS_CSV)) {
+      const clLeads = readCSV(config.CL_LEADS_CSV, CL_HEADERS);
+      const idx     = clLeads.findIndex(r => r.url === postUrl);
+      if (idx !== -1) {
+        clLeads[idx].status = 'replied';
+        writeCSV(config.CL_LEADS_CSV, clLeads, CL_HEADERS);
+      }
+    }
+
+    // 2. Add to leads.csv
+    const leads    = readCSV(config.LEADS_CSV, config.CSV_HEADERS);
+    const existing = leads.find(r => r.notes?.includes(postUrl));
+    if (!existing) {
+      const row = {};
+      config.CSV_HEADERS.forEach(h => { row[h] = ''; });
+      Object.assign(row, {
+        name:           name || `CL: ${(postUrl || '').slice(30, 60)}`,
+        category:       category || '',
+        phone:          phone_extracted || '',
+        city:           city || region || '',
+        source_channel: 'Craigslist',
+        status:         'connected',
+        crm:            'true',
+        crm_status:     'connected',
+        notes:          (notes || '') + (notes ? ' | ' : '') + postUrl,
+        outreach_date:  new Date().toISOString().slice(0, 10),
+      });
+      leads.push(row);
+      writeCSV(config.LEADS_CSV, leads, config.CSV_HEADERS);
+    }
+
+    // 3. Save reminder if provided
+    if (reminder) {
+      const list = loadReminders();
+      list.push({ id: Date.now().toString(36), name: name || postUrl, datetime: reminder, note: notes || 'Follow up on CL reply', dismissed: false });
+      saveReminders(list);
+    }
+
+    json(res, { ok: true });
+  } catch (e) { err(res, e.message); }
+}
+
 function apiCLStatus(res) {
   if (!fs.existsSync(config.CL_STATUS)) {
     json(res, { status: 'never_run', last_run: null, leads_found: 0, regions_searched: 0, blocked: false });
@@ -438,7 +488,8 @@ const server = http.createServer(async (req, res) => {
   if (p === '/api/crm-data'        && method === 'POST') { await apiCRMDataUpdate(req, res); return; }
   if (p === '/api/leads/crm'        && method === 'POST') { await apiLeadsCRM(req, res); return; }
   if (p === '/api/leads/add'        && method === 'POST') { await apiLeadsAdd(req, res); return; }
-  if (p === '/api/cl-leads/add'     && method === 'POST') { await apiClLeadsAdd(req, res); return; }
+  if (p === '/api/cl-leads/add'       && method === 'POST') { await apiClLeadsAdd(req, res); return; }
+  if (p === '/api/cl-leads/got-reply' && method === 'POST') { await apiClGotReply(req, res); return; }
   if (p === '/api/reminders'       && method === 'GET')  { apiGetReminders(res); return; }
   if (p === '/api/reminders'       && method === 'POST') { await apiAddReminder(req, res); return; }
   if (p.startsWith('/api/reminders/') && method === 'DELETE') {
