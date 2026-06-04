@@ -87,6 +87,7 @@ const HARD_FILTERS = [
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 /** Strip HTML tags from RSS description to get plain text. */
