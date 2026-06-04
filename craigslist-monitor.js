@@ -26,19 +26,14 @@ const CL_HEADERS = [
   'remote', 'has_phone', 'has_email', 'phone_extracted', 'email_extracted',
 ];
 
-// ─── Regions ──────────────────────────────────────────────────────────────────
-const ALL_REGIONS = [
-  'sfbay', 'losangeles', 'newyork', 'chicago', 'seattle', 'portland', 'denver',
-  'austin', 'dallas', 'houston', 'atlanta', 'miami', 'boston', 'philadelphia',
-  'phoenix', 'sandiego', 'minneapolis', 'detroit', 'cleveland', 'nashville',
-  'charlotte', 'orlando', 'tampa', 'raleigh', 'richmond', 'sacramento',
-  'lasvegas', 'saltlake', 'albuquerque', 'oklahoma', 'memphis', 'louisville',
-  'indianapolis', 'columbus', 'cincinnati', 'pittsburgh', 'buffalo',
-  'hartford', 'providence', 'neworleans', 'jacksonville',
-  'spokane', 'fresno', 'bakersfield', 'reno', 'boise',
-  'tucson', 'elpaso', 'sanantonio', 'wichita', 'omaha',
-  'desmoines', 'grandrapids', 'madison', 'peoria', 'dayton',
-  'toledo', 'akron', 'lansing', 'fortwayne', 'stlouis', 'kansascity',
+// ─── Regions — 6 strategic cities, 1000-mile radius = full US coverage ────────
+const REGIONS = [
+  { name: 'miami',      zip: '33101' },  // Southeast
+  { name: 'newyork',    zip: '10001' },  // Northeast
+  { name: 'chicago',    zip: '60601' },  // Midwest
+  { name: 'dallas',     zip: '75201' },  // South/Central
+  { name: 'denver',     zip: '80201' },  // Mountain/West
+  { name: 'losangeles', zip: '90001' },  // West Coast
 ];
 
 // ─── Keywords ─────────────────────────────────────────────────────────────────
@@ -211,34 +206,7 @@ function descHash(title, budget, desc) {
   return String(h);
 }
 
-// ─── Region rotation ──────────────────────────────────────────────────────────
-function pickRegions(count) {
-  let log = {};
-  try {
-    if (fs.existsSync(config.ROTATION_LOG))
-      log = JSON.parse(fs.readFileSync(config.ROTATION_LOG, 'utf8'));
-  } catch {}
-
-  const used = new Set(log.usedCL || []);
-  let remaining = ALL_REGIONS.filter(r => !used.has(r));
-
-  if (remaining.length < count) {
-    console.log(`[CL] All ${ALL_REGIONS.length} regions exhausted — resetting CL rotation`);
-    log.usedCL = [];
-    remaining  = [...ALL_REGIONS];
-  }
-
-  for (let i = remaining.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
-  }
-  const picked   = remaining.slice(0, count);
-  log.usedCL     = [...(log.usedCL || []), ...picked];
-  fs.writeFileSync(config.ROTATION_LOG, JSON.stringify(log, null, 2), 'utf8');
-  console.log(`[CL] Today's regions: ${picked.join(', ')}`);
-  console.log(`[CL] Rotation: ${log.usedCL.length}/${ALL_REGIONS.length}`);
-  return picked;
-}
+// No rotation — all 6 regions run every morning for full US coverage
 
 // ─── Puppeteer browser ────────────────────────────────────────────────────────
 async function createCLBrowser() {
@@ -270,7 +238,8 @@ async function createCLBrowser() {
 // ─── Stage 1: collect candidate URLs from search pages ───────────────────────
 async function searchForURLs(page, region, keyword) {
   const q   = encodeURIComponent(keyword);
-  const url = `https://${region}.craigslist.org/search/ggg?query=${q}&sort=date`;
+  // 1000-mile radius filter covers the entire US from each of the 6 hub cities
+  const url = `https://${region.name}.craigslist.org/search/ggg?query=${q}&search_distance=1000&postal=${region.zip}&sort=date`;
   try {
     const res    = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 });
     const status = res ? res.status() : 0;
@@ -303,7 +272,7 @@ async function searchForURLs(page, region, keyword) {
     });
   } catch (e) {
     if (!e.message.includes('Target closed'))
-      console.log(`  [CL] search error ${region}/${keyword}: ${e.message.slice(0, 60)}`);
+      console.log(`  [CL] search error ${region.name}/${keyword}: ${e.message.slice(0, 60)}`);
     return [];
   }
 }
@@ -390,8 +359,10 @@ async function monitorCraigslist() {
   console.log(`\n[CL] Craigslist Monitor started — ${startTime}`);
   writeStatus({ status: 'running', last_run: startTime, leads_found: 0, regions_searched: 0, blocked: false });
 
-  const regions = pickRegions(config.CL_REGIONS_PER_RUN || 10);
+  const regions = REGIONS;  // all 6, every run — no rotation needed
   const allCats = Object.entries(KEYWORDS);
+  console.log(`[CL] US Coverage: ${regions.length} regions × 1000mi radius = Full US`);
+  console.log(`[CL] Regions: ${regions.map(r => r.name).join(', ')}`);
 
   // Load dedup state
   const seenSet      = new Set();
@@ -417,6 +388,7 @@ async function monitorCraigslist() {
   try {
     for (const region of regions) {
       let regionBlocked = false;
+      console.log(`  [CL] Searching ${region.name} (zip ${region.zip}, 1000mi radius)`);
       for (const [category, keywords] of allCats) {
         if (regionBlocked) break;
         for (const keyword of keywords.slice(0, 3)) {
@@ -426,11 +398,12 @@ async function monitorCraigslist() {
           rssTotal += items.length;
           for (const item of items) {
             if (existingUrls.has(item.url)) continue;
-            candidates.push({ ...item, category, region });
+            candidates.push({ ...item, category, region: region.name });
           }
           await sleep(500);
         }
       }
+      if (regionBlocked) console.log(`  [CL] ${region.name}: blocked/skipped`);
     }
   } catch (e) {
     console.error('[CL] Stage 1 error:', e.message);
@@ -531,6 +504,7 @@ async function monitorCraigslist() {
   console.log(`  New leads saved:          ${newLeads.length}`);
   console.log(`  🔥 Hot (10+):             ${hot}`);
   console.log(`  ⭐ Good (7-9):            ${good}`);
+  console.log(`  US Coverage:              ${regions.length} regions × 1000mi radius = Full US`);
   console.log(`  Regions skipped:          ${regionsSkipped}`);
   console.log(`  Elapsed:                  ${elapsed}s`);
 
