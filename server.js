@@ -32,6 +32,14 @@ const { spawn } = require('child_process');
 const config = require('./config');
 const { readCSV, writeCSV, toCSV } = require('./csv-utils');
 
+// CL_HEADERS defined here so server.js never needs to import craigslist-monitor
+// (avoids loading axios/xml2js on every API request)
+const CL_HEADERS = [
+  'title', 'city', 'region', 'category', 'budget', 'score',
+  'posted_date', 'url', 'status', 'notes', 'description',
+  'remote', 'has_phone', 'has_email',
+];
+
 const PORT = 3000;
 const ROOT = __dirname;
 
@@ -160,11 +168,17 @@ function apiRotation(res) {
 
 function apiClLeads(res) {
   try {
-    if (!fs.existsSync(config.CL_LEADS_CSV)) { json(res, []); return; }
-    const { readCSV: rcsv } = require('./csv-utils');
-    const { CL_HEADERS } = require('./craigslist-monitor');
-    json(res, rcsv(config.CL_LEADS_CSV, CL_HEADERS));
-  } catch (e) { err(res, e.message); }
+    if (!fs.existsSync(config.CL_LEADS_CSV)) {
+      console.log(`[/api/cl-leads] File not found: ${config.CL_LEADS_CSV}`);
+      json(res, []); return;
+    }
+    const leads = readCSV(config.CL_LEADS_CSV, CL_HEADERS);
+    console.log(`[/api/cl-leads] Returning ${leads.length} leads from ${config.CL_LEADS_CSV}`);
+    json(res, leads);
+  } catch (e) {
+    console.error(`[/api/cl-leads] ERROR: ${e.message}`);
+    err(res, e.message);
+  }
 }
 
 async function apiClLeadsUpdate(req, res) {
@@ -172,13 +186,11 @@ async function apiClLeadsUpdate(req, res) {
     const body = await parseBody(req);
     const { url: postUrl, updates } = body;
     if (!postUrl || !updates) { err(res, 'url and updates required', 400); return; }
-    const { readCSV: rcsv, writeCSV: wcsv } = require('./csv-utils');
-    const { CL_HEADERS } = require('./craigslist-monitor');
-    const leads = rcsv(config.CL_LEADS_CSV, CL_HEADERS);
+    const leads = readCSV(config.CL_LEADS_CSV, CL_HEADERS);
     const idx   = leads.findIndex(r => r.url === postUrl);
     if (idx === -1) { err(res, 'Lead not found', 404); return; }
     Object.assign(leads[idx], updates);
-    wcsv(config.CL_LEADS_CSV, leads, CL_HEADERS);
+    writeCSV(config.CL_LEADS_CSV, leads, CL_HEADERS);
     json(res, { ok: true, lead: leads[idx] });
   } catch (e) { err(res, e.message); }
 }
