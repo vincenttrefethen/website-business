@@ -204,6 +204,12 @@ async function scrapeCombo(browser, combo, skipNames, skipPhones, targetCount) {
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
+function writePipelineStatus(data) {
+  try {
+    fs.writeFileSync(config.PIPELINE_STATUS, JSON.stringify({ ...data, updated_at: new Date().toISOString() }, null, 2), 'utf8');
+  } catch {}
+}
+
 async function findLeads() {
   const targets = JSON.parse(fs.readFileSync(config.TARGETS_FILE, 'utf8'));
   const stats   = rotationStats(targets);
@@ -232,6 +238,9 @@ async function findLeads() {
   });
 
   const startMs     = Date.now();
+  const startTime   = new Date().toISOString();
+  writePipelineStatus({ status: 'running', step: 'find-leads', started_at: startTime, leads_found: 0 });
+
   const allNew      = [];          // unique leads collected so far
   const comboLogs   = [];          // for morning report
   let   batchCount  = 0;
@@ -312,6 +321,8 @@ async function findLeads() {
 
   const phonesInFinal = finalLeads.filter(r => r.phone && r.phone.replace(/\D/g,'').length >= 7).length;
   console.log(`[find-leads] Final: ${finalLeads.length} leads written (${phonesInFinal} with valid phones)`);
+
+  writePipelineStatus({ status: 'complete', step: 'find-leads', started_at: startTime, leads_found: finalLeads.length, with_phones: phonesInFinal, elapsed_s: elapsed });
 
   // Return accurate count — what was actually written
   return {

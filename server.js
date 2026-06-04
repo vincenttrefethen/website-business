@@ -269,6 +269,24 @@ function apiDeleteReminder(res, id) {
   json(res, { ok: true });
 }
 
+function apiCLStatus(res) {
+  if (!fs.existsSync(config.CL_STATUS)) {
+    json(res, { status: 'never_run', last_run: null, leads_found: 0, regions_searched: 0, blocked: false });
+    return;
+  }
+  try { json(res, JSON.parse(fs.readFileSync(config.CL_STATUS, 'utf8'))); }
+  catch (e) { err(res, e.message); }
+}
+
+function apiPipelineStatus(res) {
+  if (!fs.existsSync(config.PIPELINE_STATUS)) {
+    json(res, { status: 'never_run', step: null, leads_found: 0 });
+    return;
+  }
+  try { json(res, JSON.parse(fs.readFileSync(config.PIPELINE_STATUS, 'utf8'))); }
+  catch (e) { err(res, e.message); }
+}
+
 function apiStatsLog(res) {
   try {
     if (!fs.existsSync(config.STATS_LOG)) { json(res, []); return; }
@@ -380,7 +398,9 @@ const server = http.createServer(async (req, res) => {
   if (p === '/api/sites'  && method === 'GET')  { apiSites(res); return; }
   if (p === '/api/rotation'  && method === 'GET') { apiRotation(res); return; }
   if (p === '/api/config'    && method === 'GET') { apiConfig(res); return; }
-  if (p === '/api/stats-log'       && method === 'GET')  { apiStatsLog(res); return; }
+  if (p === '/api/stats-log'        && method === 'GET') { apiStatsLog(res); return; }
+  if (p === '/api/cl-status'        && method === 'GET') { apiCLStatus(res); return; }
+  if (p === '/api/pipeline-status'  && method === 'GET') { apiPipelineStatus(res); return; }
   if (p === '/api/cl-leads'        && method === 'GET')  { apiClLeads(res); return; }
   if (p === '/api/cl-leads/update' && method === 'POST') { await apiClLeadsUpdate(req, res); return; }
   if (p === '/api/crm-data'        && method === 'GET')  { apiCRMData(res); return; }

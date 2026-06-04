@@ -38,6 +38,8 @@ module.exports = {
   CL_SEEN_CSV:       path.join(__dirname, 'craigslist-seen.csv'),
   CRM_DATA:          path.join(__dirname, 'crm-data.json'),
   REMINDERS:         path.join(__dirname, 'reminders.json'),
+  CL_STATUS:         path.join(__dirname, 'cl-status.json'),
+  PIPELINE_STATUS:   path.join(__dirname, 'pipeline-status.json'),
 
   ROTATION_LOG: path.join(__dirname, 'rotation-log.json'),
 

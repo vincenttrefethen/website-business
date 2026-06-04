@@ -263,9 +263,18 @@ function parseItem(item, region, category) {
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
+function writeStatus(data) {
+  try {
+    fs.writeFileSync(config.CL_STATUS, JSON.stringify({ ...data, updated_at: new Date().toISOString() }, null, 2), 'utf8');
+  } catch {}
+}
+
 async function monitorCraigslist() {
   const startMs = Date.now();
-  console.log(`\n[CL] Craigslist RSS Monitor started — ${new Date().toISOString()}`);
+  const startTime = new Date().toISOString();
+  console.log(`\n[CL] Craigslist RSS Monitor started — ${startTime}`);
+
+  writeStatus({ status: 'running', last_run: startTime, leads_found: 0, regions_searched: 0, blocked: false });
 
   const regions    = pickRegions(config.CL_REGIONS_PER_RUN || 10);
   const allCats    = Object.entries(KEYWORDS);
@@ -356,6 +365,7 @@ async function monitorCraigslist() {
     console.log('[CL]   Craigslist blocks clear automatically in 24-48 hours.');
     console.log('[CL]   The 7 AM scheduled task will work normally tomorrow.');
     console.log('[CL]   No action needed — just wait.');
+    writeStatus({ status: 'blocked', last_run: startTime, leads_found: 0, regions_searched: regionsDone, blocked: true });
   }
 
   // Sort new leads by score desc before saving
@@ -388,6 +398,10 @@ async function monitorCraigslist() {
   console.log(`  Requests made:   ${requestsDone}`);
   console.log(`  Regions done:    ${regions.length}`);
   console.log(`  Elapsed:         ${elapsed}s`);
+
+  if (!_ipBlocked) {
+    writeStatus({ status: 'complete', last_run: startTime, leads_found: newLeads.length, regions_searched: regionsDone, blocked: false, hot, good, elapsed_s: elapsed });
+  }
 
   return { newLeads: newLeads.length, hot, good, elapsed: `${elapsed}s`, totalFetched };
 }

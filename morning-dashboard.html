@@ -757,6 +757,22 @@ td{padding:.6rem .85rem;color:rgba(255,255,255,.7);vertical-align:middle;
     <div class="cl-stat" style="margin-left:auto;font-size:.72rem;color:rgba(255,255,255,.3)" id="cl-last-run">CL monitor runs at 7 AM daily</div>
   </div>
 
+  <!-- CL Status bar -->
+  <div id="cl-status-bar" class="glass-card" style="margin-bottom:1rem;display:flex;
+    align-items:center;gap:1.25rem;flex-wrap:wrap;padding:.85rem 1.25rem">
+    <div style="display:flex;align-items:center;gap:.6rem">
+      <span id="cl-status-dot" style="width:9px;height:9px;border-radius:50%;
+        background:rgba(255,255,255,.2);flex-shrink:0;transition:background .3s"></span>
+      <span id="cl-status-text" style="font-size:.8rem;font-weight:600;
+        color:rgba(255,255,255,.6)">Loading…</span>
+    </div>
+    <span id="cl-last-run-text" style="font-size:.72rem;color:rgba(255,255,255,.3)">—</span>
+    <span id="cl-regions-text" style="font-size:.72rem;color:rgba(255,255,255,.3)">—</span>
+    <span style="font-size:.72rem;color:rgba(255,255,255,.2);margin-left:auto">
+      Scheduled: 7 AM · 12 PM · 5 PM daily
+    </span>
+  </div>
+
   <!-- Toolbar -->
   <div class="toolbar" style="flex-wrap:wrap;gap:.6rem;margin-bottom:1.25rem">
     <div class="filter-btns" id="cl-cat-filters">
@@ -1814,10 +1830,52 @@ const FIVERR_MAP = {
 };
 
 async function loadCLLeads() {
-  CL_LEADS = await fetch(`${API}/api/cl-leads`).then(r=>r.json()).catch(()=>[]);
+  [CL_LEADS, window._clStatus] = await Promise.all([
+    fetch(`${API}/api/cl-leads`).then(r=>r.json()).catch(()=>[]),
+    fetch(`${API}/api/cl-status`).then(r=>r.json()).catch(()=>({})),
+  ]);
+  renderCLStatusBar();
   renderCLStats();
   renderCLGigs();
   renderFulfillmentPanel();
+}
+
+function renderCLStatusBar() {
+  const st  = window._clStatus || {};
+  const dot = document.getElementById('cl-status-dot');
+  const txt = document.getElementById('cl-status-text');
+  const lrt = document.getElementById('cl-last-run-text');
+  const reg = document.getElementById('cl-regions-text');
+  if (!dot) return;
+
+  const STATUS_COLORS = {
+    complete:   '#4ade80',
+    running:    '#F59E0B',
+    blocked:    '#f87171',
+    never_run:  'rgba(255,255,255,.2)',
+    error:      '#f87171',
+  };
+  const STATUS_LABELS = {
+    complete:   '✓ Complete',
+    running:    '◌ Running…',
+    blocked:    '⚠ IP Blocked',
+    never_run:  '○ Never run',
+    error:      '✗ Error',
+  };
+
+  const s = st.status || 'never_run';
+  dot.style.background = STATUS_COLORS[s] || 'rgba(255,255,255,.2)';
+  // Pulse animation when running
+  dot.style.animation = s === 'running' ? 'pulse 1s ease-in-out infinite' : 'none';
+  if (txt) txt.textContent = STATUS_LABELS[s] || s;
+
+  if (lrt && st.last_run) {
+    const d = new Date(st.last_run);
+    lrt.textContent = `Last run: ${d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`;
+  }
+  if (reg && st.regions_searched != null) {
+    reg.textContent = `${st.regions_searched} regions · ${st.leads_found ?? 0} leads found`;
+  }
 }
 
 function renderCLStats() {
@@ -1895,7 +1953,23 @@ function renderCLGigs() {
   if (!grid) return;
 
   if (!leads.length) {
-    grid.innerHTML = '<div class="empty-state"><span>📋</span>No gigs found.<br>CL Monitor runs at 7 AM daily.</div>';
+    const st = window._clStatus || {};
+    const lastRun = st.last_run
+      ? `Last run: ${new Date(st.last_run).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`
+      : 'Never run yet';
+    const blocked = st.blocked
+      ? '<div style="color:#f87171;font-size:.78rem;margin-top:.5rem">⚠ IP temporarily blocked — clears in 24-48h. Runs fine tomorrow.</div>' : '';
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <span>📋</span>
+      No gigs found yet — Craigslist monitor runs daily at 7 AM, 12 PM, and 5 PM.<br>
+      <span style="font-size:.78rem;color:rgba(255,255,255,.3);margin-top:.5rem;display:block">${lastRun}</span>
+      ${blocked}
+      <div style="margin-top:1rem">
+        <button class="btn btn-ghost" onclick="runSkill('craigslist-monitor',this)" style="font-size:.82rem">
+          ▶ Run Now
+        </button>
+      </div>
+    </div>`;
     return;
   }
 
@@ -2440,12 +2514,36 @@ function getCRMStatsText() {
   ].join('\n');
 }
 
+
+// ── PIPELINE STATUS ───────────────────────────────────────────────────────────
+async function loadPipelineStatus() {
+  try {
+    const st = await fetch(`${API}/api/pipeline-status`).then(r=>r.json());
+    const el = document.getElementById('sched-status');
+    if (!el) return;
+    const labels = {
+      complete:   '✅ Last run complete',
+      running:    '◌ Running now…',
+      never_run:  '○ Not run yet',
+      error:      '✗ Error on last run',
+    };
+    el.textContent = labels[st.status] || st.status;
+
+    // Show leads found on last run
+    if (st.leads_found != null) {
+      const extra = document.getElementById('sched-leads-found');
+      if (extra) extra.textContent = `${st.leads_found} leads found`;
+    }
+  } catch {}
+}
+
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function switchTab(n) {
   document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-'+n).classList.add('active');
   document.querySelectorAll('.tab-btn')[n-1].classList.add('active');
+  if (n === 6) loadPipelineStatus();
   if (n === 8) loadCLLeads();
   if (n === 9) loadCRM();
 }
