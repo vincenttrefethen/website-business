@@ -35,9 +35,9 @@ const { readCSV, writeCSV, toCSV } = require('./csv-utils');
 // CL_HEADERS defined here so server.js never needs to import craigslist-monitor
 // (avoids loading axios/xml2js on every API request)
 const CL_HEADERS = [
-  'title', 'city', 'region', 'category', 'budget', 'score',
+  'title', 'city', 'region', 'category', 'budget', 'score', 'score_breakdown',
   'posted_date', 'url', 'status', 'notes', 'description',
-  'remote', 'has_phone', 'has_email',
+  'remote', 'has_phone', 'has_email', 'phone_extracted', 'email_extracted',
 ];
 
 const PORT = 3000;

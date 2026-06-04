@@ -2007,20 +2007,32 @@ function renderCLStatusBar() {
 }
 
 function renderCLStats() {
-  const today   = new Date().toISOString().slice(0,10);
   const newToday = CL_LEADS.filter(r => r.status==='new').length;
   const hot      = CL_LEADS.filter(r => +r.score >= 10).length;
   const applied  = CL_LEADS.filter(r => r.status==='applied').length;
   const won      = CL_LEADS.filter(r => r.status==='won').length;
   const revenue  = CL_LEADS.filter(r => r.status==='applied'||r.status==='quoted')
     .reduce((s,r) => s + (parseInt((r.budget||'').replace(/[^0-9]/g,''))||0), 0);
+  const st = window._clStatus || {};
 
-  document.getElementById('cl-new')?.textContent     !== undefined && (document.getElementById('cl-new').textContent     = newToday);
-  document.getElementById('cl-hot')?.textContent     !== undefined && (document.getElementById('cl-hot').textContent     = hot);
-  document.getElementById('cl-applied')?.textContent !== undefined && (document.getElementById('cl-applied').textContent = applied);
-  document.getElementById('cl-won')?.textContent     !== undefined && (document.getElementById('cl-won').textContent     = won);
-  document.getElementById('cl-revenue')?.textContent !== undefined && (document.getElementById('cl-revenue').textContent = revenue ? `$${revenue.toLocaleString()}` : '—');
-  document.getElementById('badge-cl')?.textContent   !== undefined && (document.getElementById('badge-cl').textContent   = CL_LEADS.filter(r=>r.status==='new'&&+r.score>=7).length);
+  const set = (id,v) => { const e=document.getElementById(id); if(e&&v!==undefined) e.textContent=v; };
+  set('cl-new',     newToday);
+  set('cl-hot',     hot);
+  set('cl-applied', applied);
+  set('cl-won',     won);
+  set('cl-revenue', revenue ? `$${revenue.toLocaleString()}` : '—');
+  set('badge-cl',   CL_LEADS.filter(r=>r.status==='new'&&+r.score>=7).length);
+
+  // Filter stats from last run (from cl-status.json)
+  const lastRunEl = document.getElementById('cl-last-run');
+  if (lastRunEl && st.rss_total != null) {
+    lastRunEl.innerHTML =
+      `<span style="color:rgba(255,255,255,.35)">Last run: </span>` +
+      `${st.rss_total} found · ` +
+      `${st.spam_filtered||0} filtered · ` +
+      `${st.pages_read||0} pages read · ` +
+      `${st.leads_found||0} saved`;
+  }
 }
 
 function setCLFilter(btn) {
@@ -2109,11 +2121,14 @@ function renderCLGigs() {
     const appliedBadge = l.status==='applied'
       ? '<span class="tag" style="color:#4ade80;border-color:rgba(74,222,128,.3)">✓ Applied</span>' : '';
 
+    const phoneBadge  = l.phone_extracted ? `<span class="tag" style="border-color:rgba(37,211,102,.3);color:#4ade80" title="${esc(l.phone_extracted)}">📞 ${esc(l.phone_extracted.split(',')[0].trim())}</span>` : '';
+    const emailBadge  = l.email_extracted  ? `<span class="tag" style="border-color:rgba(59,130,246,.3);color:#60a5fa" title="${esc(l.email_extracted)}">✉ ${esc(l.email_extracted.split(',')[0].trim())}</span>` : '';
+    const breakdownTip = l.score_breakdown ? `title="Score breakdown: ${esc(l.score_breakdown)}"` : '';
     return `<div class="lead-card" id="cl-card-${i}">
       <div class="card-top">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.5rem">
           <div class="card-name" style="font-size:.9rem">${esc(l.title)}</div>
-          <span class="score-badge ${scoreClass(l.score)}">${scoreText(l.score)}</span>
+          <span class="score-badge ${scoreClass(l.score)}" ${breakdownTip} style="cursor:help">${scoreText(l.score)}</span>
         </div>
         <div class="card-meta">
           ${tagHtml(l.city||l.region)}
@@ -2121,17 +2136,17 @@ function renderCLGigs() {
           ${remoteBadge}
           ${budgetTxt}
           ${appliedBadge}
-          ${l.has_phone==='yes'?'<span class="tag" style="border-color:rgba(37,211,102,.25);color:#4ade80">📞</span>':''}
+          ${phoneBadge}
+          ${emailBadge}
         </div>
         <div style="font-size:.7rem;color:rgba(255,255,255,.3)">${hoursAgoLabel(l.posted_date)}</div>
       </div>
-      <div class="card-msg">${esc((l.description||'').slice(0,120))}${l.description?.length>120?'…':''}</div>
+      <div class="card-msg">${esc((l.description||'').slice(0,200))}${(l.description||'').length>200?'…':''}</div>
       <div class="card-actions" style="flex-wrap:wrap;gap:.5rem">
         <button class="btn btn-green" onclick="openCLApply(${i})" style="font-size:.78rem">✏️ Apply</button>
-        <a class="btn btn-ghost" href="${esc(l.url)}" target="_blank" rel="noopener"
-           style="font-size:.78rem">🔗 View Post</a>
-        <button class="btn btn-ghost" onclick="skipCLLead(${i})"
-           style="font-size:.75rem;color:rgba(255,255,255,.3)">Skip</button>
+        <button class="btn btn-ghost" onclick="copyCLResponse(${i})" style="font-size:.78rem">📋 Copy Response</button>
+        <a class="btn btn-ghost" href="${esc(l.url)}" target="_blank" rel="noopener" style="font-size:.78rem">🔗 Post</a>
+        <button class="btn btn-ghost" onclick="skipCLLead(${i})" style="font-size:.75rem;color:rgba(255,255,255,.3)">Skip</button>
       </div>
     </div>`;
   }).join('');
@@ -2850,6 +2865,48 @@ function runCLMonitor(btn) {
 
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
+
+// -- CL COPY RESPONSE ---------------------------------------------------------
+const CL_RESPONSE_TEMPLATES = {
+  'Website/Design': (l, name, svc) =>
+    `Hi${name?' '+name:''},\n\nSaw your post looking for ${svc} help.\nI just finished a few similar projects — here are some examples: demoready.co\n\nQuick turnaround, fixed price, fully remote. What's your timeline?\n\n— Vincent | hello@demoready.co`,
+  'Marketing/SEO': (l, name, svc) =>
+    `Hi,\n\nYour post caught my attention — I help businesses get found online and drive more leads through ${svc}.\n\nHappy to do a quick free audit first so you can see exactly what's possible.\nWhat are you currently doing for ${svc}?\n\n— Vincent | hello@demoready.co`,
+  'VA/Admin': (l, name, svc) =>
+    `Hi,\n\nI can help with this. I work with a team of vetted virtual assistants who specialize in exactly this type of work.\n\nFully remote, available immediately, flexible on hours or project basis.\nWhat does a typical week of tasks look like?\n\n— Vincent | hello@demoready.co`,
+};
+
+function copyCLResponse(i) {
+  const leads = window._clLeadsFiltered || CL_LEADS;
+  const lead  = leads[i];
+  if (!lead) return;
+  const svcMap = {'Website/Design':'website/design','Marketing/SEO':'SEO/marketing','Branding/Design':'branding/design','VA/Admin':'virtual assistant'};
+  const svc    = svcMap[lead.category] || lead.category || 'digital';
+  const name   = ''; // would need to extract from description
+  const tmplFn = CL_RESPONSE_TEMPLATES[lead.category] || CL_RESPONSE_TEMPLATES['Website/Design'];
+  const text   = tmplFn(lead, name, svc);
+  navigator.clipboard.writeText(text).then(() => {
+    const card = document.getElementById('cl-card-'+i);
+    const btn  = card ? [...card.querySelectorAll('button')].find(b=>b.textContent.includes('Copy')) : null;
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copied!';
+      btn.style.color = '#4ade80';
+      setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2000);
+    }
+    // Pre-fill the apply modal if it's open
+    const tmpl = document.getElementById('cl-template-text');
+    if (tmpl) tmpl.value = text;
+  }).catch(() => {
+    // Fallback: open apply modal with pre-filled template
+    openCLApply(i);
+    setTimeout(() => {
+      const tmpl = document.getElementById('cl-template-text');
+      if (tmpl) tmpl.value = text;
+    }, 100);
+  });
+}
+
 function switchTab(n) {
   document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
