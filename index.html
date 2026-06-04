@@ -710,7 +710,7 @@ footer{
 <!-- ── STATS ─────────────────────────────────────────────────── -->
 <div class="stats-bar">
   <div class="stats-inner">
-    <div class="stat-item reveal"><div class="stat-number">44+</div><div class="stat-label">Live demos built</div></div>
+    <div class="stat-item reveal"><div class="stat-number">65+</div><div class="stat-label">Live demos built</div></div>
     <div class="stat-item reveal"><div class="stat-number">100%</div><div class="stat-label">Free — no catch</div></div>
     <div class="stat-item reveal"><div class="stat-number">48hr</div><div class="stat-label">Avg. turnaround</div></div>
     <div class="stat-item reveal"><div class="stat-number">Miami</div><div class="stat-label">Locally focused</div></div>
@@ -805,30 +805,42 @@ const SITES = [
   { slug:'abel-s-tires-and-window-tint', name:'ABEL\'S TIRES AND WINDOW TINT', cat:'tint shop', city:'Opa-locka', url:'https://demoready.co/sites/abel-s-tires-and-window-tint/index.html' },
   { slug:'ac-repair-hialeah', name:'AC Repair Hialeah', cat:'AC repair', city:'Hialeah', url:'https://demoready.co/sites/ac-repair-hialeah/index.html' },
   { slug:'affordable-drywall-painting', name:'Affordable Drywall & Painting', cat:'drywall repair', city:'Cooper City', url:'https://demoready.co/sites/affordable-drywall-painting/index.html' },
+  { slug:'all-american-gutters', name:'All American Gutters', cat:'gutter cleaning', city:'Deerfield Beach', url:'https://demoready.co/sites/all-american-gutters/index.html' },
   { slug:'auto-air-conditioning-corporation', name:'Auto Air Conditioning Corporation', cat:'AC repair', city:'Hialeah', url:'https://demoready.co/sites/auto-air-conditioning-corporation/index.html' },
+  { slug:'auto-perfection-miami-llc', name:'Auto Perfection Miami LLC.', cat:'auto detailing', city:'Pinecrest', url:'https://demoready.co/sites/auto-perfection-miami-llc/index.html' },
   { slug:'bal-harbor-mobile-detailing-ii', name:'Bal harbor Mobile Detailing II', cat:'mobile detailing', city:'Bal Harbour', url:'https://demoready.co/sites/bal-harbor-mobile-detailing-ii/index.html' },
   { slug:'bounce-house-near-me-now', name:'Bounce House Near Me Now', cat:'bounce house rental', city:'Pembroke Pines', url:'https://demoready.co/sites/bounce-house-near-me-now/index.html' },
   { slug:'brickell-air-conditioning-repair', name:'Brickell Air Conditioning repair', cat:'ac repair', city:'Miami', url:'https://demoready.co/sites/brickell-air-conditioning-repair/index.html' },
+  { slug:'bright-wash-exterior-cleaning', name:'Bright Wash Exterior Cleaning', cat:'gutter cleaning', city:'Deerfield Beach', url:'https://demoready.co/sites/bright-wash-exterior-cleaning/index.html' },
   { slug:'cheapo-auto-glass', name:'Cheapo Auto Glass', cat:'windshield repair', city:'North Miami', url:'https://demoready.co/sites/cheapo-auto-glass/index.html' },
   { slug:'cool-tint-miami', name:'Cool Tint Miami', cat:'tint shop', city:'Opa-locka', url:'https://demoready.co/sites/cool-tint-miami/index.html' },
   { slug:'cooper-city-handy-man', name:'cooper city handy man', cat:'drywall repair', city:'Cooper City', url:'https://demoready.co/sites/cooper-city-handy-man/index.html' },
   { slug:'coral-springs-mobile-locksmith', name:'Coral Springs Mobile Locksmith', cat:'locksmith', city:'Margate', url:'https://demoready.co/sites/coral-springs-mobile-locksmith/index.html' },
+  { slug:'d-d-auto-detailing-305', name:'D&D Auto detailing 305', cat:'auto detailing', city:'Pinecrest', url:'https://demoready.co/sites/d-d-auto-detailing-305/index.html' },
+  { slug:'dory-s-catering', name:'Dory\'s Catering', cat:'caterer', city:'Pembroke Pines', url:'https://demoready.co/sites/dory-s-catering/index.html' },
   { slug:'drywall-repair-contractor-miami-fl', name:'Drywall Repair Contractor Miami FL', cat:'drywall repair', city:'Cooper City', url:'https://demoready.co/sites/drywall-repair-contractor-miami-fl/index.html' },
+  { slug:'dulcemente-carol-cakes', name:'Dulcemente Carol Cakes', cat:'cake decorator', city:'West Palm Beach', url:'https://demoready.co/sites/dulcemente-carol-cakes/index.html' },
+  { slug:'e-a-mobile-mechanic', name:'E.A mobile mechanic', cat:'electrician', city:'Pahokee', url:'https://demoready.co/sites/e-a-mobile-mechanic/index.html' },
   { slug:'eagle-overhauling-inc', name:'Eagle Overhauling Inc', cat:'AC repair', city:'Hialeah', url:'https://demoready.co/sites/eagle-overhauling-inc/index.html' },
   { slug:'easy-cooling-experts-tamarac-fl', name:'Easy Cooling Experts Tamarac FL', cat:'ac repair', city:'Tamarac', url:'https://demoready.co/sites/easy-cooling-experts-tamarac-fl/index.html' },
   { slug:'el-nica-brenes-window-tinting', name:'El nica Brenes Window tinting', cat:'tint shop', city:'Opa-locka', url:'https://demoready.co/sites/el-nica-brenes-window-tinting/index.html' },
+  { slug:'exclusive-detailers-south-miami-mobile-service-only', name:'Exclusive Detailers South Miami MOBILE SERVICE ONLY', cat:'auto detailing', city:'Pinecrest', url:'https://demoready.co/sites/exclusive-detailers-south-miami-mobile-service-only/index.html' },
   { slug:'expert-pest-control-miami', name:'Expert Pest Control Miami', cat:'pest control', city:'Doral', url:'https://demoready.co/sites/expert-pest-control-miami/index.html' },
   { slug:'ez-tires-y-tints', name:'EZ Tires y Tints', cat:'tint shop', city:'Opa-locka', url:'https://demoready.co/sites/ez-tires-y-tints/index.html' },
   { slug:'fog-that-bug', name:'Fog That Bug', cat:'pest control', city:'Doral', url:'https://demoready.co/sites/fog-that-bug/index.html' },
+  { slug:'fonzi-mobile-hand-carwash-detailing', name:'Fonzi Mobile - Hand Carwash & Detailing', cat:'auto detailing', city:'Pinecrest', url:'https://demoready.co/sites/fonzi-mobile-hand-carwash-detailing/index.html' },
   { slug:'friendly-pest-control-doral', name:'Friendly Pest Control Doral', cat:'pest control', city:'Doral', url:'https://demoready.co/sites/friendly-pest-control-doral/index.html' },
   { slug:'frostmasters-ac-repair-tamarac', name:'FrostMasters AC Repair Tamarac', cat:'ac repair', city:'Tamarac', url:'https://demoready.co/sites/frostmasters-ac-repair-tamarac/index.html' },
   { slug:'granda-ceiling-systems', name:'Granda Ceiling Systems', cat:'drywall repair', city:'Cooper City', url:'https://demoready.co/sites/granda-ceiling-systems/index.html' },
   { slug:'jr-s-window-tinting', name:'JR\'s Window Tinting', cat:'tint shop', city:'Opa-locka', url:'https://demoready.co/sites/jr-s-window-tinting/index.html' },
   { slug:'lg-l-renovation-services', name:'LG&L Renovation Services', cat:'drywall repair', city:'Cooper City', url:'https://demoready.co/sites/lg-l-renovation-services/index.html' },
+  { slug:'locksmith-family', name:'Locksmith Family', cat:'locksmith', city:'Hollywood', url:'https://demoready.co/sites/locksmith-family/index.html' },
+  { slug:'makeupbymirlen', name:'MakeupbyMirlen', cat:'makeup artist', city:'Doral', url:'https://demoready.co/sites/makeupbymirlen/index.html' },
   { slug:'master-pest-control-inc', name:'Master Pest Control Inc.', cat:'pest control', city:'Doral', url:'https://demoready.co/sites/master-pest-control-inc/index.html' },
   { slug:'miami-ac-repair-home', name:'Miami AC Repair Home', cat:'AC repair', city:'Hialeah', url:'https://demoready.co/sites/miami-ac-repair-home/index.html' },
   { slug:'miami-auto-detailing-pros', name:'Miami Auto Detailing Pros', cat:'mobile detailing', city:'Bal Harbour', url:'https://demoready.co/sites/miami-auto-detailing-pros/index.html' },
   { slug:'miami-handyman', name:'Miami-Handyman', cat:'drywall repair', city:'Little Havana', url:'https://demoready.co/sites/miami-handyman/index.html' },
+  { slug:'miami-mobile-detailing-experts', name:'Miami Mobile Detailing Experts', cat:'auto detailing', city:'Pinecrest', url:'https://demoready.co/sites/miami-mobile-detailing-experts/index.html' },
   { slug:'mobile-barber-by-johnny', name:'Mobile barber by Johnny', cat:'mobile barber', city:'Surfside', url:'https://demoready.co/sites/mobile-barber-by-johnny/index.html' },
   { slug:'mobile-detailing-of-coral-gables', name:'Mobile Detailing of Coral Gables', cat:'auto detailing', city:'Coral Gables', url:'https://demoready.co/sites/mobile-detailing-of-coral-gables/index.html' },
   { slug:'mobile-detailing-of-sunny-isles-beach', name:'Mobile Detailing of Sunny Isles Beach', cat:'mobile detailing', city:'Bal Harbour', url:'https://demoready.co/sites/mobile-detailing-of-sunny-isles-beach/index.html' },
@@ -837,14 +849,23 @@ const SITES = [
   { slug:'paradise-detailing-miami', name:'Paradise Detailing Miami', cat:'mobile detailing', city:'Bal Harbour', url:'https://demoready.co/sites/paradise-detailing-miami/index.html' },
   { slug:'pete-s-auto-air', name:'Pete\'s Auto Air', cat:'AC repair', city:'Hialeah', url:'https://demoready.co/sites/pete-s-auto-air/index.html' },
   { slug:'playhouse-party-rental', name:'Playhouse Party Rental', cat:'bounce house rental', city:'Pembroke Pines', url:'https://demoready.co/sites/playhouse-party-rental/index.html' },
+  { slug:'prestige-hand-car-wash', name:'Prestige Hand Car Wash', cat:'auto detailing', city:'Pinecrest', url:'https://demoready.co/sites/prestige-hand-car-wash/index.html' },
+  { slug:'pros-roofing-plantation', name:'Pros Roofing Plantation', cat:'roof repair', city:'Plantation', url:'https://demoready.co/sites/pros-roofing-plantation/index.html' },
+  { slug:'quality-electric-contracting', name:'Quality Electric Contracting', cat:'electrician', city:'Pahokee', url:'https://demoready.co/sites/quality-electric-contracting/index.html' },
   { slug:'reliable-air-conditioning-refrigeration', name:'Reliable Air Conditioning Refrigeration', cat:'ac repair', city:'Miami', url:'https://demoready.co/sites/reliable-air-conditioning-refrigeration/index.html' },
+  { slug:'rubi-photobooth-rentals', name:'Rubi Photobooth Rentals', cat:'photo booth rental', city:'Weston', url:'https://demoready.co/sites/rubi-photobooth-rentals/index.html' },
   { slug:'s-nchez-remodeling-tile-corp', name:'Sánchez remodeling tile corp', cat:'drywall repair', city:'Cooper City', url:'https://demoready.co/sites/s-nchez-remodeling-tile-corp/index.html' },
+  { slug:'smokingrillsbbq', name:'Smokingrillsbbq', cat:'caterer', city:'Pembroke Pines', url:'https://demoready.co/sites/smokingrillsbbq/index.html' },
   { slug:'sparkle-and-shine-mobile-detailing', name:'Sparkle and Shine Mobile Detailing', cat:'mobile detailing', city:'Bal Harbour', url:'https://demoready.co/sites/sparkle-and-shine-mobile-detailing/index.html' },
   { slug:'sterlin-banks-standard-cleaning', name:'Sterlin Banks Standard Cleaning', cat:'carpet cleaning', city:'Westchester', url:'https://demoready.co/sites/sterlin-banks-standard-cleaning/index.html' },
   { slug:'suncoast-pest-control-miami-fl', name:'Suncoast Pest Control Miami, FL', cat:'pest control', city:'Doral', url:'https://demoready.co/sites/suncoast-pest-control-miami-fl/index.html' },
+  { slug:'sweet-layers-cakes', name:'Sweet Layers Cakes', cat:'cake decorator', city:'West Palm Beach', url:'https://demoready.co/sites/sweet-layers-cakes/index.html' },
+  { slug:'tati-makeup-studio', name:'Tati Makeup Studio', cat:'makeup artist', city:'Doral', url:'https://demoready.co/sites/tati-makeup-studio/index.html' },
   { slug:'tito-s-sound', name:'Tito\'s Sound', cat:'tint shop', city:'Deerfield Beach', url:'https://demoready.co/sites/tito-s-sound/index.html' },
   { slug:'westchester-rug-carpet-cleaning-inc', name:'westchester rug & carpet cleaning inc', cat:'carpet cleaning', city:'Westchester', url:'https://demoready.co/sites/westchester-rug-carpet-cleaning-inc/index.html' },
-  { slug:'yan-john-mobile-barber-miami', name:'Yan-John mobile barber miami', cat:'mobile barber', city:'Surfside', url:'https://demoready.co/sites/yan-john-mobile-barber-miami/index.html' }
+  { slug:'worldwide-auto-glass', name:'Worldwide Auto Glass', cat:'windshield repair', city:'Miami Gardens', url:'https://demoready.co/sites/worldwide-auto-glass/index.html' },
+  { slug:'yan-john-mobile-barber-miami', name:'Yan-John mobile barber miami', cat:'mobile barber', city:'Surfside', url:'https://demoready.co/sites/yan-john-mobile-barber-miami/index.html' },
+  { slug:'yoga-with-marianne', name:'Yoga With Marianne', cat:'yoga instructor', city:'Greenacres', url:'https://demoready.co/sites/yoga-with-marianne/index.html' }
 ];
 
 /* ── HERO HEADLINE — char-by-char ────────────────────────── */
