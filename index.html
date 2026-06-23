@@ -710,7 +710,7 @@ footer{
 <!-- ── STATS ─────────────────────────────────────────────────── -->
 <div class="stats-bar">
   <div class="stats-inner">
-    <div class="stat-item reveal"><div class="stat-number">430+</div><div class="stat-label">Live demos built</div></div>
+    <div class="stat-item reveal"><div class="stat-number">442+</div><div class="stat-label">Live demos built</div></div>
     <div class="stat-item reveal"><div class="stat-number">100%</div><div class="stat-label">Free — no catch</div></div>
     <div class="stat-item reveal"><div class="stat-number">48hr</div><div class="stat-label">Avg. turnaround</div></div>
     <div class="stat-item reveal"><div class="stat-number">Miami</div><div class="stat-label">Locally focused</div></div>
@@ -819,6 +819,7 @@ const SITES = [
   { slug:'a1a-all-florida-painting', name:'A1A All Florida Painting', cat:'interior painter', city:'Homestead', url:'https://demoready.co/sites/a1a-all-florida-painting/index.html' },
   { slug:'a1a-entertainment', name:'A1A Entertainment', cat:'photographer', city:'Hollywood', url:'https://demoready.co/sites/a1a-entertainment/index.html' },
   { slug:'aaa-deck-builders', name:'AAA Deck Builders', cat:'deck builder', city:'Lantana', url:'https://demoready.co/sites/aaa-deck-builders/index.html' },
+  { slug:'aaa-irrigation-solutions', name:'AAA Irrigation Solutions', cat:'irrigation repair', city:'Lake Worth', url:'https://demoready.co/sites/aaa-irrigation-solutions/index.html' },
   { slug:'aaa-sainta-mobile-tires-llc', name:'Aaa Sainta Mobile TIres LLC', cat:'mobile tire service', city:'Lantana', url:'https://demoready.co/sites/aaa-sainta-mobile-tires-llc/index.html' },
   { slug:'abbys-beauty-salon-spa', name:'Abbys Beauty Salon & Spa', cat:'mobile nail tech', city:'North Lauderdale', url:'https://demoready.co/sites/abbys-beauty-salon-spa/index.html' },
   { slug:'abel-s-tires-and-window-tint', name:'ABEL\'S TIRES AND WINDOW TINT', cat:'tint shop', city:'Opa-locka', url:'https://demoready.co/sites/abel-s-tires-and-window-tint/index.html' },
@@ -871,6 +872,7 @@ const SITES = [
   { slug:'boca-raton-mobile-mechanics', name:'Boca Raton Mobile Mechanics', cat:'mobile mechanic', city:'Parkland', url:'https://demoready.co/sites/boca-raton-mobile-mechanics/index.html' },
   { slug:'bouie-bouie-llc', name:'Bouie & Bouie, LLC', cat:'tree trimming', city:'North Miami', url:'https://demoready.co/sites/bouie-bouie-llc/index.html' },
   { slug:'bounce-house-near-me-now', name:'Bounce House Near Me Now', cat:'bounce house rental', city:'Pembroke Pines', url:'https://demoready.co/sites/bounce-house-near-me-now/index.html' },
+  { slug:'bounce-madness-party-rentals', name:'Bounce Madness Party Rentals', cat:'bounce house rental', city:'Pahokee', url:'https://demoready.co/sites/bounce-madness-party-rentals/index.html' },
   { slug:'brickell-air-conditioning-repair', name:'Brickell Air Conditioning repair', cat:'ac repair', city:'Miami', url:'https://demoready.co/sites/brickell-air-conditioning-repair/index.html' },
   { slug:'bright-wash-exterior-cleaning', name:'Bright Wash Exterior Cleaning', cat:'gutter cleaning', city:'Deerfield Beach', url:'https://demoready.co/sites/bright-wash-exterior-cleaning/index.html' },
   { slug:'brothers-mobile-mechanic', name:'Brothers Mobile Mechanic', cat:'mobile oil change', city:'Lake Worth', url:'https://demoready.co/sites/brothers-mobile-mechanic/index.html' },
@@ -887,10 +889,12 @@ const SITES = [
   { slug:'city-nails-lashes', name:'City Nails & Lashes', cat:'mobile nail tech', city:'North Lauderdale', url:'https://demoready.co/sites/city-nails-lashes/index.html' },
   { slug:'clewiston-pressure-washing', name:'Clewiston Pressure Washing', cat:'pressure washing', city:'Belle Glade', url:'https://demoready.co/sites/clewiston-pressure-washing/index.html' },
   { slug:'concord-paint-and-paper-llc', name:'Concord Paint and Paper, LLC', cat:'interior painter', city:'Homestead', url:'https://demoready.co/sites/concord-paint-and-paper-llc/index.html' },
+  { slug:'congo-bongo-s-party-bounce-rental-s', name:'Congo Bongo’s Party & Bounce Rental’s', cat:'bounce house rental', city:'Pahokee', url:'https://demoready.co/sites/congo-bongo-s-party-bounce-rental-s/index.html' },
   { slug:'cool-pools-services', name:'Cool Pools Services', cat:'pool repair', city:'Sunrise', url:'https://demoready.co/sites/cool-pools-services/index.html' },
   { slug:'cool-tint-miami', name:'Cool Tint Miami', cat:'tint shop', city:'Opa-locka', url:'https://demoready.co/sites/cool-tint-miami/index.html' },
   { slug:'cooper-city-handy-man', name:'cooper city handy man', cat:'drywall repair', city:'Cooper City', url:'https://demoready.co/sites/cooper-city-handy-man/index.html' },
   { slug:'coral-springs-mobile-locksmith', name:'Coral Springs Mobile Locksmith', cat:'locksmith', city:'Margate', url:'https://demoready.co/sites/coral-springs-mobile-locksmith/index.html' },
+  { slug:'cortes-appliances', name:'Cortes Appliances', cat:'appliance repair', city:'Miami Beach', url:'https://demoready.co/sites/cortes-appliances/index.html' },
   { slug:'creative-tile-installers', name:'Creative Tile Installers', cat:'tile installer', city:'Coral Gables', url:'https://demoready.co/sites/creative-tile-installers/index.html' },
   { slug:'crystal-stone-pool-service', name:'Crystal Stone Pool Service', cat:'pool repair', city:'Homestead', url:'https://demoready.co/sites/crystal-stone-pool-service/index.html' },
   { slug:'custom-flooring-concepts-llc', name:'Custom Flooring Concepts, LLC', cat:'flooring installer', city:'Belle Glade', url:'https://demoready.co/sites/custom-flooring-concepts-llc/index.html' },
@@ -944,6 +948,8 @@ const SITES = [
   { slug:'extra-hands', name:'Extra Hands', cat:'caterer', city:'Miramar', url:'https://demoready.co/sites/extra-hands/index.html' },
   { slug:'ez-construction', name:'EZ Construction', cat:'deck builder', city:'Virginia Gardens', url:'https://demoready.co/sites/ez-construction/index.html' },
   { slug:'ez-tires-y-tints', name:'EZ Tires y Tints', cat:'tint shop', city:'Opa-locka', url:'https://demoready.co/sites/ez-tires-y-tints/index.html' },
+  { slug:'fancy-touch-photo-booth-rentals', name:'Fancy Touch photo booth rentals', cat:'photo booth rental', city:'Coconut Creek', url:'https://demoready.co/sites/fancy-touch-photo-booth-rentals/index.html' },
+  { slug:'fast-appliance-care', name:'Fast Appliance Care', cat:'appliance repair', city:'Miami Beach', url:'https://demoready.co/sites/fast-appliance-care/index.html' },
   { slug:'fast-mobile-tire-repair', name:'FAST MOBILE TIRE REPAIR', cat:'mobile tire service', city:'South Miami', url:'https://demoready.co/sites/fast-mobile-tire-repair/index.html' },
   { slug:'fhj-mobile-auto-repair-llc', name:'FHJ MOBILE AUTO REPAIR LLC', cat:'mobile oil change', city:'Lake Worth', url:'https://demoready.co/sites/fhj-mobile-auto-repair-llc/index.html' },
   { slug:'fight-club-of-palm-beach', name:'Fight Club Of Palm Beach', cat:'boxing trainer', city:'West Palm Beach', url:'https://demoready.co/sites/fight-club-of-palm-beach/index.html' },
@@ -1111,11 +1117,13 @@ const SITES = [
   { slug:'port-au-prince-services', name:'Port-au-Prince services', cat:'pressure washing', city:'Little Haiti', url:'https://demoready.co/sites/port-au-prince-services/index.html' },
   { slug:'premier-landscape-of-south-florida', name:'Premier Landscape of South Florida', cat:'lawn care', city:'Coral Gables', url:'https://demoready.co/sites/premier-landscape-of-south-florida/index.html' },
   { slug:'prestige-hand-car-wash', name:'Prestige Hand Car Wash', cat:'auto detailing', city:'Pinecrest', url:'https://demoready.co/sites/prestige-hand-car-wash/index.html' },
+  { slug:'pro-dry-carpet-cleaning', name:'Pro dry carpet cleaning', cat:'carpet cleaning', city:'Fort Lauderdale', url:'https://demoready.co/sites/pro-dry-carpet-cleaning/index.html' },
   { slug:'pro-fix-handyman', name:'Pro Fix Handyman', cat:'handyman', city:'Hollywood', url:'https://demoready.co/sites/pro-fix-handyman/index.html' },
   { slug:'pro-oil-change-car-wash', name:'Pro Oil Change & Car Wash', cat:'mobile oil change', city:'Little Havana', url:'https://demoready.co/sites/pro-oil-change-car-wash/index.html' },
   { slug:'pro-touch-scratch-dent', name:'Pro Touch Scratch & Dent', cat:'dent repair', city:'Wilton Manors', url:'https://demoready.co/sites/pro-touch-scratch-dent/index.html' },
   { slug:'professional-unique-flooring', name:'Professional Unique Flooring', cat:'flooring installer', city:'Belle Glade', url:'https://demoready.co/sites/professional-unique-flooring/index.html' },
   { slug:'project-lawn-fl-llc', name:'Project Lawn FL, LLC', cat:'lawn care', city:'Greenacres', url:'https://demoready.co/sites/project-lawn-fl-llc/index.html' },
+  { slug:'proline-appliance-repair-miami', name:'Proline Appliance Repair Miami', cat:'appliance repair', city:'Miami Beach', url:'https://demoready.co/sites/proline-appliance-repair-miami/index.html' },
   { slug:'prompt-painters', name:'Prompt Painters', cat:'exterior painter', city:'Wellington', url:'https://demoready.co/sites/prompt-painters/index.html' },
   { slug:'pros-roofing-plantation', name:'Pros Roofing Plantation', cat:'roof repair', city:'Plantation', url:'https://demoready.co/sites/pros-roofing-plantation/index.html' },
   { slug:'pure-quality-mobile-detailing-llc', name:'Pure Quality Mobile Detailing LLC', cat:'auto detailing', city:'Lake Worth', url:'https://demoready.co/sites/pure-quality-mobile-detailing-llc/index.html' },
@@ -1130,9 +1138,11 @@ const SITES = [
   { slug:'repair-hello', name:'Repair Hello', cat:'screen repair', city:'North Lauderdale', url:'https://demoready.co/sites/repair-hello/index.html' },
   { slug:'repair-s-hello-golden-beach', name:'Repair\'s Hello Golden Beach', cat:'screen repair', city:'Golden Beach', url:'https://demoready.co/sites/repair-s-hello-golden-beach/index.html' },
   { slug:'reyes-landscaping-maintenance', name:'Reyes Landscaping & Maintenance', cat:'lawn care', city:'Coral Gables', url:'https://demoready.co/sites/reyes-landscaping-maintenance/index.html' },
+  { slug:'rightarmphotography', name:'Rightarmphotography', cat:'photographer', city:'Pompano Beach', url:'https://demoready.co/sites/rightarmphotography/index.html' },
   { slug:'riviera-generator-services-inc', name:'Riviera Generator Services inc', cat:'generator repair', city:'Lake Worth', url:'https://demoready.co/sites/riviera-generator-services-inc/index.html' },
   { slug:'roadside-barbeque-llc', name:'Roadside Barbeque LLC', cat:'caterer', city:'Belle Glade', url:'https://demoready.co/sites/roadside-barbeque-llc/index.html' },
   { slug:'robert-s-mobile-tire-shop-24-7-road-service', name:'Robert\'s Mobile Tire Shop - 24/7 Road Service', cat:'mobile tire service', city:'Dania Beach', url:'https://demoready.co/sites/robert-s-mobile-tire-shop-24-7-road-service/index.html' },
+  { slug:'robinson-irrigation-llc', name:'Robinson Irrigation LLC', cat:'irrigation repair', city:'Lake Worth', url:'https://demoready.co/sites/robinson-irrigation-llc/index.html' },
   { slug:'rodriguez-bros-tree-service', name:'Rodriguez Bros Tree Service', cat:'tree trimming', city:'North Miami', url:'https://demoready.co/sites/rodriguez-bros-tree-service/index.html' },
   { slug:'rojo-s-lawn-service', name:'Rojo\'s Lawn service', cat:'lawn care', city:'Coral Gables', url:'https://demoready.co/sites/rojo-s-lawn-service/index.html' },
   { slug:'roman-drywall-inc', name:'Roman Drywall Inc', cat:'drywall repair', city:'Homestead', url:'https://demoready.co/sites/roman-drywall-inc/index.html' },
@@ -1165,6 +1175,7 @@ const SITES = [
   { slug:'south-dade-pressure-cleaning', name:'South Dade Pressure Cleaning', cat:'pressure washing', city:'Little Haiti', url:'https://demoready.co/sites/south-dade-pressure-cleaning/index.html' },
   { slug:'sparkle-and-shine-mobile-detailing', name:'Sparkle and Shine Mobile Detailing', cat:'mobile detailing', city:'Bal Harbour', url:'https://demoready.co/sites/sparkle-and-shine-mobile-detailing/index.html' },
   { slug:'spider-man-tree-services', name:'Spider-Man Tree services', cat:'tree trimming', city:'Bal Harbour', url:'https://demoready.co/sites/spider-man-tree-services/index.html' },
+  { slug:'sprinkler-repair-pros-boynton-beach', name:'Sprinkler Repair Pros Boynton Beach', cat:'irrigation repair', city:'Lake Worth', url:'https://demoready.co/sites/sprinkler-repair-pros-boynton-beach/index.html' },
   { slug:'sss-lawn-services-inc', name:'SSS LAWN SERVICES INC', cat:'lawn care', city:'Greenacres', url:'https://demoready.co/sites/sss-lawn-services-inc/index.html' },
   { slug:'stanley-roadside-tire-repair', name:'Stanley Roadside Tire Repair', cat:'mobile tire service', city:'Pompano Beach', url:'https://demoready.co/sites/stanley-roadside-tire-repair/index.html' },
   { slug:'sterlin-banks-standard-cleaning', name:'Sterlin Banks Standard Cleaning', cat:'carpet cleaning', city:'Westchester', url:'https://demoready.co/sites/sterlin-banks-standard-cleaning/index.html' },
@@ -1196,6 +1207,7 @@ const SITES = [
   { slug:'tint-king', name:'Tint King', cat:'tint shop', city:'Wilton Manors', url:'https://demoready.co/sites/tint-king/index.html' },
   { slug:'tint-solutions-usa', name:'Tint solutions USA', cat:'tint shop', city:'Royal Palm Beach', url:'https://demoready.co/sites/tint-solutions-usa/index.html' },
   { slug:'tito-s-sound', name:'Tito\'s Sound', cat:'tint shop', city:'Deerfield Beach', url:'https://demoready.co/sites/tito-s-sound/index.html' },
+  { slug:'top-appliance-repairs-ex', name:'Top Appliance Repairs Ex.', cat:'appliance repair', city:'Miami Beach', url:'https://demoready.co/sites/top-appliance-repairs-ex/index.html' },
   { slug:'top5-mobile-mechanic', name:'Top5 Mobile Mechanic', cat:'mobile mechanic', city:'Sunrise', url:'https://demoready.co/sites/top5-mobile-mechanic/index.html' },
   { slug:'toro-grill-carne-en-vara-food-truck', name:'TORO GRILL CARNE EN VARA FOOD TRUCK', cat:'food truck', city:'Lauderdale Lakes', url:'https://demoready.co/sites/toro-grill-carne-en-vara-food-truck/index.html' },
   { slug:'toros-tacos', name:'Toros Tacos', cat:'food truck', city:'Pahokee', url:'https://demoready.co/sites/toros-tacos/index.html' },
