@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="category" content="garage door repair" />
+  <meta name="city"     content="Lauderhill" />
+  <meta name="phone"    content="(954) 414-9504" />
+  <title>The Broken Spring Garage Door Repair — Garage Door Repair in Lauderhill, FL</title>
+  <meta name="description" content="The Broken Spring Garage Door Repair — professional garage door repair in Lauderhill, FL. Call (954) 414-9504 for a free estimate." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* ── RESET & BASE ──────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:'Inter',-apple-system,sans-serif;
+  background:#0A0F1E;color:#fff;
+  overflow-x:hidden;max-width:100vw;
+  -webkit-font-smoothing:antialiased;line-height:1.6;
+}
+img,video,canvas{max-width:100%;display:block}
+a{-webkit-tap-highlight-color:transparent}
+
+/* ── DESIGN TOKENS ─────────────────────────────────────────── */
+:root{
+  --navy:#0A0F1E;--navy2:#0D1428;--navy3:#121A35;
+  --gold:#D4AF37;--gold2:#EDD060;--gold3:#F5E088;
+  --w80:rgba(255,255,255,.8);--w50:rgba(255,255,255,.5);
+  --w20:rgba(255,255,255,.2);--w08:rgba(255,255,255,.08);--w04:rgba(255,255,255,.04);
+  --gg:rgba(212,175,55,.4);--gdim:rgba(212,175,55,.14);
+  /* Glass — slightly more opaque for contrast */
+  --gbg:rgba(255,255,255,.075);--gborder:rgba(255,255,255,.18);--gshine:rgba(255,255,255,.22);
+  --sdp:0 32px 80px rgba(0,0,0,.6),0 8px 24px rgba(0,0,0,.4);
+  --sgold:0 0 60px rgba(212,175,55,.4),0 0 130px rgba(212,175,55,.18);
+  --r-sm:12px;--r-md:20px;--r-lg:28px;--r-xl:40px;
+  --fs:'Playfair Display',Georgia,serif;--fn:'Inter',-apple-system,sans-serif;
+  --expo:cubic-bezier(.19,1,.22,1);--ease:cubic-bezier(.25,.8,.25,1);
+  /* Mobile sticky CTA height — used for body bottom-padding */
+  --sticky-h:72px;
+}
+
+/* ── CANVAS (mesh bg) ─────────────────────────────────────── */
+#mesh-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;will-change:transform}
+
+/* ── KEYFRAMES ─────────────────────────────────────────────── */
+@keyframes fadeUp  {from{opacity:0;transform:translateY(56px)}to{opacity:1;transform:none}}
+@keyframes fadeIn  {from{opacity:0}to{opacity:1}}
+
+/* Float bobs — independent phases/speeds */
+@keyframes floatA{0%,100%{transform:translateY(0)}   50%{transform:translateY(-9px)}}
+@keyframes floatB{0%,100%{transform:translateY(-5px)} 50%{transform:translateY(6px)}}
+@keyframes floatC{0%,100%{transform:translateY(-3px)} 50%{transform:translateY(8px)}}
+@keyframes floatD{0%,100%{transform:translateY(0)}   50%{transform:translateY(-13px)}}
+
+/* Pulsing ring — triple-layer: ring + near + far ambient */
+@keyframes pulseRing{
+  0%  {box-shadow:0 0 0 0 rgba(212,175,55,.75),0 0 24px rgba(212,175,55,.5),0 0 70px rgba(212,175,55,.18)}
+  60% {box-shadow:0 0 0 22px rgba(212,175,55,0),0 0 50px rgba(212,175,55,.4),0 0 130px rgba(212,175,55,.24)}
+  100%{box-shadow:0 0 0 0 rgba(212,175,55,0),0 0 24px rgba(212,175,55,.5),0 0 70px rgba(212,175,55,.18)}
+}
+/* Extra-dramatic glow for big phone CTA */
+@keyframes phoneGlow{
+  0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.65),0 0 35px rgba(212,175,55,.55),0 0 90px rgba(212,175,55,.22),inset 0 0 30px rgba(212,175,55,.05)}
+  50%    {box-shadow:0 0 0 28px rgba(212,175,55,0),0 0 80px rgba(212,175,55,.65),0 0 200px rgba(212,175,55,.3),inset 0 0 70px rgba(212,175,55,.12)}
+}
+/* Sticky CTA pulse */
+@keyframes stickPulse{
+  0%,100%{box-shadow:0 -4px 30px rgba(212,175,55,.3),0 0 60px rgba(212,175,55,.12)}
+  50%    {box-shadow:0 -4px 60px rgba(212,175,55,.55),0 0 120px rgba(212,175,55,.25)}
+}
+
+@keyframes shimmer     {0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes starBounce  {0%{opacity:0;transform:scale(0) rotate(-20deg)}60%{transform:scale(1.35) rotate(6deg)}100%{opacity:1;transform:none}}
+@keyframes borderGlow  {0%,100%{border-color:rgba(212,175,55,.18)}50%{border-color:rgba(212,175,55,.5)}}
+@keyframes tapBounce   {0%{transform:scale(1)}40%{transform:scale(.93)}100%{transform:scale(1)}}
+/* Gold divider fade-in */
+@keyframes dividerFade {from{opacity:0;transform:scaleX(0)}to{opacity:1;transform:scaleX(1)}}
+
+/* Gloss sweep — more vivid */
+@keyframes glossSweep{
+  0%  {transform:translateX(-140%) skewX(-18deg);opacity:0}
+  6%  {opacity:1}
+  50% {opacity:.9}
+  100%{transform:translateX(250%) skewX(-18deg);opacity:0}
+}
+
+/* ── ENTRANCE HELPERS ─────────────────────────────────────── */
+.e1{opacity:0;animation:fadeUp 1.2s var(--expo) .15s  forwards,floatA 6s   ease-in-out 2s   infinite}
+.e2{opacity:0;animation:fadeUp 1.4s var(--expo) .4s   forwards,floatB 7s   ease-in-out 2.5s infinite}
+.e3{opacity:0;animation:fadeUp 1.1s var(--expo) .65s  forwards,floatC 5.5s ease-in-out 3s   infinite}
+.e4{opacity:0;animation:fadeUp 1.1s var(--expo) .88s  forwards,floatA 6.5s ease-in-out 3.5s infinite}
+.e5{opacity:0;animation:fadeUp 1.0s var(--expo) 1.1s  forwards}
+.e6{opacity:0;animation:fadeIn 1.0s var(--ease) 1.5s  forwards}
+
+/* ── SCROLL REVEAL ─────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(44px);transition:opacity .95s var(--expo),transform .95s var(--expo)}
+.reveal.in{opacity:1;transform:none}
+
+/* ── GOLD SECTION DIVIDER ──────────────────────────────────── */
+.gold-divider{
+  position:relative;z-index:1;
+  height:1px;
+  margin:0 auto;
+  max-width:960px;
+  background:linear-gradient(90deg,transparent 0%,rgba(212,175,55,.55) 30%,rgba(237,208,96,.7) 50%,rgba(212,175,55,.55) 70%,transparent 100%);
+  transform-origin:center;
+  opacity:0;transform:scaleX(0);
+  transition:opacity 1.1s var(--expo),transform 1.1s var(--expo);
+}
+.gold-divider.in{opacity:1;transform:scaleX(1)}
+
+/* ── LIQUID GLASS ──────────────────────────────────────────── */
+.glass{
+  background:var(--gbg);
+  border:1px solid var(--gborder);
+  backdrop-filter:blur(28px) saturate(1.6) brightness(1.08);
+  -webkit-backdrop-filter:blur(28px) saturate(1.6) brightness(1.08);
+  position:relative;overflow:hidden;
+}
+/* Static top-left highlight */
+.glass::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--gshine) 0%,transparent 45%);
+  pointer-events:none;border-radius:inherit;z-index:0;
+}
+/* Animated gloss sweep — more vivid, staggered per card via JS */
+.glass::after{
+  content:'';position:absolute;top:0;left:0;width:55%;height:100%;
+  background:linear-gradient(100deg,transparent 0%,rgba(255,255,255,.07) 35%,rgba(255,255,255,.22) 50%,rgba(255,255,255,.07) 65%,transparent 100%);
+  pointer-events:none;border-radius:inherit;
+  animation:glossSweep 5.5s ease-in-out infinite;z-index:1;
+}
+
+/* ── NAV ───────────────────────────────────────────────────── */
+nav{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  width:min(92%,880px);z-index:900;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.75rem 1.5rem;border-radius:var(--r-xl);
+  background:rgba(10,15,30,.7);border:1px solid var(--gborder);
+  backdrop-filter:blur(30px) saturate(1.6);
+  -webkit-backdrop-filter:blur(30px) saturate(1.6);
+  animation:fadeIn .6s ease .05s both;
+  transition:background .3s,padding .3s,top .3s;
+}
+nav.scrolled{background:rgba(10,15,30,.93);top:8px}
+.nav-logo{
+  font-family:var(--fs);font-size:1rem;font-weight:700;color:#fff;
+  text-decoration:none;letter-spacing:-.01em;
+  max-width:58%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.nav-phone{
+  display:flex;align-items:center;gap:.45rem;
+  background:var(--gold);color:var(--navy);
+  padding:.5rem 1.1rem;border-radius:99px;
+  font-size:.82rem;font-weight:600;text-decoration:none;
+  white-space:nowrap;flex-shrink:0;
+  transition:background .2s,transform .2s,box-shadow .2s;
+}
+.nav-phone:hover{background:var(--gold2);transform:scale(1.05)}
+.nav-phone:active{transform:scale(.96);background:var(--gold3)}
+
+/* ── HERO ──────────────────────────────────────────────────── */
+.hero{
+  position:relative;min-height:100svh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  padding:7rem 1.25rem 5rem;z-index:1;
+}
+
+.hero-badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.42rem 1.15rem;border-radius:99px;
+  font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gold2);
+  margin-bottom:1.6rem;
+}
+.hero-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulseRing 2s ease infinite;flex-shrink:0}
+
+.hero-name{
+  font-family:var(--fs);
+  font-size:clamp(2.8rem,9vw,5.5rem);
+  font-weight:900;line-height:1.0;letter-spacing:-.03em;
+  margin-bottom:.5rem;color:#fff;
+}
+.hero-name .gold-word{
+  display:block;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold3) 55%,var(--gold) 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  color:var(--gold);animation:shimmer 5s linear infinite;
+}
+
+.hero-cat{
+  font-size:clamp(1rem,2.2vw,1.18rem);font-weight:300;
+  color:var(--w50);letter-spacing:.04em;margin-bottom:2rem;
+}
+
+.hero-stars{display:flex;align-items:center;justify-content:center;gap:.75rem;margin-bottom:2.5rem;flex-wrap:wrap}
+.stars-row{display:flex;gap:5px}
+.star{font-size:1.4rem;opacity:0;animation:starBounce .5s var(--expo) forwards}
+.star:nth-child(1){animation-delay:.8s}.star:nth-child(2){animation-delay:.94s}
+.star:nth-child(3){animation-delay:1.08s}.star:nth-child(4){animation-delay:1.22s}
+.star:nth-child(5){animation-delay:1.36s}
+.stars-label{font-size:.85rem;color:var(--w50);font-weight:500}
+.stars-label strong{color:var(--gold2)}
+
+.btn-hero{
+  display:inline-flex;align-items:center;gap:.75rem;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);
+  color:var(--navy);padding:1.15rem 2.8rem;border-radius:99px;
+  font-size:1.08rem;font-weight:700;text-decoration:none;letter-spacing:.01em;
+  animation:pulseRing 2.2s ease infinite;
+  transition:transform .25s,filter .25s;position:relative;overflow:hidden;
+}
+.btn-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.3) 0%,transparent 55%);border-radius:inherit;pointer-events:none}
+.btn-hero:hover{transform:scale(1.07) translateY(-3px);filter:brightness(1.12)}
+.btn-hero:active{transform:scale(.96);filter:brightness(.96)}
+.btn-icon{
+  width:38px;height:38px;background:rgba(10,15,30,.18);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+  animation:floatD 2s ease-in-out infinite;flex-shrink:0;
+}
+
+.scroll-cue{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  color:var(--w20);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;
+  z-index:2;animation:fadeIn 1s ease 1.8s both;pointer-events:none;
+}
+.scroll-line{width:1px;height:44px;background:linear-gradient(to bottom,var(--gg),transparent);animation:floatD 2.2s ease-in-out infinite}
+
+/* ── TRUST STRIP ────────────────────────────────────────────── */
+.trust-strip{position:relative;z-index:1;padding:2rem 1.25rem}
+.trust-inner{max-width:860px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:center;gap:.75rem}
+.trust-pill{
+  display:flex;align-items:center;gap:.55rem;padding:.55rem 1.1rem;border-radius:99px;
+  font-size:.8rem;font-weight:500;color:var(--w80);letter-spacing:.02em;
+  transition:border-color .3s,background .3s;animation:borderGlow 3s ease-in-out infinite;
+}
+.trust-pill:hover{background:rgba(212,175,55,.12);border-color:rgba(212,175,55,.5)}
+.trust-pill:active{background:rgba(212,175,55,.18)}
+.trust-pill:nth-child(2){animation-delay:.6s}.trust-pill:nth-child(3){animation-delay:1.2s}
+.trust-pill:nth-child(4){animation-delay:1.8s}.trust-pill:nth-child(5){animation-delay:2.4s}
+.trust-pill:nth-child(1)::after{animation-delay:0s}.trust-pill:nth-child(2)::after{animation-delay:1.1s}
+.trust-pill:nth-child(3)::after{animation-delay:2.2s}.trust-pill:nth-child(4)::after{animation-delay:3.3s}
+.trust-pill:nth-child(5)::after{animation-delay:4.4s}
+.tp-icon{font-size:1rem;flex-shrink:0}
+
+/* ── SECTIONS ──────────────────────────────────────────────── */
+.section{padding:5.5rem 1.25rem;position:relative;z-index:1}
+.section-inner{max-width:960px;margin:0 auto;width:100%}
+.section-eyebrow{display:inline-block;font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem}
+.section-title{font-family:var(--fs);font-size:clamp(1.85rem,3.5vw,2.65rem);font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-bottom:.75rem;color:#fff}
+.section-sub{font-size:1rem;font-weight:300;color:var(--w50);max-width:480px;line-height:1.75}
+.section-header{margin-bottom:3rem}
+
+/* ── ABOUT CARD ────────────────────────────────────────────── */
+.about-section{padding-top:4rem}
+.about-card{
+  border-radius:var(--r-lg);padding:3rem;box-shadow:var(--sdp);
+  transition:transform .5s var(--expo),box-shadow .5s var(--expo);
+  animation:borderGlow 4s ease-in-out infinite;
+}
+.about-card:hover{transform:translateY(-6px);box-shadow:var(--sdp),var(--sgold)}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:center}
+.about-copy p{font-size:1rem;font-weight:300;color:rgba(255,255,255,.75);line-height:1.85;margin-bottom:1.1rem}
+.about-copy p:last-child{margin-bottom:0}
+.about-copy strong{color:#fff;font-weight:600}
+.about-stats{display:flex;flex-direction:column;gap:0}
+.stat-block{padding:1.5rem 0;border-bottom:1px solid var(--w08)}
+.stat-block:first-child{padding-top:0}.stat-block:last-child{padding-bottom:0;border-bottom:none}
+.stat-num{
+  font-family:var(--fs);font-size:2.8rem;font-weight:900;line-height:1;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold3) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  color:var(--gold);margin-bottom:.25rem;
+}
+.stat-label{font-size:.82rem;font-weight:400;color:var(--w50);letter-spacing:.03em}
+
+/* ── SERVICES ──────────────────────────────────────────────── */
+.service-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1.25rem}
+.service-card{
+  border-radius:var(--r-md);padding:2rem 1.6rem 1.75rem;
+  cursor:default;
+  transition:transform .4s var(--expo),box-shadow .4s var(--expo),border-color .3s;
+  will-change:transform;transform-style:preserve-3d;
+  animation:borderGlow 4.5s ease-in-out infinite;
+}
+.service-card:nth-child(1){animation-delay:.2s}
+.service-card:nth-child(2){animation-delay:1.1s}
+.service-card:nth-child(3){animation-delay:2.0s}
+.service-card:nth-child(4){animation-delay:2.9s}
+.service-card:nth-child(1)::after{animation-delay:.3s}
+.service-card:nth-child(2)::after{animation-delay:1.65s}
+.service-card:nth-child(3)::after{animation-delay:3.0s}
+.service-card:nth-child(4)::after{animation-delay:4.35s}
+/* Hover handled by JS tilt on desktop */
+.service-card:hover{
+  box-shadow:var(--sdp),0 0 60px rgba(212,175,55,.35),0 0 120px rgba(212,175,55,.15);
+  border-color:rgba(212,175,55,.55)!important;
+}
+.sc-icon{
+  width:56px;height:56px;border-radius:var(--r-sm);
+  background:linear-gradient(135deg,rgba(212,175,55,.2),rgba(212,175,55,.07));
+  border:1px solid rgba(212,175,55,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;margin-bottom:1.3rem;
+  transition:transform .3s var(--expo),background .3s;
+}
+.service-card:hover .sc-icon{transform:scale(1.14) translateZ(10px);background:linear-gradient(135deg,rgba(212,175,55,.36),rgba(212,175,55,.16))}
+.sc-title{font-size:1rem;font-weight:600;color:#fff;margin-bottom:.48rem;letter-spacing:-.01em}
+.sc-desc{font-size:.85rem;font-weight:300;color:var(--w50);line-height:1.65}
+.sc-arrow{display:inline-block;margin-top:1.15rem;font-size:.9rem;color:rgba(212,175,55,.38);transition:color .25s,transform .25s}
+.service-card:hover .sc-arrow{color:var(--gold);transform:translateX(7px)}
+
+/* ── INFO ROW ──────────────────────────────────────────────── */
+.info-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.info-card{
+  border-radius:var(--r-md);padding:2rem 1.75rem;box-shadow:var(--sdp);
+  transition:transform .45s var(--expo),box-shadow .45s var(--expo);
+  animation:borderGlow 5s ease-in-out 1.2s infinite;
+}
+.info-card:nth-child(2){animation-delay:2.8s}
+.info-card:hover{transform:translateY(-6px);box-shadow:var(--sdp),var(--sgold)}
+.info-card-label{font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:1.25rem}
+.hours-grid{display:flex;flex-direction:column;gap:.55rem}
+.hours-row{display:flex;justify-content:space-between;align-items:center;font-size:.88rem}
+.hours-day{color:var(--w50);font-weight:400}.hours-time{color:var(--w80);font-weight:500}
+.hours-row.highlight .hours-day,.hours-row.highlight .hours-time{color:var(--gold2)}
+.contact-list{display:flex;flex-direction:column;gap:1rem}
+.contact-item{display:flex;align-items:flex-start;gap:.85rem;font-size:.9rem}
+.ci-icon{
+  width:38px;height:38px;border-radius:10px;
+  background:var(--gdim);border:1px solid rgba(212,175,55,.22);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;flex-shrink:0;margin-top:1px;
+}
+.ci-text{color:var(--w80);font-weight:400;line-height:1.55}
+.ci-text a{color:var(--gold2);text-decoration:none;font-weight:500;transition:color .2s}
+.ci-text a:hover{color:var(--gold3)}
+
+/* ── CTA SECTION ───────────────────────────────────────────── */
+.cta-section{text-align:center}
+.cta-card{
+  border-radius:var(--r-xl);padding:5rem 2rem;box-shadow:var(--sdp);
+  position:relative;overflow:hidden;animation:borderGlow 3.2s ease-in-out infinite;
+}
+/* Radial gold up-glow from bottom */
+.cta-card .cta-inner-glow{
+  position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(ellipse 85% 70% at 50% 115%,rgba(212,175,55,.18) 0%,transparent 65%);
+}
+.cta-card .section-title{margin-bottom:.5rem;position:relative;z-index:3}
+.cta-card .section-sub{margin:0 auto 1rem;position:relative;z-index:3}
+.cta-card .section-eyebrow{position:relative;z-index:3}
+
+.phone-cta{
+  display:inline-flex;align-items:center;gap:.9rem;
+  font-family:var(--fs);font-size:clamp(1.9rem,5vw,3rem);font-weight:900;
+  color:var(--gold);text-decoration:none;letter-spacing:-.025em;
+  padding:1.1rem 2.6rem;border-radius:var(--r-lg);
+  background:rgba(212,175,55,.08);border:1.5px solid rgba(212,175,55,.35);
+  margin:1.75rem 0 .75rem;
+  animation:phoneGlow 2.2s ease-in-out infinite;
+  transition:background .25s,border-color .25s,transform .25s;
+  position:relative;z-index:3;
+}
+.phone-cta:hover{background:rgba(212,175,55,.2);border-color:rgba(212,175,55,.75);transform:scale(1.04)}
+.phone-cta:active{transform:scale(.97)}
+.phone-ping{
+  width:50px;height:50px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--navy);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;animation:floatD 1.9s ease-in-out infinite;flex-shrink:0;
+}
+.cta-note{font-size:.8rem;color:var(--w20);margin-bottom:2.5rem;position:relative;z-index:3}
+.btn-cta{
+  display:inline-flex;align-items:center;gap:.6rem;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);
+  color:var(--navy);padding:1rem 2.7rem;border-radius:99px;
+  font-size:.95rem;font-weight:700;text-decoration:none;letter-spacing:.01em;
+  position:relative;z-index:3;overflow:hidden;
+  transition:transform .25s,filter .25s;
+}
+.btn-cta::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.26) 0%,transparent 55%);pointer-events:none}
+.btn-cta:hover{transform:scale(1.06) translateY(-3px);filter:brightness(1.12)}
+.btn-cta:active{transform:scale(.96)}
+
+/* ── FOOTER ────────────────────────────────────────────────── */
+footer{position:relative;z-index:1;border-top:1px solid var(--w08);padding:2.5rem 1.25rem;text-align:center}
+.footer-inner{max-width:700px;margin:0 auto}
+.footer-name{font-family:var(--fs);font-size:1.05rem;font-weight:700;color:var(--w50);margin-bottom:.5rem}
+.footer-name span{color:var(--gold)}
+.footer-info{font-size:.78rem;color:var(--w20);line-height:1.9}
+.footer-info a{color:rgba(212,175,55,.5);text-decoration:none;transition:color .2s}
+.footer-info a:hover{color:var(--gold)}
+.footer-divider{height:1px;background:var(--w04);margin:1.1rem 0}
+.footer-credit{font-size:.72rem;color:rgba(255,255,255,.15);margin-top:1.1rem}
+.footer-credit a{color:rgba(212,175,55,.35);text-decoration:none;transition:color .2s}
+.footer-credit a:hover{color:var(--gold)}
+
+/* ── STICKY MOBILE CTA ─────────────────────────────────────── */
+.sticky-cta{
+  display:none; /* shown via media query */
+  position:fixed;bottom:0;left:0;right:0;z-index:950;
+  padding:.85rem 1rem calc(.85rem + env(safe-area-inset-bottom));
+  background:linear-gradient(to top,rgba(10,15,30,.98) 0%,rgba(10,15,30,.88) 100%);
+  border-top:1px solid rgba(212,175,55,.25);
+  animation:stickPulse 2.5s ease-in-out infinite;
+}
+.sticky-cta-btn{
+  display:flex;align-items:center;justify-content:center;gap:.7rem;
+  width:100%;padding:.95rem 1rem;border-radius:var(--r-md);
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);
+  color:var(--navy);font-size:1.08rem;font-weight:700;
+  text-decoration:none;letter-spacing:.01em;position:relative;overflow:hidden;
+  transition:filter .2s,transform .15s;
+}
+.sticky-cta-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.28) 0%,transparent 55%);pointer-events:none}
+.sticky-cta-btn:active{transform:scale(.97);filter:brightness(.95)}
+.sticky-cta-icon{font-size:1.2rem;animation:floatD 1.8s ease-in-out infinite}
+
+/* ── DESKTOP/TABLET — standard responsive ──────────────────── */
+@media(max-width:700px){
+  .about-grid{grid-template-columns:1fr;gap:2rem}
+  .info-row{grid-template-columns:1fr}
+  nav{top:10px;padding:.65rem 1rem}
+  .about-card{padding:1.75rem 1.25rem}
+  .cta-card{padding:3rem 1.25rem}
+  .phone-cta{font-size:1.65rem;padding:.9rem 1.5rem}
+  .service-grid{grid-template-columns:1fr 1fr}
+  .section{padding:4rem 1.25rem}
+}
+
+/* ── MOBILE FIRST — 390px (WhatsApp traffic) ───────────────── */
+@media(max-width:480px){
+  /* Extra body bottom space for sticky CTA */
+  body{padding-bottom:var(--sticky-h)}
+
+  .sticky-cta{display:block}
+
+  /* Hero — bigger, bolder */
+  .hero{padding:6rem 1rem 4rem}
+  .hero-name{font-size:clamp(2.6rem,11vw,3.4rem);letter-spacing:-.025em}
+  .hero-cat{font-size:1.05rem}
+  .btn-hero{width:100%;justify-content:center;padding:1.15rem 1rem;font-size:1rem}
+
+  /* Full-width cards */
+  .about-card,.info-card,.service-card,.cta-card,.trust-pill{
+    width:100%;
+  }
+  .section-inner{padding:0}
+  .section{padding:3.5rem 1rem}
+
+  /* Services — single column */
+  .service-grid{grid-template-columns:1fr;gap:.85rem}
+  .service-card{padding:1.5rem 1.25rem}
+
+  /* Info cards stacked */
+  .info-row{grid-template-columns:1fr;gap:.85rem}
+  .info-card{padding:1.5rem 1.25rem}
+
+  /* About */
+  .about-card{padding:1.5rem 1.25rem}
+  .about-grid{grid-template-columns:1fr;gap:1.75rem}
+
+  /* Trust pills wrap naturally */
+  .trust-inner{gap:.5rem}
+  .trust-pill{font-size:.76rem;padding:.45rem .9rem}
+
+  /* CTA */
+  .cta-card{padding:2.5rem 1.25rem;border-radius:var(--r-lg)}
+  .phone-cta{font-size:1.55rem;padding:.85rem 1.25rem;width:100%;justify-content:center}
+  .btn-cta{width:100%;justify-content:center}
+
+  /* Scroll cue hidden on mobile */
+  .scroll-cue{display:none}
+
+  /* Section title */
+  .section-title{font-size:clamp(1.65rem,7vw,2rem)}
+}
+
+/* ── TOUCH DEVICES — disable hover tilt ───────────────────── */
+@media(hover:none){
+  .service-card:hover{transform:none;box-shadow:none;border-color:rgba(255,255,255,.18)!important}
+  .service-card:hover .sc-icon{transform:none}
+  .service-card:active{animation:tapBounce .35s var(--expo) forwards;border-color:rgba(212,175,55,.5)!important}
+  .about-card:hover,.info-card:hover{transform:none;box-shadow:var(--sdp)}
+  .btn-hero:hover{transform:none;filter:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="mesh-canvas"></canvas>
+
+<!-- STICKY MOBILE CTA -->
+<div class="sticky-cta" id="sticky-cta" aria-label="Call us now">
+  <a class="sticky-cta-btn" href="tel:9544149504">
+    <span class="sticky-cta-icon">📞</span>
+    <span>Call Now &nbsp;·&nbsp; (954) 414-9504</span>
+  </a>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#">The Broken Spring Garage Door Repair</a>
+  <a class="nav-phone" href="tel:9544149504"><span>📞</span> (954) 414-9504</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge glass e1">Garage Door Repair</div>
+  <h1 class="hero-name e2"><span class="gold-word">The Broken Spring Garage Door Repair</span></h1>
+  <p class="hero-cat e3">Professional Garage Door Repair · Lauderhill, FL</p>
+  <div class="hero-stars e4">
+    <div class="stars-row">
+      <span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span>
+      <span class="star">⭐</span><span class="star">⭐</span>
+    </div>
+    <span class="stars-label"><strong>5.0</strong> &nbsp;·&nbsp; Top-rated in Lauderhill</span>
+  </div>
+  <a class="btn-hero e5" href="tel:9544149504">
+    <span class="btn-icon">📞</span>(954) 414-9504
+  </a>
+  <div class="scroll-cue e6"><span>Scroll</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- DIVIDER -->
+<div class="gold-divider reveal" style="margin:0 1.25rem"></div>
+
+<!-- TRUST -->
+<div class="trust-strip">
+  <div class="trust-inner">
+    <div class="trust-pill glass reveal"><span class="tp-icon">✅</span> Licensed &amp; Insured</div>
+    <div class="trust-pill glass reveal"><span class="tp-icon">⚡</span> Same-Day Service</div>
+    <div class="trust-pill glass reveal"><span class="tp-icon">🏆</span> 5-Star Rated</div>
+    <div class="trust-pill glass reveal"><span class="tp-icon">💯</span> Satisfaction Guaranteed</div>
+    <div class="trust-pill glass reveal"><span class="tp-icon">📍</span> Lauderhill, Florida</div>
+  </div>
+</div>
+
+<!-- DIVIDER -->
+<div class="gold-divider reveal" style="margin:0 1.25rem"></div>
+
+<!-- ABOUT -->
+<section class="section about-section" id="about">
+  <div class="section-inner">
+    <div class="about-card glass reveal">
+      <div class="about-grid">
+        <div class="about-copy">
+          <span class="section-eyebrow">About Us</span>
+          <h2 class="section-title">Lauderhill's Trusted<br>Garage Door Repair</h2>
+          <p><strong>The Broken Spring Garage Door Repair</strong> has been serving Lauderhill and the greater Miami area with dedication and pride. We are a locally owned and operated garage door repair company built on honesty, reliability, and exceptional craftsmanship.</p>
+          <p>Every job — big or small — gets our complete attention. Our team is fully licensed, insured, and committed to getting it done right the first time. No shortcuts. No surprises on your bill.</p>
+          <p>When you call us, a real person picks up. We show up when we say we will. That's the <strong>The Broken Spring Garage Door Repair</strong> promise.</p>
+        </div>
+        <div class="about-stats">
+          <div class="stat-block"><div class="stat-num">10+</div><div class="stat-label">Years serving Lauderhill</div></div>
+          <div class="stat-block"><div class="stat-num">500+</div><div class="stat-label">Happy customers</div></div>
+          <div class="stat-block"><div class="stat-num">5.0 ★</div><div class="stat-label">Average Google rating</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIVIDER -->
+<div class="gold-divider reveal" style="margin:0 1.25rem"></div>
+
+<!-- SERVICES -->
+<section class="section" id="services">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">What We Do</span>
+      <h2 class="section-title">Garage Door Repair Services</h2>
+      <p class="section-sub">Quality work, honest prices — every single time.</p>
+    </div>
+    <div class="service-grid">
+    <div class="service-card reveal">
+      <div class="sc-icon">⭐</div>
+      <div class="sc-title">Quality Service</div>
+      <div class="sc-desc">Professional and reliable</div>
+      <div class="sc-arrow">→</div>
+    </div>
+    <div class="service-card reveal">
+      <div class="sc-icon">📞</div>
+      <div class="sc-title">Fast Response</div>
+      <div class="sc-desc">We pick up the phone</div>
+      <div class="sc-arrow">→</div>
+    </div>
+    <div class="service-card reveal">
+      <div class="sc-icon">💯</div>
+      <div class="sc-title">Satisfaction</div>
+      <div class="sc-desc">Guaranteed every time</div>
+      <div class="sc-arrow">→</div>
+    </div>
+    <div class="service-card reveal">
+      <div class="sc-icon">📍</div>
+      <div class="sc-title">Local</div>
+      <div class="sc-desc">Your neighbors in the community</div>
+      <div class="sc-arrow">→</div>
+    </div></div>
+  </div>
+</section>
+
+<!-- DIVIDER -->
+<div class="gold-divider reveal" style="margin:0 1.25rem"></div>
+
+<!-- HOURS + CONTACT -->
+<section class="section" id="contact">
+  <div class="section-inner">
+    <div class="info-row">
+      <div class="info-card glass reveal">
+        <div class="info-card-label">Business Hours</div>
+        <div class="hours-grid">
+          <div class="hours-row highlight"><span class="hours-day">Mon – Fri</span><span class="hours-time">7:00 AM – 7:00 PM</span></div>
+          <div class="hours-row highlight"><span class="hours-day">Saturday</span><span class="hours-time">8:00 AM – 5:00 PM</span></div>
+          <div class="hours-row"><span class="hours-day">Sunday</span><span class="hours-time">Emergencies Only</span></div>
+          <div class="hours-row" style="margin-top:.5rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.07)">
+            <span class="hours-day" style="color:var(--gold2);font-weight:500">24/7 Emergency</span>
+            <span class="hours-time" style="color:var(--gold2)">Available</span>
+          </div>
+        </div>
+      </div>
+      <div class="info-card glass reveal">
+        <div class="info-card-label">Get In Touch</div>
+        <div class="contact-list">
+          <div class="contact-item">
+            <div class="ci-icon">📞</div>
+            <div class="ci-text"><a href="tel:9544149504">(954) 414-9504</a><br><span style="font-size:.78rem;color:var(--w20)">Tap to call — we pick up</span></div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon">📍</div>
+            <div class="ci-text"><br><a href="https://maps.google.com/?q=The Broken Spring Garage Door Repair+Lauderhill+FL" target="_blank" rel="noopener" style="font-size:.78rem">Open in Google Maps →</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon">🌎</div>
+            <div class="ci-text">Serving Lauderhill &amp; greater Miami area<br><span style="font-size:.78rem;color:var(--w20)">Licensed &amp; insured in Florida</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIVIDER -->
+<div class="gold-divider reveal" style="margin:0 1.25rem"></div>
+
+<!-- CTA -->
+<section class="section cta-section">
+  <div class="section-inner">
+    <div class="cta-card glass reveal">
+      <div class="cta-inner-glow"></div>
+      <span class="section-eyebrow">Free Estimates</span>
+      <h2 class="section-title">Ready to Get Started?</h2>
+      <p class="section-sub">Call us now — we pick up. Fast response, honest pricing, and work that's guaranteed.</p>
+      <a class="phone-cta" href="tel:9544149504"><span class="phone-ping">📞</span>(954) 414-9504</a>
+      <p class="cta-note">Mon–Sat 7am–7pm &nbsp;·&nbsp; Emergency service available</p>
+      <a class="btn-cta" href="tel:9544149504">Call The Broken Spring Garage Door Repair Now</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-name">The Broken Spring Garage Door Repair <span>·</span> Lauderhill, FL</div>
+    <div class="footer-divider"></div>
+    <div class="footer-info">
+      <a href="tel:9544149504">(954) 414-9504</a> &nbsp;·&nbsp; Lauderhill, Florida<br>
+      &copy; 2026 The Broken Spring Garage Door Repair. All rights reserved.
+    </div>
+    <div class="footer-credit">
+      Site preview by <a href="https://vincenttrefethen.com" target="_blank" rel="noopener">Vincent Trefethen</a>
+      &nbsp;·&nbsp; <a href="https://vincenttrefethen.com" target="_blank" rel="noopener">vincenttrefethen.com</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── ANIMATED MESH BACKGROUND ────────────────────────────── */
+(function(){
+  const cv=document.getElementById('mesh-canvas'),ctx=cv.getContext('2d');
+  let W,H,orbs,t0=null;
+  const DEFS=[
+    {xr:.12,yr:.08,r:.42,col:[212,175,55],a:.08, spd:.00014,rx:.10,ry:.11},
+    {xr:.88,yr:.80,r:.34,col:[18,26,80], a:.96, spd:.00019,rx:.06,ry:.08},
+    {xr:.50,yr:.40,r:.28,col:[212,175,55],a:.05, spd:.00011,rx:.09,ry:.07},
+    {xr:.06,yr:.85,r:.26,col:[15,22,70], a:.88, spd:.00017,rx:.07,ry:.11},
+    {xr:.93,yr:.16,r:.24,col:[212,175,55],a:.04, spd:.00013,rx:.06,ry:.09},
+    {xr:.33,yr:.62,r:.20,col:[212,175,55],a:.06, spd:.00021,rx:.11,ry:.06},
+    {xr:.70,yr:.33,r:.18,col:[30,50,120], a:.75, spd:.00016,rx:.08,ry:.08},
+    {xr:.55,yr:.75,r:.15,col:[212,175,55],a:.035,spd:.00018,rx:.05,ry:.07},
+  ];
+  function rgba(c,a){return `rgba(${c[0]},${c[1]},${c[2]},${a})`}
+  function resize(){
+    W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;
+    orbs=DEFS.map(d=>({
+      ox:d.xr*W,oy:d.yr*H,
+      r:Math.max(W,H)*d.r,
+      col:d.col,a:d.a,
+      phase:Math.random()*Math.PI*2,
+      spd:d.spd,rx:d.rx,ry:d.ry,
+      /* colour-shift: each orb slowly cycles hue ±offset */
+      hShift:Math.random()*.6-.3,
+      x:0,y:0
+    }));
+  }
+  function draw(ts){
+    if(!t0) t0=ts;
+    const t=ts-t0;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#0A0F1E';ctx.fillRect(0,0,W,H);
+    for(const o of orbs){
+      o.x=o.ox+Math.sin(t*o.spd+o.phase)*W*o.rx;
+      o.y=o.oy+Math.cos(t*o.spd*.72+o.phase)*H*o.ry;
+      /* Colour slowly shifts — gives the "mesh shifts color" effect */
+      const cycle=Math.sin(t*0.00006+o.phase)*.5+.5;  // 0→1
+      const r=Math.round(o.col[0]*(1+o.hShift*cycle));
+      const g=Math.round(o.col[1]*(1+o.hShift*cycle*.5));
+      const b=Math.round(o.col[2]*(1-o.hShift*cycle*.3));
+      const gr=ctx.createRadialGradient(o.x,o.y,0,o.x,o.y,o.r);
+      gr.addColorStop(0,rgba([r,g,b],o.a*(1+.3*cycle)));
+      gr.addColorStop(1,'transparent');
+      ctx.fillStyle=gr;ctx.beginPath();ctx.arc(o.x,o.y,o.r,0,Math.PI*2);ctx.fill();
+    }
+    /* Subtle perspective grid */
+    ctx.strokeStyle='rgba(255,255,255,.016)';ctx.lineWidth=.5;
+    for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+    for(let y=0;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize,{passive:true});
+  resize();requestAnimationFrame(draw);
+})();
+
+/* ── NAV SHRINK ──────────────────────────────────────────── */
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>80),{passive:true});
+
+/* ── STICKY CTA — hide when CTA section visible ──────────── */
+(function(){
+  const bar=document.getElementById('sticky-cta');
+  if(!bar) return;
+  const ctaSection=document.querySelector('.cta-section');
+  if(!ctaSection) return;
+  const io=new IntersectionObserver(entries=>{
+    bar.style.opacity=entries[0].isIntersecting?'0':'1';
+    bar.style.pointerEvents=entries[0].isIntersecting?'none':'auto';
+  },{threshold:.2});
+  io.observe(ctaSection);
+})();
+
+/* ── SCROLL REVEAL ───────────────────────────────────────── */
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting)return;
+    /* Gold dividers use scaleX — handle separately */
+    if(e.target.classList.contains('gold-divider')){
+      e.target.classList.add('in');
+      io.unobserve(e.target);return;
+    }
+    const host=e.target.closest('section,.trust-strip')||e.target.parentElement;
+    const siblings=[...host.querySelectorAll('.reveal:not(.in)')];
+    const idx=siblings.indexOf(e.target);
+    e.target.style.transitionDelay=`${Math.min(idx*.11,.55)}s`;
+    e.target.classList.add('in');
+    io.unobserve(e.target);
+  });
+},{threshold:.08,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ── 3D TILT — service cards (desktop only via pointer:fine) ─ */
+const hasFine=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+if(hasFine){
+  document.querySelectorAll('.service-card').forEach(card=>{
+    let raf=null;
+    card.addEventListener('pointermove',e=>{
+      if(raf)cancelAnimationFrame(raf);
+      raf=requestAnimationFrame(()=>{
+        const r=card.getBoundingClientRect();
+        const nx=(e.clientX-r.left)/r.width-.5;
+        const ny=(e.clientY-r.top)/r.height-.5;
+        card.style.transform=`perspective(560px) rotateY(${nx*28}deg) rotateX(${-ny*22}deg) translateZ(20px) scale(1.03)`;
+        card.style.boxShadow=`0 40px 80px rgba(0,0,0,.6),0 0 70px rgba(212,175,55,${.2+Math.abs(nx+ny)*.25}),0 0 140px rgba(212,175,55,.12)`;
+      });
+    });
+    card.addEventListener('pointerleave',()=>{
+      if(raf)cancelAnimationFrame(raf);
+      card.style.transform='';
+      card.style.boxShadow='';
+    });
+  });
+}
+
+/* ── PARALLAX MESH ───────────────────────────────────────── */
+window.addEventListener('scroll',()=>{
+  document.getElementById('mesh-canvas').style.transform=`translateY(${window.scrollY*.04}px)`;
+},{passive:true});
+
+/* ── STAGGER GLOSS SWEEP per glass card ─────────────────── */
+document.querySelectorAll('.glass').forEach((el,i)=>{
+  const pseudo=el.style;  // can't style ::after directly, use CSS custom prop trick
+  el.style.setProperty('--gloss-delay',`${(i%6)*0.9}s`);
+});
+</script>
+<style>
+/* Gloss delay via custom prop — applied after DOM ready */
+.glass::after{animation-delay:var(--gloss-delay,0s)}
+</style>
+</body>
+</html>
